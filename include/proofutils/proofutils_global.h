@@ -1,0 +1,14 @@
+#ifndef PROOFUTILS_GLOBAL_H
+#define PROOFUTILS_GLOBAL_H
+
+#ifdef PROOF_UTILS_LIB
+#  define PROOF_UTILS_EXPORT Q_DECL_EXPORT
+#else
+#  define PROOF_UTILS_EXPORT Q_DECL_IMPORT
+#endif
+
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(proofUtilsEplGeneratorLog)
+
+#endif // PROOFUTILITIES_GLOBAL_H
