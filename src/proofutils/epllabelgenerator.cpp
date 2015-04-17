@@ -9,7 +9,7 @@ class EplLabelGeneratorPrivate
 
     QSize charSize(int fontSize, int horizontalScale, int verticalScale) const;
 
-    EplLabelGenerator *q_ptr;
+    EplLabelGenerator *q_ptr = nullptr;
 
     QByteArray lastLabel;
     int dpi = 203;
@@ -107,7 +107,7 @@ QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize
     if (horizontalScale > 8)
         horizontalScale = 8;
     if (horizontalScale == 7)
-        horizontalScale = 7;
+        horizontalScale = 6;
 
     if (verticalScale < 1)
         verticalScale = 1;
