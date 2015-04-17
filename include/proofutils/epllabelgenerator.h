@@ -13,7 +13,6 @@ class PROOF_UTILS_EXPORT EplLabelGenerator
     Q_DECLARE_PRIVATE(EplLabelGenerator)
 public:
 
-    //TODO: add other types from https://www.zebra.com/content/dam/zebra/manuals/en-us/printer/epl2-pm-en.pdf
     enum class BarcodeType
     {
         Code39,
@@ -32,7 +31,23 @@ public:
         Ean13,
         Ean13Addon2,
         Ean13Addon5,
-        UccEan128
+        GermanPostCode,
+        Interleaved2Of5,
+        Interleaved2Of5WithMod10CheckDigit,
+        Interleaved2Of5WithHumanReadableCheckDigit,
+        Postnet,
+        Planet,
+        PostnetJapanese,
+        UccEan128,
+        UpcA,
+        UpcAAddon2,
+        UpcAAddon5,
+        UpcE,
+        UpcEAddon2,
+        UpcEAddon5,
+        UpcInterleaved2Of5,
+        Msi1WithMod10CheckDigit,
+        Msi3WithMod10CheckDigit
     };
 
     enum class LineType

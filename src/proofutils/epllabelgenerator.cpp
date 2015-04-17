@@ -39,7 +39,23 @@ static const QHash<EplLabelGenerator::BarcodeType, QString> STRINGIFIED_BARCODE_
     {EplLabelGenerator::BarcodeType::Ean13, "E30"},
     {EplLabelGenerator::BarcodeType::Ean13Addon2, "E32"},
     {EplLabelGenerator::BarcodeType::Ean13Addon5, "E35"},
-    {EplLabelGenerator::BarcodeType::UccEan128, "1E"}
+    {EplLabelGenerator::BarcodeType::GermanPostCode, "2G"},
+    {EplLabelGenerator::BarcodeType::Interleaved2Of5, "2"},
+    {EplLabelGenerator::BarcodeType::Interleaved2Of5WithMod10CheckDigit, "2C"},
+    {EplLabelGenerator::BarcodeType::Interleaved2Of5WithHumanReadableCheckDigit, "2D"},
+    {EplLabelGenerator::BarcodeType::Postnet, "P"},
+    {EplLabelGenerator::BarcodeType::Planet, "PL"},
+    {EplLabelGenerator::BarcodeType::PostnetJapanese, "J"},
+    {EplLabelGenerator::BarcodeType::UccEan128, "1E"},
+    {EplLabelGenerator::BarcodeType::UpcA, "UA0"},
+    {EplLabelGenerator::BarcodeType::UpcAAddon2, "UA2"},
+    {EplLabelGenerator::BarcodeType::UpcAAddon5, "UA5"},
+    {EplLabelGenerator::BarcodeType::UpcE, "UE0"},
+    {EplLabelGenerator::BarcodeType::UpcEAddon2, "UE2"},
+    {EplLabelGenerator::BarcodeType::UpcEAddon5, "UE5"},
+    {EplLabelGenerator::BarcodeType::UpcInterleaved2Of5, "2U"},
+    {EplLabelGenerator::BarcodeType::Msi1WithMod10CheckDigit, "L"},
+    {EplLabelGenerator::BarcodeType::Msi3WithMod10CheckDigit, "M"}
 };
 
 } // namespace Proof
