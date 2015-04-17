@@ -84,7 +84,8 @@ QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize
                         .arg(inverseColors ? "R" : "N")
                         .arg(preparedText));
 
-    QRect rect(QPoint(x, y), d->charSize(fontSize, horizontalScale, verticalScale) * text.length());
+    QSize singleCharSize = d->charSize(fontSize, horizontalScale, verticalScale);
+    QRect rect(QPoint(x, y), QSize(singleCharSize.width() * text.length(), singleCharSize.height()));
 
     switch (rotation) {
     case 1:
