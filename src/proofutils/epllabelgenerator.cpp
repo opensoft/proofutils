@@ -2,6 +2,8 @@
 
 #include "proofcore/proofobject_p.h"
 
+#include <QtMath>
+
 namespace Proof {
 class EplLabelGeneratorPrivate : public ProofObjectPrivate
 {
@@ -107,6 +109,40 @@ QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::Barc
     Q_D(EplLabelGenerator);
     //We can't calc width here, so let's assume it goes straight to the end
     QRect rect(x, y, 0, height);
+    return rect;
+}
+
+QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGenerator::LineType type, int endY)
+{
+    Q_D(EplLabelGenerator);
+    QRect rect(x, y, width, height);
+
+    QString templateString;
+
+    switch (type) {
+    case LineType::Black:
+        templateString = QStringLiteral("LO%1,%2,%3,%4\n");
+        break;
+    case LineType::White:
+        templateString = QStringLiteral("LW%1,%2,%3,%4\n");
+        break;
+    case LineType::Xor:
+        templateString = QStringLiteral("LE%1,%2,%3,%4\n");
+        break;
+    case LineType::Diagonal: {
+        templateString = QString("LE%1,%2,%3,%4,") + QString::number(endY) + QStringLiteral("\n");
+        int rectHeight = endY - y;
+        rect = QRect(x, y, qSqrt(width * width - rectHeight * rectHeight), rectHeight);
+        break;
+    }
+    }
+
+    d->lastLabel.append(templateString
+                        .arg(x)
+                        .arg(y)
+                        .arg(width)
+                        .arg(height));
+
     return rect;
 }
 

@@ -37,6 +37,14 @@ public:
         UccEan128
     };
 
+    enum class LineType
+    {
+        Black,
+        White,
+        Xor,
+        Diagonal
+    };
+
     EplLabelGenerator(int printerDpi = 203, QObject *parent = 0);
 
     void startLabel(int width = 795, int height = 1250, int speed = 4, int density = 10, int gapLength = 24);
@@ -47,6 +55,9 @@ public:
 
     QRect addBarcode(const QString &data, BarcodeType type, int x, int y, int height,
                      bool printReadableCode = true, int narrowBarWidth = 2, int narrowBarHeight = 4);
+
+    //endY affects only LineType::Diagonal
+    QRect addLine(int x, int y, int width, int height, LineType type = LineType::Black, int endY = 0);
 
     void addPrintCommand(int copies = 1);
     void addClearBufferCommand();
