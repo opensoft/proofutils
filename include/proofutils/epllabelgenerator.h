@@ -13,7 +13,7 @@ class PROOF_UTILS_EXPORT EplLabelGenerator
     Q_DECLARE_PRIVATE(EplLabelGenerator)
 public:
 
-    //TODO: add other types
+    //TODO: add other types from https://www.zebra.com/content/dam/zebra/manuals/en-us/printer/epl2-pm-en.pdf
     enum class BarcodeType
     {
         Code39,
@@ -48,14 +48,14 @@ public:
 
     void startLabel(int width = 795, int height = 1250, int speed = 4, int density = 10, int gapLength = 24);
 
-    QRect addText(const QString &text, int x, int y, int fontSize = 3,
+    QRect addText(const QString &text, int x, int y, int fontSize = 4,
                   int horizontalScale = 1, int verticalScale = 1,
                   int rotation = 0, bool inverseColors = false);
 
-    QSize textSize(const QString &text, int fontSize = 3, int horizontalScale = 1, int verticalScale = 1) const;
+    QSize textSize(const QString &text, int fontSize = 4, int horizontalScale = 1, int verticalScale = 1) const;
 
-    QRect addBarcode(const QString &data, BarcodeType type, int x, int y, int height,
-                     bool printReadableCode = true, int narrowBarWidth = 2, int narrowBarHeight = 4);
+    QRect addBarcode(const QString &data, BarcodeType type, int x, int y, int height = 200,
+                     bool printReadableCode = true, int narrowBarWidth = 2, int wideBarWidth = 4, int rotation = 0);
 
     //endY affects only LineType::Diagonal
     QRect addLine(int x, int y, int width, int height, LineType type = LineType::Black, int endY = 0);

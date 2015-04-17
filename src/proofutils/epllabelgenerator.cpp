@@ -15,12 +15,37 @@ class EplLabelGeneratorPrivate
     int dpi = 203;
     int labelWidth = 795;
     int labelHeight = 1250;
+};
 
+uint qHash(EplLabelGenerator::BarcodeType barcodeType, uint seed = 0)
+{
+    return ::qHash(static_cast<int>(barcodeType), seed);
+}
+
+static const QHash<EplLabelGenerator::BarcodeType, QString> STRINGIFIED_BARCODE_TYPES = {
+    {EplLabelGenerator::BarcodeType::Code39, "3"},
+    {EplLabelGenerator::BarcodeType::Code39WithCheckDigit, "3C"},
+    {EplLabelGenerator::BarcodeType::Code93, "9"},
+    {EplLabelGenerator::BarcodeType::Code128UCC, "0"},
+    {EplLabelGenerator::BarcodeType::Code128Auto, "1"},
+    {EplLabelGenerator::BarcodeType::Code128A, "1A"},
+    {EplLabelGenerator::BarcodeType::Code128B, "1B"},
+    {EplLabelGenerator::BarcodeType::Code128C, "1C"},
+    {EplLabelGenerator::BarcodeType::Code128DeutschePost, "1D"},
+    {EplLabelGenerator::BarcodeType::Codabar, "K"},
+    {EplLabelGenerator::BarcodeType::Ean8, "E80"},
+    {EplLabelGenerator::BarcodeType::Ean8Addon2, "E82"},
+    {EplLabelGenerator::BarcodeType::Ean8Addon5, "E85"},
+    {EplLabelGenerator::BarcodeType::Ean13, "E30"},
+    {EplLabelGenerator::BarcodeType::Ean13Addon2, "E32"},
+    {EplLabelGenerator::BarcodeType::Ean13Addon5, "E35"},
+    {EplLabelGenerator::BarcodeType::UccEan128, "1E"}
 };
 
 } // namespace Proof
 
 using namespace Proof;
+
 
 EplLabelGenerator::EplLabelGenerator(int printerDpi)
     : d_ptr(new EplLabelGeneratorPrivate)
@@ -115,11 +140,44 @@ QSize EplLabelGenerator::textSize(const QString &text, int fontSize, int horizon
 }
 
 QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::BarcodeType type, int x, int y, int height,
-                                    bool printReadableCode, int narrowBarWidth, int narrowBarHeight)
+                                    bool printReadableCode, int narrowBarWidth, int wideBarWidth, int rotation)
 {
     Q_D(EplLabelGenerator);
+    QString preparedData = data;
+    preparedData.replace("\\", "\\\\").replace("\"", "\\\"");
+
+    rotation = (rotation % 360) / 90;
+
+    d->lastLabel.append(QString("B%1,%2,%3,%4,%5,%6,%7,%8,\"%9\"\n")
+                        .arg(x)
+                        .arg(y)
+                        .arg(rotation)
+                        .arg(STRINGIFIED_BARCODE_TYPES.value(type, "1"))
+                        .arg(narrowBarWidth)
+                        .arg(wideBarWidth)
+                        .arg(height)
+                        .arg(printReadableCode ? "B" : "N")
+                        .arg(preparedData));
+
+    if (printReadableCode)
+        height += d->charSize(4, 1, 1).height();
+    QRect rect(x, y, d->labelWidth, height);
+
     //We can't calc width here, so let's assume it goes straight to the end
-    QRect rect(x, y, 0, height);
+    switch (rotation) {
+    case 1:
+        rect = QRect(rect.x() - rect.height(), rect.y(), rect.height(), d->labelHeight - rect.y());
+        break;
+    case 2:
+        rect = QRect(0, rect.y() - rect.height(), rect.x(), rect.height());
+        break;
+    case 3:
+        rect = QRect(rect.x(), 0, rect.height(), rect.y());
+        break;
+    default:
+        break;
+    }
+
     return rect;
 }
 
