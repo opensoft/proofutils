@@ -215,7 +215,7 @@ QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGe
         templateString = QStringLiteral("LE%1,%2,%3,%4\n");
         break;
     case LineType::Diagonal: {
-        templateString = QString("LE%1,%2,%3,%4,") + QString::number(endY) + QStringLiteral("\n");
+        templateString = QString("LS%1,%2,%3,%4,") + QString::number(endY) + QStringLiteral("\n");
         int rectHeight = endY - y;
         rect = QRect(x, y, qSqrt(width * width - rectHeight * rectHeight), rectHeight);
         break;
