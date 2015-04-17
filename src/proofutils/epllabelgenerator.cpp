@@ -1,15 +1,15 @@
 #include "epllabelgenerator.h"
 
-#include "proofcore/proofobject_p.h"
-
 #include <QtMath>
 
 namespace Proof {
-class EplLabelGeneratorPrivate : public ProofObjectPrivate
+class EplLabelGeneratorPrivate
 {
     Q_DECLARE_PUBLIC(EplLabelGenerator)
 
     QSize charSize(int fontSize, int horizontalScale, int verticalScale) const;
+
+    EplLabelGenerator *q_ptr;
 
     QByteArray lastLabel;
     int dpi = 203;
@@ -22,12 +22,16 @@ class EplLabelGeneratorPrivate : public ProofObjectPrivate
 
 using namespace Proof;
 
-EplLabelGenerator::EplLabelGenerator(int printerDpi, QObject *parent)
-    : ProofObject(*new EplLabelGeneratorPrivate, parent)
+EplLabelGenerator::EplLabelGenerator(int printerDpi)
+    : d_ptr(new EplLabelGeneratorPrivate)
 {
-    Q_D(EplLabelGenerator);
+    d_ptr->q_ptr = this;
     //We don't support any other dpi's for now
-    d->dpi = (printerDpi < 300) ? 203 : 300;
+    d_ptr->dpi = (printerDpi < 300) ? 203 : 300;
+}
+
+EplLabelGenerator::~EplLabelGenerator()
+{
 }
 
 void EplLabelGenerator::startLabel(int width, int height, int speed, int density, int gapLength)

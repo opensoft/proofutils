@@ -1,7 +1,6 @@
 #ifndef PROOF_EPLLABELGENERATOR_H
 #define PROOF_EPLLABELGENERATOR_H
 
-#include "proofcore/proofobject.h"
 #include "proofutils_global.h"
 
 #include <QRect>
@@ -9,9 +8,8 @@
 namespace Proof {
 
 class EplLabelGeneratorPrivate;
-class PROOF_UTILS_EXPORT EplLabelGenerator : public ProofObject
+class PROOF_UTILS_EXPORT EplLabelGenerator
 {
-    Q_OBJECT
     Q_DECLARE_PRIVATE(EplLabelGenerator)
 public:
 
@@ -45,7 +43,8 @@ public:
         Diagonal
     };
 
-    EplLabelGenerator(int printerDpi = 203, QObject *parent = 0);
+    EplLabelGenerator(int printerDpi = 203);
+    virtual ~EplLabelGenerator();
 
     void startLabel(int width = 795, int height = 1250, int speed = 4, int density = 10, int gapLength = 24);
 
@@ -65,6 +64,9 @@ public:
     void addClearBufferCommand();
 
     QByteArray labelData() const;
+
+private:
+    QScopedPointer<EplLabelGeneratorPrivate> d_ptr;
 };
 
 } // namespace Proof
