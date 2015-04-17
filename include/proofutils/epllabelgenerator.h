@@ -53,6 +53,8 @@ public:
                   int horizontalScale = 1, int verticalScale = 1,
                   int rotation = 0, bool inverseColors = false);
 
+    QSize textSize(const QString &text, int fontSize = 3, int horizontalScale = 1, int verticalScale = 1) const;
+
     QRect addBarcode(const QString &data, BarcodeType type, int x, int y, int height,
                      bool printReadableCode = true, int narrowBarWidth = 2, int narrowBarHeight = 4);
 

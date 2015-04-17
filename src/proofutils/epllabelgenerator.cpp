@@ -84,8 +84,7 @@ QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize
                         .arg(inverseColors ? "R" : "N")
                         .arg(preparedText));
 
-    QSize singleCharSize = d->charSize(fontSize, horizontalScale, verticalScale);
-    QRect rect(QPoint(x, y), QSize(singleCharSize.width() * text.length(), singleCharSize.height()));
+    QRect rect(QPoint(x, y), textSize(text, fontSize, horizontalScale, verticalScale));
 
     switch (rotation) {
     case 1:
@@ -102,6 +101,13 @@ QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize
     }
 
     return rect;
+}
+
+QSize EplLabelGenerator::textSize(const QString &text, int fontSize, int horizontalScale, int verticalScale) const
+{
+    Q_D(const EplLabelGenerator);
+    QSize singleCharSize = d->charSize(fontSize, horizontalScale, verticalScale);
+    return QSize(singleCharSize.width() * text.length(), singleCharSize.height());
 }
 
 QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::BarcodeType type, int x, int y, int height,
