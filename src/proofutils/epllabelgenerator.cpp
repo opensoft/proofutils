@@ -2,6 +2,8 @@
 
 #include <QtMath>
 
+//All constants here are taken from manual https://www.zebra.com/content/dam/zebra/manuals/en-us/printer/epl2-pm-en.pdf
+
 namespace Proof {
 class EplLabelGeneratorPrivate
 {
@@ -197,38 +199,43 @@ QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::Barc
     return rect;
 }
 
-QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGenerator::LineType type, int endY)
+QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGenerator::LineType type)
 {
     Q_D(EplLabelGenerator);
-    QRect rect(x, y, width, height);
-
-    QString templateString;
-
+    QString lineTypeString;
     switch (type) {
     case LineType::Black:
-        templateString = QStringLiteral("LO%1,%2,%3,%4\n");
+        lineTypeString = QStringLiteral("O");
         break;
     case LineType::White:
-        templateString = QStringLiteral("LW%1,%2,%3,%4\n");
+        lineTypeString = QStringLiteral("W");
         break;
     case LineType::Xor:
-        templateString = QStringLiteral("LE%1,%2,%3,%4\n");
+        lineTypeString = QStringLiteral("E");
         break;
-    case LineType::Diagonal: {
-        templateString = QString("LS%1,%2,%3,%4,") + QString::number(endY) + QStringLiteral("\n");
-        int rectHeight = endY - y;
-        rect = QRect(x, y, qSqrt(width * width - rectHeight * rectHeight), rectHeight);
-        break;
-    }
     }
 
-    d->lastLabel.append(templateString
+    d->lastLabel.append(QString("L%1%2,%3,%4,%5\n")
+                        .arg(lineTypeString)
                         .arg(x)
                         .arg(y)
                         .arg(width)
                         .arg(height));
 
-    return rect;
+    return QRect(x, y, width, height);
+}
+
+QRect EplLabelGenerator::addDiagonalLine(int x, int y, int endX, int endY, int width)
+{
+    Q_D(EplLabelGenerator);
+    d->lastLabel.append(QString("LS%1,%2,%3,%4,%5\n")
+                        .arg(x)
+                        .arg(y)
+                        .arg(width)
+                        .arg(endX)
+                        .arg(endY));
+
+    return {QPoint(qMin(x, endX), qMin(y, endY)), QSize(qAbs(endX - x), qAbs(endY - y) + width)};
 }
 
 void EplLabelGenerator::addPrintCommand(int copies)
@@ -252,31 +259,31 @@ QByteArray EplLabelGenerator::labelData() const
 QSize EplLabelGeneratorPrivate::charSize(int fontSize, int horizontalScale, int verticalScale) const
 {
     QSize result;
+    //Adding 2 to each size for inter-character gaps
     switch(fontSize) {
     case 1:
-        result = (dpi == 300) ? QSize(12, 20) : QSize(8, 12);
+        result = (dpi == 300) ? QSize(14, 22) : QSize(10, 14);
         break;
     case 2:
-        result = (dpi == 300) ? QSize(16, 28) : QSize(10, 16);
+        result = (dpi == 300) ? QSize(18, 30) : QSize(12, 18);
         break;
     case 3:
-        result = (dpi == 300) ? QSize(20, 36) : QSize(12, 20);
+        result = (dpi == 300) ? QSize(22, 38) : QSize(14, 22);
         break;
     case 4:
-        result = (dpi == 300) ? QSize(24, 44) : QSize(14, 24);
+        result = (dpi == 300) ? QSize(26, 46) : QSize(16, 26);
         break;
     case 5:
-        result = (dpi == 300) ? QSize(48, 80) : QSize(32, 48);
+        result = (dpi == 300) ? QSize(50, 82) : QSize(34, 50);
         break;
     case 6:
     case 7:
-        result = QSize(14, 19);
+        result = QSize(16, 21);
         break;
     default:
         result = QSize(0, 0);
         break;
     }
-    //Adding 2 to width for inter-character gaps
-    return QSize((result.width() + 2) * horizontalScale, result.height() * verticalScale);
+    return QSize(result.width() * horizontalScale, result.height() * verticalScale);
 }
 

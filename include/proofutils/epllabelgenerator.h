@@ -54,8 +54,7 @@ public:
     {
         Black,
         White,
-        Xor,
-        Diagonal
+        Xor
     };
 
     EplLabelGenerator(int printerDpi = 203);
@@ -72,8 +71,8 @@ public:
     QRect addBarcode(const QString &data, BarcodeType type, int x, int y, int height = 200,
                      bool printReadableCode = true, int narrowBarWidth = 2, int wideBarWidth = 4, int rotation = 0);
 
-    //endY affects only LineType::Diagonal
-    QRect addLine(int x, int y, int width, int height, LineType type = LineType::Black, int endY = 0);
+    QRect addLine(int x, int y, int width, int height, LineType type = LineType::Black);
+    QRect addDiagonalLine(int x, int y, int endX, int endY, int width);
 
     void addPrintCommand(int copies = 1);
     void addClearBufferCommand();
