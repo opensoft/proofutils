@@ -179,7 +179,7 @@ QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::Barc
 
     if (printReadableCode)
         height += d->charSize(4, 1, 1).height();
-    QRect rect(x, y, d->labelWidth, height);
+    QRect rect(x, y, d->labelWidth - x, height);
 
     //We can't calc width here, so let's assume it goes straight to the end
     switch (rotation) {
