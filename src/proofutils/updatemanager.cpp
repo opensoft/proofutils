@@ -9,7 +9,7 @@ class UpdateManagerPrivate : public ProofObjectPrivate
     Q_DECLARE_PUBLIC(UpdateManager)
 
     void setCurrentVersion(const QString &version);
-    quint64 versionFromString(const QStringList &version);
+    static quint64 versionFromString(const QStringList &version);
 
     QString packageName;
     quint64 currentVersion = 0x0;
@@ -83,7 +83,7 @@ void UpdateManager::update(const QString &password)
         else
             emit updateSucceeded();
     } else {
-        qCDebug(proofUtilsUpdatesLog) << "process couldn't be started" << checker->error() << checker->errorString();
+        qCDebug(proofUtilsUpdatesLog) << "process couldn't be started" << updater->error() << updater->errorString();
     }
 #else
     qCDebug(proofUtilsUpdatesLog) << "Update is not supported for this platform";
