@@ -10,5 +10,6 @@
 #include <QLoggingCategory>
 
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsEplGeneratorLog)
+Q_DECLARE_LOGGING_CATEGORY(proofUtilsUpdatesLog)
 
 #endif // PROOFUTILITIES_GLOBAL_H
