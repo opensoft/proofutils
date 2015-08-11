@@ -47,8 +47,10 @@ void UpdateManager::checkForUpdates()
             version.remove("Version: ");
         }
         QStringList splittedVersion = version.split(".");
-        if (splittedVersion.count() < 4)
+        if (splittedVersion.count() < 4) {
+            qCDebug(proofUtilsUpdatesLog) << "Strange version found" << version << ". Returning.";
             return;
+        }
         int foundVersionMajor = splittedVersion[0].toInt();
         quint64 foundVersion = d->versionFromString(splittedVersion);
         qCDebug(proofUtilsUpdatesLog) << "Version found:" << QString("0x%1").arg(foundVersion, 16, 16, QLatin1Char('0'));
