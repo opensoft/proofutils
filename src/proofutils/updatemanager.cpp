@@ -80,7 +80,7 @@ void UpdateManager::update(const QString &password)
         updater->write(QString("%1\n").arg(password).toLatin1());
         updater->waitForFinished();
         qCDebug(proofUtilsUpdatesLog) << "Updated with exitcode =" << updater->exitCode() << "; log:\n" << updater->readAll().trimmed();
-        if (!updater->exitCode())
+        if (updater->exitCode())
             emit updateFailed();
         else
             emit updateSucceeded();
