@@ -30,10 +30,10 @@ UpdateManager::UpdateManager(const QString &packageName, const QString &currentV
 
 void UpdateManager::checkForUpdates()
 {
-    Q_D(UpdateManager);
     if (call(this, &UpdateManager::checkForUpdates))
         return;
 #ifdef Q_OS_LINUX
+    Q_D(UpdateManager);
     QScopedPointer<QProcess> checker(new QProcess);
     checker->start(QString("apt-cache --no-all-versions show %1").arg(d->packageName));
     checker->waitForStarted();
@@ -69,10 +69,10 @@ void UpdateManager::checkForUpdates()
 
 void UpdateManager::update(const QString &password)
 {
-    Q_D(UpdateManager);
     if (call(this, &UpdateManager::update, password))
         return;
 #ifdef Q_OS_LINUX
+    Q_D(UpdateManager);
     QScopedPointer<QProcess> updater(new QProcess);
     updater->start(QString("sudo -S -k apt-get --quiet --assume-yes --allow-unauthenticated install %1").arg(d->packageName));
     updater->waitForStarted();

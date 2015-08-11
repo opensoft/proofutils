@@ -13,8 +13,9 @@ class PROOF_UTILS_EXPORT UpdateManager : public ProofObject
     Q_DECLARE_PRIVATE(UpdateManager)
 public:
     UpdateManager(const QString &packageName, const QString &currentVersion, QObject *parent = nullptr);
-    void checkForUpdates();
-    void update(const QString &password);
+
+    Q_INVOKABLE void checkForUpdates();
+    Q_INVOKABLE void update(const QString &password);
 
 signals:
     void newVersionFound(const QString &version);
