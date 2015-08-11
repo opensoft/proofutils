@@ -20,7 +20,7 @@ signals:
     void newVersionFound(const QString &version);
     void updateSucceeded();
     void updateFailed();
-    void manualUpdateNeeded();
+    void manualUpdateNeeded(const QString &version);
 
 };
 

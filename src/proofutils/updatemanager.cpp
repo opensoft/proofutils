@@ -35,26 +35,32 @@ void UpdateManager::checkForUpdates()
         return;
 #ifdef Q_OS_LINUX
     QScopedPointer<QProcess> checker(new QProcess);
-    checker->start(QString("apt-cache --no-all-versions show %1 | grep ^Version:\\s").arg(d->packageName));
+    checker->start(QString("apt-cache --no-all-versions show %1").arg(d->packageName));
     checker->waitForStarted();
     if (checker->error() == QProcess::UnknownError) {
-        checker->waitForReadyRead();
         checker->waitForFinished();
-        QString version = checker->readAll().trimmed();
-        version.remove("Version: ");
+        QList<QByteArray> lines = checker->readAll().trimmed().split('\n');
+        QString version;
+        for (const QByteArray &line : lines) {
+            if (line.startsWith("Version: "))
+                version = line;
+            version.remove("Version: ");
+        }
         QStringList splittedVersion = version.split(".");
         if (splittedVersion.count() < 4)
             return;
         int foundVersionMajor = splittedVersion[0].toInt();
         quint64 foundVersion = d->versionFromString(splittedVersion);
-        qCDebug(proofUtilsUpdatesLog) << "Version found:" << QString("0x%1").arg(foundVersion, 0, 16);
+        qCDebug(proofUtilsUpdatesLog) << "Version found:" << QString("0x%1").arg(foundVersion, 16, 16, QLatin1Char('0'));
         if (foundVersionMajor > d->currentVersionMajor) {
             qCDebug(proofUtilsUpdatesLog) << "Manual update needed because of different major version";
-            emit manualUpdateNeeded();
+            emit manualUpdateNeeded(version);
         } else if (foundVersion > d->currentVersion) {
             qCDebug(proofUtilsUpdatesLog) << "Update from app is possible";
             emit newVersionFound(version);
         }
+    } else {
+        qCDebug(proofUtilsUpdatesLog) << "process couldn't be started" << checker->error() << checker->errorString();
     }
 #endif
 }
@@ -65,19 +71,20 @@ void UpdateManager::update(const QString &password)
     if (call(this, &UpdateManager::update, password))
         return;
 #ifdef Q_OS_LINUX
-        QScopedPointer<QProcess> updater(new QProcess);
-        updater->start(QString("sudo -S -k apt-get -q -y install %1").arg(d->packageName));
-        updater->waitForStarted();
-        if (updater->error() == QProcess::UnknownError) {
-            updater->waitForReadyRead();
-            updater->write(QString("%1").arg(password).toLatin1());
-            updater->waitForFinished();
-            qCDebug(proofUtilsUpdatesLog) << "Updated with exitcode =" << updater->exitCode() << "; log:\n" << updater->readAll().trimmed();
-            if (!updater->exitCode())
-                emit updateFailed();
-            else
-                emit updateSucceeded();
-        }
+    QScopedPointer<QProcess> updater(new QProcess);
+    updater->start(QString("sudo -S -k apt-get --quiet --assume-yes --allow-unauthenticated install %1").arg(d->packageName));
+    updater->waitForStarted();
+    if (updater->error() == QProcess::UnknownError) {
+        updater->write(QString("%1\n").arg(password).toLatin1());
+        updater->waitForFinished();
+        qCDebug(proofUtilsUpdatesLog) << "Updated with exitcode =" << updater->exitCode() << "; log:\n" << updater->readAll().trimmed();
+        if (!updater->exitCode())
+            emit updateFailed();
+        else
+            emit updateSucceeded();
+    } else {
+        qCDebug(proofUtilsUpdatesLog) << "process couldn't be started" << checker->error() << checker->errorString();
+    }
 #else
     qCDebug(proofUtilsUpdatesLog) << "Update is not supported for this platform";
     emit updateFailed();
@@ -91,7 +98,7 @@ void UpdateManagerPrivate::setCurrentVersion(const QString &version)
         return;
     currentVersionMajor = splittedVersion[0].toInt();
     currentVersion = versionFromString(splittedVersion);
-    qCDebug(proofUtilsUpdatesLog) << "Current version:" << QString("0x%1").arg(currentVersion, 0, 16);
+    qCDebug(proofUtilsUpdatesLog) << "Current version:" << QString("0x%1").arg(currentVersion, 16, 16, QLatin1Char('0'));
 }
 
 quint64 UpdateManagerPrivate::versionFromString(const QStringList &version)
