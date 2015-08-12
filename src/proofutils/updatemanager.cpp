@@ -50,12 +50,15 @@ class UpdateManagerPrivate : public ProofObjectPrivate
     void setCurrentVersion(const QString &arg);
     void setPackageName(const QString &arg);
 
+    void updateTimerState();
+
     static quint64 versionFromString(const QStringList &version);
     static QString versionToString(quint64 version);
 
     QString packageNameValue;
     quint64 currentVersionValue = 0x0;
     int currentVersionMajor = 0;
+    bool enabledValue = false;
     WorkerThread *thread = nullptr;
     QTimer *timer = nullptr;
 };
@@ -204,7 +207,7 @@ void UpdateManagerPrivate::update(const QString &password)
 
 bool UpdateManagerPrivate::enabled() const
 {
-    return timer->isActive();
+    return enabledValue;
 }
 
 int UpdateManagerPrivate::timeout() const
@@ -225,14 +228,10 @@ QString UpdateManagerPrivate::packageName() const
 void UpdateManagerPrivate::setEnabled(bool arg)
 {
     Q_Q(UpdateManager);
-    if (timer->isActive() != arg) {
-        if (arg)
-            timer->start();
-        else
-            timer->stop();
-        emit q->enabledChanged(timer->isActive());
-        if (timer->isActive())
-            checkForUpdates();
+    if (enabledValue != arg) {
+        enabledValue = arg;
+        emit q->enabledChanged(enabledValue);
+        updateTimerState();
     }
 }
 
@@ -257,6 +256,7 @@ void UpdateManagerPrivate::setCurrentVersion(const QString &arg)
         currentVersionValue = version;
         qCDebug(proofUtilsUpdatesLog) << "Current version:" << QString("0x%1").arg(currentVersionValue, 16, 16, QLatin1Char('0'));
         emit q->currentVersionChanged(currentVersion());
+        updateTimerState();
     }
 }
 
@@ -266,6 +266,17 @@ void UpdateManagerPrivate::setPackageName(const QString &arg)
     if (packageNameValue != arg) {
         packageNameValue = arg;
         emit q->packageNameChanged(packageNameValue);
+        updateTimerState();
+    }
+}
+
+void UpdateManagerPrivate::updateTimerState()
+{
+    if (currentVersionValue != 0 && !packageNameValue.isEmpty() && enabledValue) {
+        checkForUpdates();
+        timer->start();
+    } else {
+        timer->stop();
     }
 }
 
