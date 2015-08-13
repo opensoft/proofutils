@@ -273,8 +273,10 @@ void UpdateManagerPrivate::setPackageName(const QString &arg)
 void UpdateManagerPrivate::updateTimerState()
 {
     if (currentVersionValue != 0 && !packageNameValue.isEmpty() && enabledValue) {
-        checkForUpdates();
-        timer->start();
+        if (!timer->isActive()) {
+            checkForUpdates();
+            timer->start();
+        }
     } else {
         timer->stop();
     }
@@ -328,8 +330,9 @@ WorkerThread::doTheCall(Method method, Args &&... args)
 {
     Result result;
     if (!ProofObject::call(this, &WorkerThread::doTheCall<Result, Method, Args &&...>,
-                           Call::Block, result, method, std::forward<Args>(args)...))
+                           Call::Block, result, method, std::forward<Args>(args)...)) {
         result = (updater->*method)(std::forward<Args>(args)...);
+    }
     return result;
 }
 
@@ -338,8 +341,9 @@ typename std::enable_if<std::is_same<Result, void>::value>::type
 WorkerThread::doTheCall(Method method, Args &&... args)
 {
     if (!ProofObject::call(this, &WorkerThread::doTheCall<Result, Method, Args &&...>,
-                           Call::Block, method, std::forward<Args>(args)...))
+                           Call::Block, method, std::forward<Args>(args)...)) {
         (updater->*method)(std::forward<Args>(args)...);
+    }
 }
 
 #include "updatemanager.moc"
