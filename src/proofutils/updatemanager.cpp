@@ -185,12 +185,46 @@ void UpdateManagerPrivate::update(const QString &password)
     Q_Q(UpdateManager);
 #ifdef Q_OS_LINUX
     QScopedPointer<QProcess> updater(new QProcess);
+    updater->setProcessChannelMode(QProcess::MergedChannels);
     updater->start(QString("sudo -S -k apt-get --quiet --assume-yes --allow-unauthenticated install %1").arg(packageNameValue));
     updater->waitForStarted();
     if (updater->error() == QProcess::UnknownError) {
-        updater->write(QString("%1\n").arg(password).toLatin1());
-        updater->waitForFinished();
-        qCDebug(proofUtilsUpdatesLog) << "Updated with exitcode =" << updater->exitCode() << "; log:\n" << updater->readAll().trimmed();
+        if (!updater->waitForReadyRead()) {
+            qCDebug(proofUtilsUpdatesLog) << "No answer from apt-get. Returning";
+            emit q->updateFailed();
+            return;
+        }
+        QByteArray readBuffer;
+        QByteArray currentRead;
+
+        currentRead = updater->readAll();
+        readBuffer.append(currentRead);
+        currentRead = currentRead.trimmed();
+        if (currentRead.contains("[sudo]") || currentRead.contains("password for")) {
+            updater->write(QString("%1\n").arg(password).toLatin1());
+            if (!updater->waitForReadyRead()) {
+                qCDebug(proofUtilsUpdatesLog) << "No answer from apt-get. Returning";
+                emit q->updateFailed();
+                return;
+            }
+
+            currentRead = updater->readAll();
+            readBuffer.append(currentRead);
+            currentRead = currentRead.trimmed();
+
+            if (currentRead.contains("is not in the sudoers")) {
+                qCDebug(proofUtilsUpdatesLog) << "User not in sudoers list; log:\n" << readBuffer;
+                emit q->updateFailed();
+                return;
+            }
+            if (currentRead.contains("Sorry, try again")) {
+                qCDebug(proofUtilsUpdatesLog) << "Sudo rejected the password; log:\n" << readBuffer;
+                emit q->updateFailed();
+                return;
+            }
+        }
+        updater->waitForFinished(-1);
+        qCDebug(proofUtilsUpdatesLog) << "Updated with exitcode =" << updater->exitCode() << "; log:\n" << readBuffer + updater->readAll().trimmed();
         if (updater->exitCode())
             emit q->updateFailed();
         else
