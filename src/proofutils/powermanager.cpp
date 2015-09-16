@@ -11,7 +11,7 @@ class WorkerThread : public QThread
     Q_OBJECT
 public:
     explicit WorkerThread(Proof::PowerManagerPrivate *powerManager);
-    void shutdowd(const QString &password, bool restart);
+    void shutdown(const QString &password, bool restart);
 
 private:
     Proof::PowerManagerPrivate *powerManager;
@@ -25,7 +25,7 @@ class PowerManagerPrivate : public ProofObjectPrivate
 {
     Q_DECLARE_PUBLIC(PowerManager)
 public:
-    void shutdowd(const QString &password, bool restart);
+    void shutdown(const QString &password, bool restart);
 
     WorkerThread *thread;
 };
@@ -49,19 +49,19 @@ PowerManager::~PowerManager()
 void PowerManager::restart(const QString &password)
 {
     Q_D(PowerManager);
-    d->shutdowd(password, true);
+    d->shutdown(password, true);
 }
 
 void PowerManager::powerOff(const QString &password)
 {
     Q_D(PowerManager);
-    d->shutdowd(password, false);
+    d->shutdown(password, false);
 }
 
-void PowerManagerPrivate::shutdowd(const QString &password, bool restart)
+void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 {
     Q_Q(PowerManager);
-    if (ProofObject::call(thread, &WorkerThread::shutdowd, password, restart))
+    if (ProofObject::call(thread, &WorkerThread::shutdown, password, restart))
         return;
 #ifdef Q_OS_UNIX
     QScopedPointer<QProcess> shutdownProcess(new QProcess);
@@ -133,9 +133,9 @@ WorkerThread::WorkerThread(Proof::PowerManagerPrivate *powerManager)
     moveToThread(this);
 }
 
-void WorkerThread::shutdowd(const QString &password, bool restart)
+void WorkerThread::shutdown(const QString &password, bool restart)
 {
-    powerManager->shutdowd(password, restart);
+    powerManager->shutdown(password, restart);
 }
 
 #include "powermanager.moc"
