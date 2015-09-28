@@ -3,6 +3,8 @@
 
 #include <QProcess>
 #include <QTimer>
+#include <QSet>
+#include <QRegExp>
 
 namespace {
 class WorkerThread : public QThread
@@ -12,7 +14,7 @@ public:
     explicit WorkerThread(Proof::UpdateManagerPrivate *updater);
 
     template<class Method, class... Args>
-    void callUpdater(Method method, Args &&... args);
+    void callUpdater(Method method, Args... args);
 
     template<class Method, class... Args>
     auto callUpdaterWithResult(Method method, Args &&... args)
@@ -38,7 +40,8 @@ class UpdateManagerPrivate : public ProofObjectPrivate
     Q_DECLARE_PUBLIC(UpdateManager)
 
     void checkForUpdates();
-    void update(const QString &password);
+    void installVersion(const QString &version, const QString &password);
+    void fetchAvailableVersions();
 
     bool enabled() const;
     int timeout() const;
@@ -92,7 +95,19 @@ UpdateManager::~UpdateManager()
 void UpdateManager::update(const QString &password)
 {
     Q_D(UpdateManager);
-    d->thread->callUpdater(&UpdateManagerPrivate::update, password);
+    d->thread->callUpdater(&UpdateManagerPrivate::installVersion, QString(), password);
+}
+
+void UpdateManager::fetchAvailableVersions()
+{
+    Q_D(UpdateManager);
+    d->thread->callUpdater(&UpdateManagerPrivate::fetchAvailableVersions);
+}
+
+void UpdateManager::installVersion(const QString &version, const QString &password)
+{
+    Q_D(UpdateManager);
+    d->thread->callUpdater(&UpdateManagerPrivate::installVersion, version, password);
 }
 
 bool UpdateManager::enabled() const
@@ -180,18 +195,22 @@ void UpdateManagerPrivate::checkForUpdates()
 #endif
 }
 
-void UpdateManagerPrivate::update(const QString &password)
+void UpdateManagerPrivate::installVersion(const QString &version, const QString &password)
 {
     Q_Q(UpdateManager);
 #ifdef Q_OS_LINUX
     QScopedPointer<QProcess> updater(new QProcess);
     updater->setProcessChannelMode(QProcess::MergedChannels);
-    updater->start(QString("sudo -S -k apt-get --quiet --assume-yes --allow-unauthenticated install %1").arg(packageNameValue));
+    bool isUpdate = !version.isEmpty();
+    QString package = isUpdate ? packageNameValue : QString("%1=%2").arg(packageNameValue, version);
+    auto successSignal = isUpdate ? &UpdateManager::updateSucceeded : &UpdateManager::installationSucceeded;
+    auto failSignal = isUpdate ? &UpdateManager::updateFailed : &UpdateManager::installationFailed;
+    updater->start(QString("sudo -S -k apt-get --quiet --assume-yes --force-yes --allow-unauthenticated install %1").arg(package));
     updater->waitForStarted();
     if (updater->error() == QProcess::UnknownError) {
         if (!updater->waitForReadyRead()) {
             qCDebug(proofUtilsUpdatesLog) << "No answer from apt-get. Returning";
-            emit q->updateFailed();
+            emit (q->*failSignal)();
             return;
         }
         QByteArray readBuffer;
@@ -204,7 +223,7 @@ void UpdateManagerPrivate::update(const QString &password)
             updater->write(QString("%1\n").arg(password).toLatin1());
             if (!updater->waitForReadyRead()) {
                 qCDebug(proofUtilsUpdatesLog) << "No answer from apt-get. Returning";
-                emit q->updateFailed();
+                emit (q->*failSignal)();
                 return;
             }
 
@@ -214,21 +233,21 @@ void UpdateManagerPrivate::update(const QString &password)
 
             if (currentRead.contains("is not in the sudoers")) {
                 qCDebug(proofUtilsUpdatesLog) << "User not in sudoers list; log:\n" << readBuffer;
-                emit q->updateFailed();
+                emit (q->*failSignal)();
                 return;
             }
             if (currentRead.contains("Sorry, try again")) {
                 qCDebug(proofUtilsUpdatesLog) << "Sudo rejected the password; log:\n" << readBuffer;
-                emit q->updateFailed();
+                emit (q->*failSignal)();
                 return;
             }
         }
         updater->waitForFinished(-1);
         qCDebug(proofUtilsUpdatesLog) << "Updated with exitcode =" << updater->exitCode() << "; log:\n" << readBuffer + updater->readAll().trimmed();
         if (updater->exitCode())
-            emit q->updateFailed();
+            emit (q->*failSignal)();
         else
-            emit q->updateSucceeded();
+            emit (q->*successSignal)();
     } else {
         qCDebug(proofUtilsUpdatesLog) << "process couldn't be started" << updater->error() << updater->errorString();
     }
@@ -236,6 +255,47 @@ void UpdateManagerPrivate::update(const QString &password)
     Q_UNUSED(password);
     qCDebug(proofUtilsUpdatesLog) << "Update is not supported for this platform";
     emit q->updateFailed();
+#endif
+}
+
+void UpdateManagerPrivate::fetchAvailableVersions()
+{
+    Q_Q(UpdateManager);
+#ifdef Q_OS_LINUX
+    if (packageNameValue.isEmpty())
+        emit q->availableVersionsFetched(QStringList{});
+
+    QScopedPointer<QProcess> checker(new QProcess);
+    checker->start(QString("apt-cache showpkg %1").arg(packageNameValue));
+    checker->waitForStarted();
+    if (checker->error() == QProcess::UnknownError) {
+        if (checker->waitForFinished()) {
+            if (checker->exitStatus() == QProcess::NormalExit && checker->exitCode() == 0) {
+                QString output = checker->readAll().trimmed();
+                QRegExp versionRegExp("\\n(\\d?\\d\\.\\d?\\d\\.\\d?\\d\\.\\d?\\d)");
+                QSet<QString> versions;
+                int position = 0;
+                while ((position = versionRegExp.indexIn(output, position)) != -1) {
+                    QString version = versionRegExp.cap(1);
+                    if (currentVersionValue > versionFromString(version.split('.')))
+                        versions << version;
+                    position += versionRegExp.matchedLength();
+                }
+                emit q->availableVersionsFetched(versions.values());
+            } else {
+                qCDebug(proofUtilsUpdatesLog) << "Process failed" << checker->error() << checker->errorString();
+                emit q->availableVersionsFetchFailed();
+            }
+        } else {
+            qCDebug(proofUtilsUpdatesLog) << "Process timed out";
+            emit q->availableVersionsFetchFailed();
+        }
+    } else {
+        qCDebug(proofUtilsUpdatesLog) << "Process couldn't be started" << checker->error() << checker->errorString();
+        emit q->availableVersionsFetchFailed();
+    }
+#else
+    emit q->availableVersionsFetched(QStringList{});
 #endif
 }
 
@@ -344,10 +404,10 @@ WorkerThread::WorkerThread(UpdateManagerPrivate *updater)
 }
 
 template<class Method, class... Args>
-void WorkerThread::callUpdater(Method method, Args &&... args)
+void WorkerThread::callUpdater(Method method, Args... args)
 {
-    if (!ProofObject::call(this, &WorkerThread::callUpdater<Method, Args &&...>, method, std::forward<Args>(args)...))
-        (updater->*method)(std::forward<Args>(args)...);
+    if (!ProofObject::call(this, &WorkerThread::callUpdater<Method, Args...>, method, args...))
+        (updater->*method)(args...);
 }
 
 template<class Method, class... Args>

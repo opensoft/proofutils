@@ -4,6 +4,8 @@
 #include "proofutils_global.h"
 #include "proofcore/proofobject.h"
 
+#include <QStringList>
+
 namespace Proof {
 
 class UpdateManagerPrivate;
@@ -20,6 +22,8 @@ public:
     ~UpdateManager();
 
     Q_INVOKABLE void update(const QString &password);
+    Q_INVOKABLE void fetchAvailableVersions();
+    Q_INVOKABLE void installVersion(const QString &version, const QString &password);
 
     bool enabled() const;
     int timeout() const;
@@ -40,6 +44,10 @@ signals:
     void updateSucceeded();
     void updateFailed();
     void manualUpdateNeeded(const QString &version);
+    void availableVersionsFetched(const QStringList &versions);
+    void availableVersionsFetchFailed();
+    void installationSucceeded();
+    void installationFailed();
 };
 
 } // namespace Proof
