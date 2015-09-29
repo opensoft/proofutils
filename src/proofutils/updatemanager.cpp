@@ -201,7 +201,7 @@ void UpdateManagerPrivate::installVersion(const QString &version, const QString 
 #ifdef Q_OS_LINUX
     QScopedPointer<QProcess> updater(new QProcess);
     updater->setProcessChannelMode(QProcess::MergedChannels);
-    bool isUpdate = !version.isEmpty();
+    bool isUpdate = version.isEmpty();
     QString package = isUpdate ? packageNameValue : QString("%1=%2").arg(packageNameValue, version);
     auto successSignal = isUpdate ? &UpdateManager::updateSucceeded : &UpdateManager::installationSucceeded;
     auto failSignal = isUpdate ? &UpdateManager::updateFailed : &UpdateManager::installationFailed;
