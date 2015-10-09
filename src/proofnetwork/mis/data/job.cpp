@@ -143,6 +143,7 @@ void JobPrivate::updateFrom(const NetworkDataEntitySP &other)
 {
     Q_Q(Job);
     JobSP castedOther = qSharedPointerCast<Job>(other);
+    Q_ASSERT(castedOther);
     setId(castedOther->id());
     q->setName(castedOther->name());
     q->setQuantity(castedOther->quantity());
