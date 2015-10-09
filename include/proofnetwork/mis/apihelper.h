@@ -77,13 +77,13 @@ public:
     };
 
     static QString workflowStatusToString(WorkflowStatus status);
-    static WorkflowStatus workflowStatusFromString(const QString &statusString, bool *ok = nullptr);
+    static WorkflowStatus workflowStatusFromString(QString statusString, bool *ok = nullptr);
     static QString transitionEventToString(TransitionEvent event);
-    static TransitionEvent transitionEventFromString(const QString &eventString, bool *ok = nullptr);
+    static TransitionEvent transitionEventFromString(QString eventString, bool *ok = nullptr);
     static QString workflowActionToString(WorkflowAction action);
-    static WorkflowAction workflowActionFromString(const QString &actionString, bool *ok = nullptr);
+    static WorkflowAction workflowActionFromString(QString actionString, bool *ok = nullptr);
     static QString paperSideToString(PaperSide side);
-    static PaperSide paperSideFromString(const QString &sideString, bool *ok = nullptr);
+    static PaperSide paperSideFromString(QString sideString, bool *ok = nullptr);
 
 private:
     explicit ApiHelper() : ProofObject(0) {}

@@ -67,11 +67,12 @@ QString ApiHelper::workflowStatusToString(ApiHelper::WorkflowStatus status)
     return WORKFLOW_STATUSES.key(status, "");
 }
 
-ApiHelper::WorkflowStatus ApiHelper::workflowStatusFromString(const QString &statusString, bool *ok)
+ApiHelper::WorkflowStatus ApiHelper::workflowStatusFromString(QString statusString, bool *ok)
 {
+    statusString = statusString.toLower();
     if (ok != nullptr)
         *ok = WORKFLOW_STATUSES.contains(statusString);
-    return WORKFLOW_STATUSES.value(statusString.toLower(), WorkflowStatus::UnknownStatus);
+    return WORKFLOW_STATUSES.value(statusString, WorkflowStatus::UnknownStatus);
 }
 
 QString ApiHelper::transitionEventToString(ApiHelper::TransitionEvent event)
@@ -79,11 +80,12 @@ QString ApiHelper::transitionEventToString(ApiHelper::TransitionEvent event)
     return TRANSITION_EVENTS.key(event, "");
 }
 
-ApiHelper::TransitionEvent ApiHelper::transitionEventFromString(const QString &eventString, bool *ok)
+ApiHelper::TransitionEvent ApiHelper::transitionEventFromString(QString eventString, bool *ok)
 {
+    eventString = eventString.toLower();
     if (ok != nullptr)
         *ok = TRANSITION_EVENTS.contains(eventString);
-    return TRANSITION_EVENTS.value(eventString.toLower(), TransitionEvent::UnknownEvent);
+    return TRANSITION_EVENTS.value(eventString, TransitionEvent::UnknownEvent);
 }
 
 QString ApiHelper::workflowActionToString(ApiHelper::WorkflowAction action)
@@ -91,11 +93,12 @@ QString ApiHelper::workflowActionToString(ApiHelper::WorkflowAction action)
     return WORKFLOW_ACTIONS.key(action, "");
 }
 
-ApiHelper::WorkflowAction ApiHelper::workflowActionFromString(const QString &actionString, bool *ok)
+ApiHelper::WorkflowAction ApiHelper::workflowActionFromString(QString actionString, bool *ok)
 {
+    actionString = actionString.toLower();
     if (ok != nullptr)
         *ok = WORKFLOW_ACTIONS.contains(actionString);
-    return WORKFLOW_ACTIONS.value(actionString.toLower(), WorkflowAction::UnknownAction);
+    return WORKFLOW_ACTIONS.value(actionString, WorkflowAction::UnknownAction);
 }
 
 QString ApiHelper::paperSideToString(ApiHelper::PaperSide side)
@@ -103,11 +106,12 @@ QString ApiHelper::paperSideToString(ApiHelper::PaperSide side)
     return PAPER_SIDES.key(side, "");
 }
 
-ApiHelper::PaperSide ApiHelper::paperSideFromString(const QString &sideString, bool *ok)
+ApiHelper::PaperSide ApiHelper::paperSideFromString(QString sideString, bool *ok)
 {
+    sideString = sideString.toLower();
     if (ok != nullptr)
         *ok = PAPER_SIDES.contains(sideString);
-    return PAPER_SIDES.value(sideString.toLower(), PaperSide::NotSetSide);
+    return PAPER_SIDES.value(sideString, PaperSide::NotSetSide);
 }
 
 namespace Proof {
