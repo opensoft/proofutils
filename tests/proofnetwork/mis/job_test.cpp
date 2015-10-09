@@ -70,3 +70,12 @@ TEST_F(JobTest, updateFrom)
               jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction));
 }
 
+TEST_F(JobTest, setWorkflowStatus)
+{
+    ApiHelper::WorkflowStatus workflowStatus = jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction);
+    ApiHelper::WorkflowStatus workflowStatusUpdate = ApiHelper::WorkflowStatus::IsReadyForStatus;
+    EXPECT_TRUE(workflowStatus != workflowStatusUpdate);
+    jobUT->setWorkflowStatus(ApiHelper::WorkflowAction::CuttingAction, workflowStatusUpdate);
+    EXPECT_EQ(jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction), workflowStatusUpdate);
+}
+
