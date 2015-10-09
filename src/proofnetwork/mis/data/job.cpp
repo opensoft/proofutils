@@ -16,7 +16,7 @@ class JobPrivate : NetworkDataEntityPrivate
     QString id;
     QString name;
     qlonglong quantity = 0;
-    ApiHelper::WorkflowStatus workflowStatus = ApiHelper::WorkflowStatus::NeedsStatus;
+    QList<WorkflowElement> workflow;
 };
 
 ObjectsCache<QString, Job> &jobsCache()
@@ -74,19 +74,46 @@ void Job::setQuantity(qlonglong arg)
     }
 }
 
-void Job::setWorkflowStatus(ApiHelper::WorkflowStatus arg)
+void Job::setWorkflow(const QList<WorkflowElement> &arg)
 {
     Q_D(Job);
-    if (d->workflowStatus != arg) {
-        d->workflowStatus = arg;
-        emit workflowStatusChanged(arg);
+    bool emitNeeded = arg.count() != d->workflow.count();
+    for (int i = 0; i < arg.count() && !emitNeeded; ++i)
+        emitNeeded = arg[i] != d->workflow[i];
+    if (emitNeeded) {
+        d->workflow = arg;
+        emit workflowChanged();
     }
 }
 
-ApiHelper::WorkflowStatus Job::workflowStatus() const
+void Job::setWorkflowStatus(ApiHelper::WorkflowAction action,
+                            ApiHelper::WorkflowStatus status,
+                            ApiHelper::PaperSide paperSide)
+{
+    Q_D(Job);
+    bool found = false;
+    for (auto &element : d->workflow) {
+        if (element.action() == action && element.paperSide() == paperSide) {
+            element.setStatus(status);
+            found = true;
+            break;
+        }
+    }
+    if (!found)
+        d->workflow.append(WorkflowElement(action, status, paperSide));
+}
+
+ApiHelper::WorkflowStatus Job::workflowStatus(ApiHelper::WorkflowAction action,
+                                              ApiHelper::PaperSide paperSide) const
 {
     Q_D(const Job);
-    return d->workflowStatus;
+    for (const auto &element : d->workflow) {
+        if (element.action() != action)
+            continue;
+        if (element.paperSide() == paperSide)
+            return element.status();
+    }
+    return ApiHelper::WorkflowStatus::UnknownStatus;
 }
 
 JobQmlWrapper *Job::toQmlWrapper(QObject *parent) const
@@ -116,11 +143,10 @@ void JobPrivate::updateFrom(const NetworkDataEntitySP &other)
 {
     Q_Q(Job);
     JobSP castedOther = qSharedPointerCast<Job>(other);
-
     setId(castedOther->id());
     q->setName(castedOther->name());
     q->setQuantity(castedOther->quantity());
-    q->setWorkflowStatus(castedOther->workflowStatus());
+    q->setWorkflow(castedOther->d_func()->workflow);
 
     NetworkDataEntityPrivate::updateFrom(other);
 }

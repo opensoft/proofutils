@@ -12,6 +12,8 @@ class PROOF_NETWORK_MIS_EXPORT ApiHelper : public ProofObject
     Q_OBJECT
     Q_ENUMS(WorkflowStatus)
     Q_ENUMS(TransitionEvent)
+    Q_ENUMS(WorkflowStatus)
+    Q_ENUMS(PaperSide)
 public:
     enum class WorkflowStatus {
         NeedsStatus,
@@ -21,6 +23,39 @@ public:
         DoneStatus,
         HaltedStatus,
         UnknownStatus
+    };
+
+    enum class WorkflowAction {
+        BindingAction,
+        BinningAction,
+        BoxingAction,
+        ColorOptimizingAction,
+        ComponentBoxingAction,
+        ContainerPackingAction,
+        CuttingAction,
+        DistributeAction,
+        FolderMakingAction,
+        MagnetizeAction,
+        MailingAction,
+        MountingAction,
+        OutsourceCuttingAction,
+        PdfBuildingAction,
+        PlateMakingAction,
+        PrintingAction,
+        QcAction,
+        RoundingAction,
+        ScreenImagingAction,
+        ScreenMountingAction,
+        ScreenPreparationAction,
+        ScreenWashingAction,
+        ShipBoxingAction,
+        ShipLabelAction,
+        ShippingAction,
+        StagingAction,
+        TruckLoadingAction,
+        UvCoatingAction,
+        UvPdfBuildingAction,
+        UnknownAction
     };
 
     enum class TransitionEvent {
@@ -35,10 +70,20 @@ public:
         UnknownEvent
     };
 
+    enum class PaperSide {
+        NotSetSide,
+        FrontSide,
+        BackSide
+    };
+
     static QString workflowStatusToString(WorkflowStatus status);
     static WorkflowStatus workflowStatusFromString(const QString &statusString, bool *ok = nullptr);
     static QString transitionEventToString(TransitionEvent event);
     static TransitionEvent transitionEventFromString(const QString &eventString, bool *ok = nullptr);
+    static QString workflowActionToString(WorkflowAction action);
+    static WorkflowAction workflowActionFromString(const QString &actionString, bool *ok = nullptr);
+    static QString paperSideToString(PaperSide side);
+    static PaperSide paperSideFromString(const QString &sideString, bool *ok = nullptr);
 
 private:
     explicit ApiHelper() : ProofObject(0) {}

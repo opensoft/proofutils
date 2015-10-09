@@ -16,4 +16,6 @@ static void libraryInit()
 
     qRegisterMetaType<Proof::Mis::ApiHelper::WorkflowStatus>("Proof::Mis::ApiHelper::WorkflowStatus");
     qRegisterMetaType<Proof::Mis::ApiHelper::TransitionEvent>("Proof::Mis::ApiHelper::TransitionEvent");
+    qRegisterMetaType<Proof::Mis::ApiHelper::WorkflowAction>("Proof::Mis::ApiHelper::WorkflowAction");
+    qRegisterMetaType<Proof::Mis::ApiHelper::PaperSide>("Proof::Mis::ApiHelper::PaperSide");
 }

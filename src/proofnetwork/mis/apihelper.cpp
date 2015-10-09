@@ -13,6 +13,38 @@ static const QHash<QString, ApiHelper::WorkflowStatus> WORKFLOW_STATUSES = {
     {"halted", ApiHelper::WorkflowStatus::HaltedStatus}
 };
 
+static const QHash<QString, ApiHelper::WorkflowAction> WORKFLOW_ACTIONS = {
+    {"binding", ApiHelper::WorkflowAction::BindingAction},
+    {"binning", ApiHelper::WorkflowAction::BinningAction},
+    {"boxing", ApiHelper::WorkflowAction::BoxingAction},
+    {"color optimizing", ApiHelper::WorkflowAction::ColorOptimizingAction},
+    {"component boxing", ApiHelper::WorkflowAction::ComponentBoxingAction},
+    {"container packing", ApiHelper::WorkflowAction::ContainerPackingAction},
+    {"cutting", ApiHelper::WorkflowAction::CuttingAction},
+    {"distribute", ApiHelper::WorkflowAction::DistributeAction},
+    {"folder making", ApiHelper::WorkflowAction::FolderMakingAction},
+    {"magnetize", ApiHelper::WorkflowAction::MagnetizeAction},
+    {"mailing", ApiHelper::WorkflowAction::MailingAction},
+    {"mounting", ApiHelper::WorkflowAction::MountingAction},
+    {"outsource cutting", ApiHelper::WorkflowAction::OutsourceCuttingAction},
+    {"pdf building", ApiHelper::WorkflowAction::PdfBuildingAction},
+    {"plate making", ApiHelper::WorkflowAction::PlateMakingAction},
+    {"printing", ApiHelper::WorkflowAction::PrintingAction},
+    {"qc", ApiHelper::WorkflowAction::QcAction},
+    {"rounding", ApiHelper::WorkflowAction::RoundingAction},
+    {"screen imaging", ApiHelper::WorkflowAction::ScreenImagingAction},
+    {"screen mounting", ApiHelper::WorkflowAction::ScreenMountingAction},
+    {"screen preparation", ApiHelper::WorkflowAction::ScreenPreparationAction},
+    {"screen washing", ApiHelper::WorkflowAction::ScreenWashingAction},
+    {"ship boxing", ApiHelper::WorkflowAction::ShipBoxingAction},
+    {"ship label", ApiHelper::WorkflowAction::ShipLabelAction},
+    {"shipping", ApiHelper::WorkflowAction::ShippingAction},
+    {"staging", ApiHelper::WorkflowAction::StagingAction},
+    {"truck loading", ApiHelper::WorkflowAction::TruckLoadingAction},
+    {"uv coating", ApiHelper::WorkflowAction::UvCoatingAction},
+    {"uv pdf building", ApiHelper::WorkflowAction::UvPdfBuildingAction}
+};
+
 static const QHash<QString, ApiHelper::TransitionEvent> TRANSITION_EVENTS = {
     {"start", ApiHelper::TransitionEvent::StartEvent},
     {"stop", ApiHelper::TransitionEvent::StopEvent},
@@ -22,6 +54,12 @@ static const QHash<QString, ApiHelper::TransitionEvent> TRANSITION_EVENTS = {
     {"perform", ApiHelper::TransitionEvent::PerformEvent},
     {"revert", ApiHelper::TransitionEvent::RevertEvent},
     {"request", ApiHelper::TransitionEvent::RequestEvent}
+};
+
+static const QHash<QString, ApiHelper::PaperSide> PAPER_SIDES = {
+    {"", ApiHelper::PaperSide::NotSetSide},
+    {"front", ApiHelper::PaperSide::FrontSide},
+    {"back", ApiHelper::PaperSide::BackSide}
 };
 
 QString ApiHelper::workflowStatusToString(ApiHelper::WorkflowStatus status)
@@ -48,6 +86,30 @@ ApiHelper::TransitionEvent ApiHelper::transitionEventFromString(const QString &e
     return TRANSITION_EVENTS.value(eventString.toLower(), TransitionEvent::UnknownEvent);
 }
 
+QString ApiHelper::workflowActionToString(ApiHelper::WorkflowAction action)
+{
+    return WORKFLOW_ACTIONS.key(action, "");
+}
+
+ApiHelper::WorkflowAction ApiHelper::workflowActionFromString(const QString &actionString, bool *ok)
+{
+    if (ok != nullptr)
+        *ok = WORKFLOW_ACTIONS.contains(actionString);
+    return WORKFLOW_ACTIONS.value(actionString.toLower(), WorkflowAction::UnknownAction);
+}
+
+QString ApiHelper::paperSideToString(ApiHelper::PaperSide side)
+{
+    return PAPER_SIDES.key(side, "");
+}
+
+ApiHelper::PaperSide ApiHelper::paperSideFromString(const QString &sideString, bool *ok)
+{
+    if (ok != nullptr)
+        *ok = PAPER_SIDES.contains(sideString);
+    return PAPER_SIDES.value(sideString.toLower(), PaperSide::NotSetSide);
+}
+
 namespace Proof {
 namespace Mis {
 
@@ -56,7 +118,17 @@ uint qHash(ApiHelper::WorkflowStatus arg, uint seed)
     return ::qHash(static_cast<int>(arg), seed);
 }
 
+uint qHash(ApiHelper::WorkflowAction arg, uint seed)
+{
+    return ::qHash(static_cast<int>(arg), seed);
+}
+
 uint qHash(ApiHelper::TransitionEvent arg, uint seed)
+{
+    return ::qHash(static_cast<int>(arg), seed);
+}
+
+uint qHash(ApiHelper::PaperSide arg, uint seed)
 {
     return ::qHash(static_cast<int>(arg), seed);
 }

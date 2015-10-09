@@ -20,13 +20,15 @@ protected:
         jobUT = Job::create("123");
         jobUT->setName("I-123");
         jobUT->setQuantity(100);
-        jobUT->setWorkflowStatus(ApiHelper::WorkflowStatus::IsReadyForStatus);
+        jobUT->setWorkflowStatus(ApiHelper::WorkflowAction::CuttingAction,
+                                 ApiHelper::WorkflowStatus::IsReadyForStatus);
         ASSERT_TRUE(jobUT);
 
         jobUT2 = Job::create("ABC");
         jobUT->setName("T-ABC");
         jobUT->setQuantity(1000);
-        jobUT->setWorkflowStatus(ApiHelper::WorkflowStatus::InProgressStatus);
+        jobUT->setWorkflowStatus(ApiHelper::WorkflowAction::CuttingAction,
+                                 ApiHelper::WorkflowStatus::InProgressStatus);
         ASSERT_TRUE(jobUT2);
 
         qmlWrapperUT = jobUT->toQmlWrapper();
@@ -64,6 +66,7 @@ TEST_F(JobTest, updateFrom)
     EXPECT_EQ(jobUT2->id(), jobUT->id());
     EXPECT_EQ(jobUT2->name(), jobUT->name());
     EXPECT_EQ(jobUT2->quantity(), jobUT->quantity());
-    EXPECT_EQ(jobUT2->workflowStatus(), jobUT->workflowStatus());
+    EXPECT_EQ(jobUT2->workflowStatus(ApiHelper::WorkflowAction::CuttingAction),
+              jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction));
 }
 

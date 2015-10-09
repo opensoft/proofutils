@@ -18,7 +18,6 @@ class PROOF_NETWORK_MIS_EXPORT JobQmlWrapper : public NetworkDataEntityQmlWrappe
     Q_PROPERTY(QString id READ id NOTIFY idChanged)
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(qlonglong quantity READ quantity NOTIFY quantityChanged)
-    Q_PROPERTY(Proof::Mis::ApiHelper::WorkflowStatus workflowStatus READ workflowStatus NOTIFY workflowStatusChanged)
     Q_DECLARE_PRIVATE(JobQmlWrapper)
 public:
     explicit JobQmlWrapper(const JobSP &job, QObject *parent = 0);
@@ -28,13 +27,14 @@ public:
     QString id() const;
     QString name() const;
     qlonglong quantity() const;
-    ApiHelper::WorkflowStatus workflowStatus() const;
+    Q_INVOKABLE ApiHelper::WorkflowStatus workflowStatus(ApiHelper::WorkflowAction action,
+                                                         ApiHelper::PaperSide paperSide = ApiHelper::PaperSide::NotSetSide) const;
 
 signals:
     void idChanged(const QString &arg);
     void nameChanged(const QString &arg);
     void quantityChanged(qlonglong arg);
-    void workflowStatusChanged(Proof::Mis::ApiHelper::WorkflowStatus arg);
+    void workflowChanged();
 
 protected:
     void setupEntity(const QSharedPointer<NetworkDataEntity> &old = QSharedPointer<NetworkDataEntity>()) override;
