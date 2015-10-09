@@ -12,7 +12,7 @@ class PROOF_NETWORK_MIS_EXPORT ApiHelper : public ProofObject
     Q_OBJECT
     Q_ENUMS(WorkflowStatus)
     Q_ENUMS(TransitionEvent)
-    Q_ENUMS(WorkflowStatus)
+    Q_ENUMS(WorkflowAction)
     Q_ENUMS(PaperSide)
 public:
     enum class WorkflowStatus {
