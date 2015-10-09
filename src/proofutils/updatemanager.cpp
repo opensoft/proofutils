@@ -252,6 +252,7 @@ void UpdateManagerPrivate::installVersion(const QString &version, const QString 
         qCDebug(proofUtilsUpdatesLog) << "process couldn't be started" << updater->error() << updater->errorString();
     }
 #else
+    Q_UNUSED(version);
     Q_UNUSED(password);
     qCDebug(proofUtilsUpdatesLog) << "Update is not supported for this platform";
     emit q->updateFailed();
