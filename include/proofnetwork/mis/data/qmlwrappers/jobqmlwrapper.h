@@ -27,8 +27,8 @@ public:
     QString id() const;
     QString name() const;
     qlonglong quantity() const;
-    Q_INVOKABLE ApiHelper::WorkflowStatus workflowStatus(ApiHelper::WorkflowAction action,
-                                                         ApiHelper::PaperSide paperSide = ApiHelper::PaperSide::NotSetSide) const;
+    Q_INVOKABLE Proof::Mis::ApiHelper::WorkflowStatus workflowStatus(Proof::Mis::ApiHelper::WorkflowAction action,
+                                                                     Proof::Mis::ApiHelper::PaperSide paperSide = Proof::Mis::ApiHelper::PaperSide::NotSetSide) const;
 
 signals:
     void idChanged(const QString &arg);
