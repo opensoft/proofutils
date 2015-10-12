@@ -76,21 +76,9 @@ public:
         BackSide
     };
 
-    static QString workflowStatusToString(WorkflowStatus status);
-    static WorkflowStatus workflowStatusFromString(QString statusString, bool *ok = nullptr);
-    static QString transitionEventToString(TransitionEvent event);
-    static TransitionEvent transitionEventFromString(QString eventString, bool *ok = nullptr);
-    static QString workflowActionToString(WorkflowAction action);
-    static WorkflowAction workflowActionFromString(QString actionString, bool *ok = nullptr);
-    static QString paperSideToString(PaperSide side);
-    static PaperSide paperSideFromString(QString sideString, bool *ok = nullptr);
-
 private:
     explicit ApiHelper() : ProofObject(0) {}
 };
-
-PROOF_NETWORK_MIS_EXPORT uint qHash(ApiHelper::WorkflowStatus arg, uint seed = 0);
-PROOF_NETWORK_MIS_EXPORT uint qHash(ApiHelper::TransitionEvent arg, uint seed = 0);
 
 }
 }
