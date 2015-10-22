@@ -5,23 +5,23 @@
     <name>QObject</name>
     <message>
         <source>No answer from OS</source>
-        <translation type="unfinished"></translation>
+        <translation>OSからの反応がありません</translation>
     </message>
     <message>
         <source>User not in sudoers list</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザーがSudoersリストに登録されていません</translation>
     </message>
     <message>
         <source>Incorrect password</source>
-        <translation type="unfinished"></translation>
+        <translation>パスワードが間違っています</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>不明なエラー</translation>
     </message>
     <message>
         <source>Can&apos;t restart application</source>
-        <translation type="unfinished"></translation>
+        <translation>再スタートする事ができません</translation>
     </message>
 </context>
 </TS>
