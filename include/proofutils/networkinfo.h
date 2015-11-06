@@ -11,11 +11,10 @@ class PROOF_UTILS_EXPORT NetworkInfo : public ProofObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(NetworkInfo)
-    Q_PROPERTY(QList<QString> addresses READ addresses CONSTANT)
 public:
     explicit NetworkInfo(QObject *parent = nullptr);
 
-    QList<QString> addresses() const;
+    Q_INVOKABLE QList<QString> addresses() const;
 };
 
 } // namespace Proof
