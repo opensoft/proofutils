@@ -157,6 +157,12 @@ QSize EplLabelGenerator::textSize(const QString &text, int fontSize, int horizon
     return QSize(singleCharSize.width() * text.length(), singleCharSize.height());
 }
 
+QSize EplLabelGenerator::labelSize() const
+{
+    Q_D(const EplLabelGenerator);
+    return QSize(d->labelWidth, d->labelHeight);
+}
+
 QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::BarcodeType type, int x, int y, int height,
                                     bool printReadableCode, int narrowBarWidth, int wideBarWidth, int rotation)
 {
