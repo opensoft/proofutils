@@ -31,9 +31,9 @@ public:
                                                                      Proof::Mis::ApiHelper::PaperSide paperSide = Proof::Mis::ApiHelper::PaperSide::NotSetSide) const;
 
 signals:
-    void idChanged(const QString &arg);
-    void nameChanged(const QString &arg);
-    void quantityChanged(qlonglong arg);
+    void idChanged(const QString &id);
+    void nameChanged(const QString &name);
+    void quantityChanged(qlonglong quantity);
     void workflowChanged();
 
 protected:
