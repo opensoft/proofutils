@@ -103,17 +103,32 @@ void Job::setWorkflowStatus(ApiHelper::WorkflowAction action,
         d->workflow.append(WorkflowElement(action, status, paperSide));
 }
 
-ApiHelper::WorkflowStatus Job::workflowStatus(ApiHelper::WorkflowAction action,
-                                              ApiHelper::PaperSide paperSide) const
+ApiHelper::WorkflowStatus Job::workflowStatus(ApiHelper::WorkflowAction action, ApiHelper::PaperSide paperSide) const
 {
     Q_D(const Job);
-    for (const auto &element : d->workflow) {
+    ApiHelper::WorkflowStatus fallbackStatus = ApiHelper::WorkflowStatus::UnknownStatus;
+    foreach (const WorkflowElement &element, d->workflow) {
         if (element.action() != action)
             continue;
-        if (element.paperSide() == paperSide)
+        if (element.paperSide() == paperSide) {
             return element.status();
+        } else if (paperSide == ApiHelper::PaperSide::NotSetSide) {
+            if (fallbackStatus == ApiHelper::WorkflowStatus::UnknownStatus)
+                fallbackStatus = element.status();
+            else if ((element.status() == ApiHelper::WorkflowStatus::SuspendedStatus || fallbackStatus == ApiHelper::WorkflowStatus::SuspendedStatus))
+                fallbackStatus = ApiHelper::WorkflowStatus::SuspendedStatus;
+            else if ((element.status() == ApiHelper::WorkflowStatus::InProgressStatus || fallbackStatus == ApiHelper::WorkflowStatus::InProgressStatus))
+                fallbackStatus = ApiHelper::WorkflowStatus::InProgressStatus;
+            else if ((element.status() == ApiHelper::WorkflowStatus::IsReadyForStatus || fallbackStatus == ApiHelper::WorkflowStatus::IsReadyForStatus))
+                fallbackStatus = ApiHelper::WorkflowStatus::IsReadyForStatus;
+            else if ((element.status() == ApiHelper::WorkflowStatus::NeedsStatus || fallbackStatus == ApiHelper::WorkflowStatus::NeedsStatus))
+                fallbackStatus = ApiHelper::WorkflowStatus::NeedsStatus;
+        } else if (element.paperSide() == ApiHelper::PaperSide::NotSetSide) {
+            if (paperSide == ApiHelper::PaperSide::FrontSide && fallbackStatus == ApiHelper::WorkflowStatus::UnknownStatus)
+                fallbackStatus = element.status();
+        }
     }
-    return ApiHelper::WorkflowStatus::UnknownStatus;
+    return fallbackStatus;
 }
 
 JobQmlWrapper *Job::toQmlWrapper(QObject *parent) const
