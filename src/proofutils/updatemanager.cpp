@@ -41,17 +41,19 @@ class UpdateManagerPrivate : public ProofObjectPrivate
 
     void checkForUpdates();
     void installVersion(const QString &version, const QString &password);
-    void fetchAvailableVersions();
+    void fetchRollbackVersions();
 
     bool enabled() const;
     int timeout() const;
     QString currentVersion() const;
     QString packageName() const;
+    QStringList rollbackVersions() const;
 
     void setEnabled(bool arg);
     void setTimeout(int arg);
     void setCurrentVersion(const QString &arg);
     void setPackageName(const QString &arg);
+    void setRollbackVersions(const QStringList &arg);
 
     void updateTimerState();
 
@@ -62,6 +64,7 @@ class UpdateManagerPrivate : public ProofObjectPrivate
     quint64 currentVersionValue = 0x0;
     int currentVersionMajor = 0;
     bool enabledValue = false;
+    QStringList rollbackVersionsValue;
     WorkerThread *thread = nullptr;
     QTimer *timer = nullptr;
 };
@@ -98,12 +101,6 @@ void UpdateManager::update(const QString &password)
     d->thread->callUpdater(&UpdateManagerPrivate::installVersion, QString(), password);
 }
 
-void UpdateManager::fetchAvailableVersions()
-{
-    Q_D(UpdateManager);
-    d->thread->callUpdater(&UpdateManagerPrivate::fetchAvailableVersions);
-}
-
 void UpdateManager::installVersion(const QString &version, const QString &password)
 {
     Q_D(UpdateManager);
@@ -132,6 +129,12 @@ QString UpdateManager::packageName() const
 {
     Q_D(const UpdateManager);
     return d->thread->callUpdaterWithResult(&UpdateManagerPrivate::packageName);
+}
+
+QStringList UpdateManager::rollbackVersions() const
+{
+    Q_D(const UpdateManager);
+    return d->thread->callUpdaterWithResult(&UpdateManagerPrivate::rollbackVersions);
 }
 
 void UpdateManager::setEnabled(bool arg)
@@ -192,6 +195,7 @@ void UpdateManagerPrivate::checkForUpdates()
     } else {
         qCDebug(proofUtilsUpdatesLog) << "process couldn't be started" << checker->error() << checker->errorString();
     }
+    fetchRollbackVersions();
 #endif
 }
 
@@ -259,12 +263,13 @@ void UpdateManagerPrivate::installVersion(const QString &version, const QString 
 #endif
 }
 
-void UpdateManagerPrivate::fetchAvailableVersions()
+void UpdateManagerPrivate::fetchRollbackVersions()
 {
-    Q_Q(UpdateManager);
 #ifdef Q_OS_LINUX
-    if (packageNameValue.isEmpty())
-        emit q->availableVersionsFetched(QStringList{});
+    if (packageNameValue.isEmpty()) {
+        setRollbackVersions(QStringList{});
+        return;
+    }
 
     QScopedPointer<QProcess> checker(new QProcess);
     checker->start(QString("apt-cache showpkg %1").arg(packageNameValue));
@@ -282,21 +287,23 @@ void UpdateManagerPrivate::fetchAvailableVersions()
                         versions << version;
                     position += versionRegExp.matchedLength();
                 }
-                emit q->availableVersionsFetched(versions.values());
+                QStringList result = versions.values();
+                std::sort(result.begin(), result.end());
+                setRollbackVersions(result);
             } else {
                 qCDebug(proofUtilsUpdatesLog) << "Process failed" << checker->error() << checker->errorString();
-                emit q->availableVersionsFetchFailed();
+                setRollbackVersions(QStringList{});
             }
         } else {
             qCDebug(proofUtilsUpdatesLog) << "Process timed out";
-            emit q->availableVersionsFetchFailed();
+            setRollbackVersions(QStringList{});
         }
     } else {
         qCDebug(proofUtilsUpdatesLog) << "Process couldn't be started" << checker->error() << checker->errorString();
-        emit q->availableVersionsFetchFailed();
+        setRollbackVersions(QStringList{});
     }
 #else
-    emit q->availableVersionsFetched(QStringList{});
+    setRollbackVersions(QStringList{});
 #endif
 }
 
@@ -318,6 +325,11 @@ QString UpdateManagerPrivate::currentVersion() const
 QString UpdateManagerPrivate::packageName() const
 {
     return packageNameValue;
+}
+
+QStringList UpdateManagerPrivate::rollbackVersions() const
+{
+    return rollbackVersionsValue;
 }
 
 void UpdateManagerPrivate::setEnabled(bool arg)
@@ -362,6 +374,15 @@ void UpdateManagerPrivate::setPackageName(const QString &arg)
         packageNameValue = arg;
         emit q->packageNameChanged(packageNameValue);
         updateTimerState();
+    }
+}
+
+void UpdateManagerPrivate::setRollbackVersions(const QStringList &arg)
+{
+    Q_Q(UpdateManager);
+    if (rollbackVersionsValue != arg) {
+        rollbackVersionsValue = arg;
+        emit q->rollbackVersionsChanged(rollbackVersionsValue);
     }
 }
 
