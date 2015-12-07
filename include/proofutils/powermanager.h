@@ -14,9 +14,10 @@ class PROOF_UTILS_EXPORT PowerManager : public ProofObject
 public:
     explicit PowerManager(QObject *parent = 0);
     ~PowerManager();
-    
+
     Q_INVOKABLE void restart(const QString &password = "");
     Q_INVOKABLE void powerOff(const QString &password = "");
+    Q_INVOKABLE void restartApp();
 
 signals:
     void errorOccurred(const QString &errorMessage);

@@ -26,6 +26,7 @@ class PowerManagerPrivate : public ProofObjectPrivate
     Q_DECLARE_PUBLIC(PowerManager)
 public:
     void shutdown(const QString &password, bool restart);
+    void restartApp();
 
     WorkerThread *thread;
 };
@@ -56,6 +57,12 @@ void PowerManager::powerOff(const QString &password)
 {
     Q_D(PowerManager);
     d->shutdown(password, false);
+}
+
+void PowerManager::restartApp()
+{
+    Q_D(PowerManager);
+    d->restartApp();
 }
 
 void PowerManagerPrivate::shutdown(const QString &password, bool restart)
@@ -112,17 +119,22 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
         emit q->errorOccurred(QObject::tr("Unknown error"));
     }
 #else
-    if (restart) {
-        if (QProcess::startDetached(qApp->applicationFilePath())) {
-            qApp->quit();
-        } else {
-            qCDebug(proofUtilsUpdatesLog) << "Can't restart application";
-            emit q->errorOccurred(QObject::tr("Can't restart application"));
-        }
-    } else {
+    if (restart)
+        restartApp();
+    else
         qApp->quit();
-    }
 #endif
+}
+
+void PowerManagerPrivate::restartApp()
+{
+    Q_Q(PowerManager);
+    if (QProcess::startDetached(qApp->applicationFilePath())) {
+        qApp->quit();
+    } else {
+        qCDebug(proofUtilsUpdatesLog) << "Can't restart application";
+        emit q->errorOccurred(QObject::tr("Can't restart application"));
+    }
 }
 
 } // namespace Proof
