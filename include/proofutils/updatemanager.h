@@ -42,7 +42,7 @@ signals:
     void timeoutChanged(int timeout);
     void currentVersionChanged(const QString &currentVersion);
     void packageNameChanged(const QString &packageName);
-    void rollbackVersionsChanged(QStringList rollbackVersions);
+    void rollbackVersionsChanged(const QStringList &rollbackVersions);
     void newVersionFound(const QString &version);
     void updateSucceeded();
     void updateFailed();
