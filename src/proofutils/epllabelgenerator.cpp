@@ -17,6 +17,9 @@ class EplLabelGeneratorPrivate
     int dpi = 203;
     int labelWidth = 795;
     int labelHeight = 1250;
+    int speed = 4;
+    int density = 10;
+    int gapLength = 24;
 };
 
 uint qHash(EplLabelGenerator::BarcodeType barcodeType, uint seed = 0)
@@ -82,14 +85,11 @@ void EplLabelGenerator::startLabel(int width, int height, int speed, int density
     Q_D(EplLabelGenerator);
     d->labelWidth = width;
     d->labelHeight = height;
+    d->speed = speed;
+    d->density = density;
+    d->gapLength = gapLength;
     d->lastLabel.clear();
-    d->lastLabel.append("I8,A,001\n");
-    d->lastLabel.append("OD\n");
-    d->lastLabel.append(QString("q%1\n").arg(width));
-    d->lastLabel.append(QString("Q%1,%2\n").arg(height).arg(gapLength));
-    d->lastLabel.append(QString("S%1\n").arg(speed));
-    d->lastLabel.append(QString("D%1\n").arg(density));
-    d->lastLabel.append("JF\n\n");
+    addPage();
 }
 
 QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize,
@@ -254,6 +254,19 @@ void EplLabelGenerator::addClearBufferCommand()
 {
     Q_D(EplLabelGenerator);
     d->lastLabel.append("N\n");
+}
+
+QRect EplLabelGenerator::addPage()
+{
+    Q_D(EplLabelGenerator);
+    d->lastLabel.append("I8,A,001\n");
+    d->lastLabel.append("OD\n");
+    d->lastLabel.append(QString("q%1\n").arg(d->labelWidth));
+    d->lastLabel.append(QString("Q%1,%2\n").arg(d->labelHeight).arg(d->gapLength));
+    d->lastLabel.append(QString("S%1\n").arg(d->speed));
+    d->lastLabel.append(QString("D%1\n").arg(d->density));
+    d->lastLabel.append("JF\n\n");
+    return QRect();
 }
 
 QByteArray EplLabelGenerator::labelData() const
