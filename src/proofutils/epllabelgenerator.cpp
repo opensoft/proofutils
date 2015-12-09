@@ -89,7 +89,7 @@ void EplLabelGenerator::startLabel(int width, int height, int speed, int density
     d->density = density;
     d->gapLength = gapLength;
     d->lastLabel.clear();
-    addPage();
+    startPage();
 }
 
 QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize,
@@ -256,7 +256,7 @@ void EplLabelGenerator::addClearBufferCommand()
     d->lastLabel.append("N\n");
 }
 
-void EplLabelGenerator::addPage()
+void EplLabelGenerator::startPage()
 {
     Q_D(EplLabelGenerator);
     d->lastLabel.append("I8,A,001\n");

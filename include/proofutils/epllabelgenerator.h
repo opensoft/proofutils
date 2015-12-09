@@ -77,7 +77,7 @@ public:
 
     void addPrintCommand(int copies = 1);
     void addClearBufferCommand();
-    void addPage();
+    void startPage();
 
     QByteArray labelData() const;
 
