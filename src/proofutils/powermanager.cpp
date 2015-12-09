@@ -67,10 +67,10 @@ void PowerManager::restartApp()
 
 void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 {
-    Q_Q(PowerManager);
     if (ProofObject::call(thread, &WorkerThread::shutdown, password, restart))
         return;
 #ifdef Q_OS_UNIX
+    Q_Q(PowerManager);
     QScopedPointer<QProcess> shutdownProcess(new QProcess);
     shutdownProcess->setProcessChannelMode(QProcess::MergedChannels);
     shutdownProcess->start(QString("sudo -S -k shutdown -%1 now").arg(restart ? "r" : "h"));
