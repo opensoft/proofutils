@@ -256,7 +256,7 @@ void EplLabelGenerator::addClearBufferCommand()
     d->lastLabel.append("N\n");
 }
 
-QRect EplLabelGenerator::addPage()
+void EplLabelGenerator::addPage()
 {
     Q_D(EplLabelGenerator);
     d->lastLabel.append("I8,A,001\n");
@@ -266,7 +266,6 @@ QRect EplLabelGenerator::addPage()
     d->lastLabel.append(QString("S%1\n").arg(d->speed));
     d->lastLabel.append(QString("D%1\n").arg(d->density));
     d->lastLabel.append("JF\n\n");
-    return QRect();
 }
 
 QByteArray EplLabelGenerator::labelData() const
