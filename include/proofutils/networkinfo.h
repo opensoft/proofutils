@@ -14,7 +14,7 @@ class PROOF_UTILS_EXPORT NetworkInfo : public ProofObject
 public:
     explicit NetworkInfo(QObject *parent = nullptr);
 
-    Q_INVOKABLE QList<QString> addresses() const;
+    Q_INVOKABLE QVariantMap addresses() const;
 };
 
 } // namespace Proof

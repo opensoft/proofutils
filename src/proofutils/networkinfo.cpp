@@ -16,14 +16,17 @@ NetworkInfo::NetworkInfo(QObject *parent)
 {
 }
 
-QList<QString> NetworkInfo::addresses() const
+QVariantMap NetworkInfo::addresses() const
 {
-    QList<QString> addresses;
+    QVariantMap addresses;
     for (const auto &interface : QNetworkInterface::allInterfaces()) {
         for (const auto &address : interface.addressEntries()) {
             auto ip = address.ip();
-            if (!ip.isLoopback())
-                addresses << QString("%1 - %2").arg(interface.humanReadableName(), ip.toString());
+            if (ip.isLoopback())
+                continue;
+            QVariantList list = addresses.value(interface.humanReadableName(), QVariantList{}).toList();
+            list << ip.toString();
+            addresses[interface.humanReadableName()] = list;
         }
     }
     return addresses;
