@@ -219,7 +219,7 @@ void UpdateManagerPrivate::checkPassword(const QString &password)
 #else
     Q_UNUSED(password);
     qCDebug(proofUtilsUpdatesLog) << "Password check is not supported for this platform";
-    emit q->updateFailed();
+    emit q->passwordChecked(false);
 #endif
 }
 
