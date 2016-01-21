@@ -39,6 +39,7 @@ class UpdateManagerPrivate : public ProofObjectPrivate
 {
     Q_DECLARE_PUBLIC(UpdateManager)
 
+    void checkPassword(const QString &password);
     void checkForUpdates();
     void installVersion(const QString &version, const QString &password);
     void fetchRollbackVersions();
@@ -107,6 +108,12 @@ void UpdateManager::installVersion(const QString &version, const QString &passwo
     d->thread->callUpdater(&UpdateManagerPrivate::installVersion, version, password);
 }
 
+void UpdateManager::checkPassword(const QString &password)
+{
+    Q_D(UpdateManager);
+    d->thread->callUpdater(&UpdateManagerPrivate::checkPassword, password);
+}
+
 bool UpdateManager::enabled() const
 {
     Q_D(const UpdateManager);
@@ -159,6 +166,61 @@ void UpdateManager::setPackageName(const QString &arg)
 {
     Q_D(UpdateManager);
     d->thread->callUpdaterWithResult(&UpdateManagerPrivate::setPackageName, arg);
+}
+
+void UpdateManagerPrivate::checkPassword(const QString &password)
+{
+#ifdef Q_OS_LINUX
+    Q_Q(UpdateManager);
+    QScopedPointer<QProcess> checker(new QProcess);
+    checker->setProcessChannelMode(QProcess::MergedChannels);
+    checker->start(QString("sudo -S -k pwd"));
+    if (checker->error() == QProcess::UnknownError) {
+        if (!checker->waitForReadyRead()) {
+            qCDebug(proofUtilsUpdatesLog) << "No answer from command. Returning";
+            emit q->passwordChecked(false);
+            return;
+        }
+        QByteArray readBuffer;
+        QByteArray currentRead;
+
+        currentRead = checker->readAll();
+        readBuffer.append(currentRead);
+        currentRead = currentRead.trimmed();
+        if (currentRead.contains("[sudo]") || currentRead.contains("password for")) {
+            checker->write(QString("%1\n").arg(password).toLatin1());
+            if (!checker->waitForReadyRead()) {
+                qCDebug(proofUtilsUpdatesLog) << "No answer from command. Returning";
+                emit q->passwordChecked(false);
+                return;
+            }
+
+            currentRead = checker->readAll();
+            readBuffer.append(currentRead);
+            currentRead = currentRead.trimmed();
+
+            if (currentRead.contains("is not in the sudoers")) {
+                qCDebug(proofUtilsUpdatesLog) << "User not in sudoers list; log:\n" << readBuffer;
+                emit q->passwordChecked(false);
+                return;
+            }
+            if (currentRead.contains("Sorry, try again")) {
+                qCDebug(proofUtilsUpdatesLog) << "Sudo rejected the password; log:\n" << readBuffer;
+                emit q->passwordChecked(false);
+                return;
+            }
+        }
+        checker->waitForFinished(-1);
+        qCDebug(proofUtilsUpdatesLog) << "Exitcode =" << checker->exitCode();
+        emit q->passwordChecked(checker->exitCode() == 0);
+    } else {
+        qCDebug(proofUtilsUpdatesLog) << "Process couldn't be started" << checker->error() << checker->errorString();
+    }
+#else
+    Q_UNUSED(password);
+    qCDebug(proofUtilsUpdatesLog) << "Password check is not supported for this platform";
+    emit q->updateFailed();
+#endif
 }
 
 void UpdateManagerPrivate::checkForUpdates()

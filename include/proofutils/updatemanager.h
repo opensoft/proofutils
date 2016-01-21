@@ -25,6 +25,7 @@ public:
 
     Q_INVOKABLE void update(const QString &password);
     Q_INVOKABLE void installVersion(const QString &version, const QString &password);
+    Q_INVOKABLE void checkPassword(const QString &password);
 
     bool enabled() const;
     int timeout() const;
@@ -49,6 +50,7 @@ signals:
     void manualUpdateNeeded(const QString &version);
     void installationSucceeded();
     void installationFailed();
+    void passwordChecked(bool isCorrect);
 };
 
 } // namespace Proof
