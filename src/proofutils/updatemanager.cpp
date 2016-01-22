@@ -170,8 +170,8 @@ void UpdateManager::setPackageName(const QString &arg)
 
 void UpdateManagerPrivate::checkPassword(const QString &password)
 {
-#ifdef Q_OS_LINUX
     Q_Q(UpdateManager);
+#ifdef Q_OS_LINUX
     QScopedPointer<QProcess> checker(new QProcess);
     checker->setProcessChannelMode(QProcess::MergedChannels);
     checker->start(QString("sudo -S -k pwd"));
