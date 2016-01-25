@@ -5,7 +5,7 @@
     <name>QObject</name>
     <message>
         <source>No answer from OS</source>
-        <translation type="unfinished"></translation>
+        <translation>No hay respuesta del sistema operative</translation>
     </message>
     <message>
         <source>User not in sudoers list</source>
@@ -13,15 +13,15 @@
     </message>
     <message>
         <source>Incorrect password</source>
-        <translation type="unfinished"></translation>
+        <translation>Contraseña incorrecta</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error desconocido</translation>
     </message>
     <message>
         <source>Can&apos;t restart application</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede reiniciar aplicaciόn</translation>
     </message>
 </context>
 </TS>
