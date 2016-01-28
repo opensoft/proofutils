@@ -14,6 +14,7 @@ typedef QSharedPointer<Job> JobSP;
 typedef QWeakPointer<Job> JobWP;
 
 }
+constexpr long NETWORK_MIS_MODULE_CODE = 306;
 }
 
 #endif // PROOFNETWORKMIS_TYPES_H
