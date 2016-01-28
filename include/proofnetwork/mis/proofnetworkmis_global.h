@@ -11,4 +11,8 @@
 
 Q_DECLARE_LOGGING_CATEGORY(proofNetworkMisDataLog)
 
+namespace Proof {
+constexpr long NETWORK_MIS_MODULE_CODE = 306;
+}
+
 #endif // PROOFNETWORKMIS_GLOBAL_H
