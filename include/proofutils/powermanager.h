@@ -20,7 +20,7 @@ public:
     Q_INVOKABLE void restartApp();
 
 signals:
-    void errorOccurred(const QString &errorMessage);
+    void errorOccurred(long moduleCode, long errorCode, const QString &errorMessage, bool userFriendly);
 };
 
 } // namespace Proof

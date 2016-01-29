@@ -78,7 +78,7 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
     if (shutdownProcess->error() == QProcess::UnknownError) {
         if (!shutdownProcess->waitForReadyRead()) {
             qCDebug(proofUtilsUpdatesLog) << "No answer from sudo. Returning";
-            emit q->errorOccurred(QObject::tr("No answer from OS"));
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, "No answer from OS", false);
             return;
         }
         QByteArray readBuffer;
@@ -91,7 +91,7 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
             shutdownProcess->write(QString("%1\n").arg(password).toLatin1());
             if (!shutdownProcess->waitForReadyRead()) {
                 qCDebug(proofUtilsUpdatesLog) << "No answer from sudo. Returning";
-                emit q->errorOccurred(QObject::tr("No answer from OS"));
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, "No answer from OS", false);
                 return;
             }
 
@@ -101,22 +101,22 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 
             if (currentRead.contains("is not in the sudoers")) {
                 qCDebug(proofUtilsUpdatesLog) << "User not in sudoers list; log:\n" << readBuffer;
-                emit q->errorOccurred(QObject::tr("User not in sudoers list"));
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UserNotASudoer, "User not in sudoers list", false);
                 return;
             }
             if (currentRead.contains("Sorry, try again")) {
                 qCDebug(proofUtilsUpdatesLog) << "Sudo rejected the password; log:\n" << readBuffer;
-                emit q->errorOccurred(QObject::tr("Incorrect password"));
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::IncorrectPassword, QObject::tr("Incorrect password"), true);
                 return;
             }
         }
         shutdownProcess->waitForFinished(-1);
         qCDebug(proofUtilsUpdatesLog) << "Shutdown exitcode =" << shutdownProcess->exitCode() << "; log:\n" << readBuffer + shutdownProcess->readAll().trimmed();
         if (shutdownProcess->exitCode())
-            emit q->errorOccurred(QObject::tr("Unknown error"));
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Unknown error", false);
     } else {
         qCDebug(proofUtilsUpdatesLog) << "Process couldn't be started" << shutdownProcess->error() << shutdownProcess->errorString();
-        emit q->errorOccurred(QObject::tr("Unknown error"));
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Unknown error", false);
     }
 #else
     if (restart)
@@ -133,7 +133,7 @@ void PowerManagerPrivate::restartApp()
         qApp->quit();
     } else {
         qCDebug(proofUtilsUpdatesLog) << "Can't restart application";
-        emit q->errorOccurred(QObject::tr("Can't restart application"));
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Can't restart application", false);
     }
 }
 

@@ -12,4 +12,16 @@
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsEplGeneratorLog)
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsUpdatesLog)
 
+namespace Proof {
+namespace UtilsErrorCode {
+enum Code {
+    IncorrectPassword = 1,
+    NoAnswerFromSystem = 2,
+    UserNotASudoer = 3,
+    ApplicationCannotBeRestarted = 4,
+    UnknownError = 5
+};
+}
+constexpr long UTILS_MODULE_CODE = 200;
+}
 #endif // PROOFUTILITIES_GLOBAL_H
