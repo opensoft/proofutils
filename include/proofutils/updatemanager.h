@@ -12,6 +12,7 @@ class UpdateManagerPrivate;
 class PROOF_UTILS_EXPORT UpdateManager : public ProofObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool supported READ supported CONSTANT)
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(int timeout READ timeout WRITE setTimeout NOTIFY timeoutChanged)
     Q_PROPERTY(QString currentVersion READ currentVersion WRITE setCurrentVersion NOTIFY currentVersionChanged)
@@ -27,6 +28,7 @@ public:
     Q_INVOKABLE void installVersion(const QString &version, const QString &password);
     Q_INVOKABLE void checkPassword(const QString &password);
 
+    bool supported() const;
     bool enabled() const;
     int timeout() const;
     QString currentVersion() const;

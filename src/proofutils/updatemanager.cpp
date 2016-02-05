@@ -114,6 +114,15 @@ void UpdateManager::checkPassword(const QString &password)
     d->thread->callUpdater(&UpdateManagerPrivate::checkPassword, password);
 }
 
+bool UpdateManager::supported() const
+{
+#ifdef Q_OS_LINUX
+    return true;
+#else
+    return false;
+#endif
+}
+
 bool UpdateManager::enabled() const
 {
     Q_D(const UpdateManager);
