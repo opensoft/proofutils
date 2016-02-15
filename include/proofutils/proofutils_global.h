@@ -19,7 +19,8 @@ enum Code {
     NoAnswerFromSystem = 2,
     UserNotASudoer = 3,
     ApplicationCannotBeRestarted = 4,
-    UnknownError = 5
+    PlatformNotSupported = 5,
+    UnknownError = 6
 };
 }
 constexpr long UTILS_MODULE_CODE = 200;

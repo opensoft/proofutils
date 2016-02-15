@@ -69,8 +69,13 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 {
     if (ProofObject::call(thread, &WorkerThread::shutdown, password, restart))
         return;
+
 #ifdef Q_OS_UNIX
     Q_Q(PowerManager);
+# ifdef Q_OS_ANDROID
+    qCDebug(proofUtilsUpdatesLog) << "Shutdown is not supported for Android.";
+    emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::PlatformNotSupported, "This action is not supported for current platform", true);
+# else
     QScopedPointer<QProcess> shutdownProcess(new QProcess);
     shutdownProcess->setProcessChannelMode(QProcess::MergedChannels);
     shutdownProcess->start(QString("sudo -S -k shutdown -%1 now").arg(restart ? "r" : "h"));
@@ -118,6 +123,7 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
         qCDebug(proofUtilsUpdatesLog) << "Process couldn't be started" << shutdownProcess->error() << shutdownProcess->errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Unknown error", false);
     }
+# endif
 #else
     if (restart)
         restartApp();
