@@ -76,6 +76,8 @@ public:
         BackSide
     };
 
+    static WorkflowStatus workflowStatusAfterTransitionEvent(Proof::Mis::ApiHelper::TransitionEvent event);
+
 private:
     explicit ApiHelper() : ProofObject(0) {}
 };
