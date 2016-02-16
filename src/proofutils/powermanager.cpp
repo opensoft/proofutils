@@ -74,7 +74,7 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
     Q_Q(PowerManager);
 # ifdef Q_OS_ANDROID
     qCDebug(proofUtilsUpdatesLog) << "Shutdown is not supported for Android.";
-    emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::PlatformNotSupported, "This action is not supported for current platform", true);
+    emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::PlatformNotSupported, QObject::tr("This action is not supported for current platform"), true);
 # else
     QScopedPointer<QProcess> shutdownProcess(new QProcess);
     shutdownProcess->setProcessChannelMode(QProcess::MergedChannels);
