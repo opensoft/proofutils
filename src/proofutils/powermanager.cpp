@@ -114,7 +114,14 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
                 emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::IncorrectPassword, QObject::tr("Incorrect password"), true);
                 return;
             }
+
+            if (!currentRead.contains("The system is going down for")) {
+                qCDebug(proofUtilsUpdatesLog) << "Sudo doesn't do nothing; log:\n" << readBuffer;
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::IncorrectPassword, QObject::tr("Unknown error"), true);
+                return;
+            }
         }
+
         shutdownProcess->waitForFinished(-1);
         qCDebug(proofUtilsUpdatesLog) << "Shutdown exitcode =" << shutdownProcess->exitCode() << "; log:\n" << readBuffer + shutdownProcess->readAll().trimmed();
         if (shutdownProcess->exitCode())
