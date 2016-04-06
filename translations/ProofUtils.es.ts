@@ -4,24 +4,16 @@
 <context>
     <name>QObject</name>
     <message>
-        <source>No answer from OS</source>
-        <translation>No hay respuesta del sistema operative</translation>
-    </message>
-    <message>
-        <source>User not in sudoers list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Incorrect password</source>
         <translation>Contraseña incorrecta</translation>
     </message>
     <message>
-        <source>Unknown error</source>
-        <translation>Error desconocido</translation>
+        <source>This action is not supported for current platform</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Can&apos;t restart application</source>
-        <translation>No se puede reiniciar aplicaciόn</translation>
+        <source>Something went wrong during shutdown. Please, contact IT department.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
