@@ -9,11 +9,11 @@
     </message>
     <message>
         <source>This action is not supported for current platform</source>
-        <translation type="unfinished"></translation>
+        <translation>この選択は現在使用しているプラットフォームではサポートされていません</translation>
     </message>
     <message>
         <source>Something went wrong during shutdown. Please, contact IT department.</source>
-        <translation type="unfinished"></translation>
+        <translation>シャットダウン中に問題が発生しました。ＩＴ部門に連絡してください</translation>
     </message>
 </context>
 </TS>
