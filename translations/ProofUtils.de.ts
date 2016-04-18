@@ -6,7 +6,7 @@
     <message>
         <location filename="../powermanager.cpp" line="77"/>
         <source>This action is not supported for current platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Funktion wird bei deser Version nicht unterstützt.</translation>
     </message>
     <message>
         <location filename="../powermanager.cpp" line="114"/>
@@ -16,7 +16,7 @@
     <message>
         <location filename="../powermanager.cpp" line="120"/>
         <source>Something went wrong during shutdown. Please, contact IT department.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Herunterfahren ist ein Fehler aufgetreten. Bitte wenden Sie sich an die IT-Abteilung</translation>
     </message>
 </context>
 </TS>
