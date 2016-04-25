@@ -11,6 +11,7 @@
 
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsEplGeneratorLog)
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsUpdatesLog)
+Q_DECLARE_LOGGING_CATEGORY(proofUtilsNetworkConfigurationLog)
 
 namespace Proof {
 namespace UtilsErrorCode {
@@ -20,7 +21,8 @@ enum Code {
     UserNotASudoer = 3,
     ApplicationCannotBeRestarted = 4,
     PlatformNotSupported = 5,
-    UnknownError = 6
+    UnknownError = 6,
+    NetworkConfigurationCannotBeWritten = 7
 };
 }
 constexpr long UTILS_MODULE_CODE = 200;
