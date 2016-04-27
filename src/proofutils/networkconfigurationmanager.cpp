@@ -27,9 +27,10 @@ class WorkerThread : public QThread
 public:
     explicit WorkerThread(Proof::NetworkConfigurationManagerPrivate *networkConfigurationManager);
     QStringList networkInterfaces();
+    void checkPassword(const QString &password);
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
-    void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address,
-                                   const QString &subnetMask, const QString &gateway, const QString &preferredDns, const QString &alternateDns);
+    void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
+                                   const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
 
 private:
     Proof::NetworkConfigurationManagerPrivate *networkConfigurationManager;
@@ -54,12 +55,14 @@ class NetworkConfigurationManagerPrivate : public ProofObjectPrivate
 {
     Q_DECLARE_PUBLIC(NetworkConfigurationManager)
 public:
+    void checkPassword(const QString &password);
     QStringList networkInterfaces();
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
-    void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address,
-                                   const QString &subnetMask, const QString &gateway, const QString &preferredDns, const QString &alternateDns);
+    void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
+                                   const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
 private:
     NetworkConfiguration fetchNetworkConfigurationPrivate(const QString &networkAdapterDescription);
+    bool enterPassword(QProcess &process, const QString &password);
 
     WorkerThread *thread;
 };
@@ -78,6 +81,21 @@ NetworkConfigurationManager::~NetworkConfigurationManager()
     d->thread->quit();
     d->thread->wait(1000);
     delete d->thread;
+}
+
+bool NetworkConfigurationManager::passwordSupported() const
+{
+#ifdef Q_OS_LINUX
+    return true;
+#else
+    return false;
+#endif
+}
+
+void NetworkConfigurationManager::checkPassword(const QString &password)
+{
+    Q_D(NetworkConfigurationManager);
+    d->checkPassword(password);
 }
 
 QVariantMap NetworkConfigurationManager::addresses() const
@@ -108,12 +126,33 @@ void NetworkConfigurationManager::fetchNetworkConfiguration(const QString &netwo
     d->fetchNetworkConfiguration(networkAdapterDescription);
 }
 
-void NetworkConfigurationManager::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address,
-                                                            const QString &subnetMask, const QString &gateway, const QString &preferredDns, const QString &alternateDns)
+void NetworkConfigurationManager::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
+                                                            const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password)
 {
     Q_D(NetworkConfigurationManager);
     d->writeNetworkConfiguration(networkAdapterDescription, dhcpEnabled, ipv4Address,
-                                 subnetMask, gateway, preferredDns, alternateDns);
+                                 subnetMask, gateway, preferredDns, alternateDns, password);
+}
+
+void NetworkConfigurationManagerPrivate::checkPassword(const QString &password)
+{
+    Q_Q(NetworkConfigurationManager);
+    if (ProofObject::call(thread, &WorkerThread::checkPassword, password))
+        return;
+
+#ifdef Q_OS_LINUX
+    QProcess checker;
+    checker.setProcessChannelMode(QProcess::MergedChannels);
+    checker.start(QString("sudo -S -k pwd"));
+    if (checker.error() == QProcess::UnknownError)
+        emit q->passwordChecked(enterPassword(checker, password));
+    else
+        qCDebug(proofUtilsNetworkConfigurationLog) << "Process couldn't be started" << checker.error() << checker.errorString();
+#else
+    Q_UNUSED(password);
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Password check is not supported for this platform";
+    emit q->passwordChecked(true);
+#endif
 }
 
 QStringList NetworkConfigurationManagerPrivate::networkInterfaces()
@@ -178,7 +217,7 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
                                          "$WMI.DHCPEnabled; %2; $WMI.IPAddress; %2; $WMI.IPSubnet; %2; $WMI.DefaultIPGateway; %2; $WMI.DNSServerSearchOrder;").arg(networkConfiguration.index).arg(splitSimbol)});
     readInfoProcess.waitForStarted();
     if (readInfoProcess.error() != QProcess::UnknownError) {
-        qCWarning(proofUtilsNetworkConfigurationLog) <<  "PowerShell can't be started:" << readInfoProcess.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog) <<  "PowerShell can't be started:" << readInfoProcess.errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't read network configuration", true);
         return NetworkConfiguration();
     }
@@ -216,7 +255,7 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
 #else
     QFile settingsFile(NETWORK_SETTINGS_FILE);
     if (!settingsFile.open(QIODevice::ReadOnly)) {
-        qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't read network configuration", true);
         return NetworkConfiguration();
     }
@@ -252,14 +291,46 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
     return networkConfiguration;
 }
 
-void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address,
-                                                                   const QString &subnetMask, const QString &gateway, const QString &preferredDns, const QString &alternateDns)
+bool NetworkConfigurationManagerPrivate::enterPassword(QProcess &process, const QString &password)
 {
-    if (ProofObject::call(thread, &WorkerThread::writeNetworkConfiguration, networkAdapterDescription, dhcpEnabled, ipv4Address, subnetMask,
-                          gateway, preferredDns, alternateDns))
-        return;
+    QByteArray readBuffer;
+    QByteArray currentRead;
 
+    if (!process.waitForReadyRead()) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << "No answer from command. Returning";
+        return false;
+    }
+    currentRead = process.readAll();
+    readBuffer.append(currentRead);
+    currentRead = currentRead.trimmed();
+    if (currentRead.contains("[sudo]") || currentRead.contains("password for")) {
+        process.write(QString("%1\n").arg(password).toLatin1());
+        process.waitForReadyRead();
+        currentRead = process.readAll();
+        readBuffer.append(currentRead);
+        currentRead = currentRead.trimmed();
+
+        if (currentRead.contains("is not in the sudoers")) {
+            qCDebug(proofUtilsNetworkConfigurationLog) << "User not in sudoers list; log:\n" << readBuffer;
+            return false;
+        }
+        if (currentRead.contains("Sorry, try again")) {
+            qCDebug(proofUtilsNetworkConfigurationLog) << "Sudo rejected the password; log:\n" << readBuffer;
+            return false;
+        }
+    }
+    process.waitForFinished();
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Exitcode =" << process.exitCode();
+    return process.exitCode() == 0;
+}
+
+void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
+                                                                   const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password)
+{
     Q_Q(NetworkConfigurationManager);
+    if (ProofObject::call(thread, &WorkerThread::writeNetworkConfiguration, networkAdapterDescription, dhcpEnabled, ipv4Address, subnetMask,
+                          gateway, preferredDns, alternateDns, password))
+        return;
 
     QString adapterIndex;
     for (const auto &interface : QNetworkInterface::allInterfaces()) {
@@ -269,6 +340,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
         }
     }
 #ifdef Q_OS_WIN
+    Q_UNUSED(password);
     QProcess writeInfoProcess;
     writeInfoProcess.setReadChannel(QProcess::StandardOutput);
     QString query;
@@ -298,7 +370,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     writeInfoProcess.start("PowerShell", {"Start-Process", query});
     writeInfoProcess.waitForStarted();
     if (writeInfoProcess.error() != QProcess::UnknownError) {
-        qCWarning(proofUtilsNetworkConfigurationLog) << "PowerShell can't be started:" << writeInfoProcess.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog) << "PowerShell can't be started:" << writeInfoProcess.errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
 
         return;
@@ -306,20 +378,25 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     writeInfoProcess.waitForFinished();
     QThread::msleep(1000);
 #else
+
     QProcess networkingProcess;
-    networkingProcess.setReadChannel(QProcess::StandardOutput);
-    networkingProcess.start("sh", QStringList ({"-c", "sudo /sbin/ifdown " + networkAdapterDescription}));
+    networkingProcess.setProcessChannelMode(QProcess::MergedChannels);
+    networkingProcess.start("sudo -S -k /sbin/ifdown " + networkAdapterDescription);
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
-        qCWarning(proofUtilsNetworkConfigurationLog) << "service networking can't be stopped:" << networkingProcess.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog) << "service networking can't be stopped:" << networkingProcess.errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
         return;
     }
-    networkingProcess.waitForFinished();
+
+    if (!enterPassword(networkingProcess, password)) {
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        return;
+    }
 
     QFile settingsFile(NETWORK_SETTINGS_FILE);
     if (!settingsFile.open(QIODevice::ReadOnly)) {
-        qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be openned:" << settingsFile.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be openned:" << settingsFile.errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
         return;
     }
@@ -371,25 +448,34 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     settingsFileTmp.write(newInterfaces);
     settingsFileTmp.close();
 
-    networkingProcess.start("sh", QStringList ({"-c", "sudo /bin/cp \"" + NETWORK_SETTINGS_FILE_TMP + "\" \"" + NETWORK_SETTINGS_FILE + "\""}));
+
+    networkingProcess.start("sudo -S -k /bin/cp \"" + NETWORK_SETTINGS_FILE_TMP + "\" \"" + NETWORK_SETTINGS_FILE + "\"");
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
-        qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE + " can't be rewritten:" << networkingProcess.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE + " can't be rewritten:" << networkingProcess.errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
         return;
     }
-    networkingProcess.waitForFinished();
+
+    if (!enterPassword(networkingProcess, password)) {
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        settingsFileTmp.remove();
+        return;
+    }
     settingsFileTmp.remove();
 
-    networkingProcess.start("sh", QStringList ({"-c", "sudo /sbin/ifup " + networkAdapterDescription}));
+    networkingProcess.start("sudo -S -k /sbin/ifup " + networkAdapterDescription);
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
-        qCWarning(proofUtilsNetworkConfigurationLog) << "service networking can't be started:" << networkingProcess.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog) << "service networking can't be started:" << networkingProcess.errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
         return;
     }
-    networkingProcess.waitForFinished();
 
+    if (!enterPassword(networkingProcess, password)) {
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        return;
+    }
 #endif
 
     NetworkConfiguration networkConfiguration = fetchNetworkConfigurationPrivate(networkAdapterDescription);
@@ -417,16 +503,21 @@ QStringList WorkerThread::networkInterfaces()
     return networkConfigurationManager->networkInterfaces();
 }
 
+void WorkerThread::checkPassword(const QString &password)
+{
+    networkConfigurationManager->checkPassword(password);
+}
+
 void WorkerThread::fetchNetworkConfiguration(const QString &networkAdapterDescription)
 {
     networkConfigurationManager->fetchNetworkConfiguration(networkAdapterDescription);
 }
 
 void WorkerThread::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
-                                             const QString &gateway, const QString &preferredDns, const QString &alternateDns)
+                                             const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password)
 {
     networkConfigurationManager->writeNetworkConfiguration(networkAdapterDescription, dhcpEnabled, ipv4Address, subnetMask,
-                                                           gateway, preferredDns, alternateDns);
+                                                           gateway, preferredDns, alternateDns, password);
 }
 
 #include "networkconfigurationmanager.moc"

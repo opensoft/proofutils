@@ -15,13 +15,16 @@ public:
     explicit NetworkConfigurationManager(QObject *parent = nullptr);
     ~NetworkConfigurationManager();
 
+    Q_INVOKABLE bool passwordSupported() const;
+    Q_INVOKABLE void checkPassword(const QString &password);
     Q_INVOKABLE QVariantMap addresses() const;
     Q_INVOKABLE QStringList networkInterfaces();
     Q_INVOKABLE void fetchNetworkConfiguration(const QString &networkAdapterDescription);
-    Q_INVOKABLE void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address,
-                                               const QString &subnetMask, const QString &gateway, const QString &preferredDns, const QString &alternateDns);
+    Q_INVOKABLE void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
+                                               const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
 
 signals:
+    void passwordChecked(bool isCorrect);
     void networkAdaptersFetched(const QStringList &networkInterfaces);
     void networkConfigurationFetched(bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
                                      const QString &gateway, const QString &preferredDns, const QString &alternateDns);
