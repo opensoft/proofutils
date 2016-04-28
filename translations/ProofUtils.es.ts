@@ -9,11 +9,11 @@
     </message>
     <message>
         <source>This action is not supported for current platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Esta acción no es permitida en la plataforma actual</translation>
     </message>
     <message>
         <source>Something went wrong during shutdown. Please, contact IT department.</source>
-        <translation type="unfinished"></translation>
+        <translation>Algo fallo durante el apagar. Favor de contactar al departmento de IT.</translation>
     </message>
 </context>
 </TS>
