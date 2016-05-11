@@ -2,6 +2,8 @@
 
 #include "proofnetwork/networkdataentity_p.h"
 
+#include <QJsonArray>
+
 namespace Proof {
 namespace Mis {
 
@@ -139,11 +141,50 @@ JobQmlWrapper *Job::toQmlWrapper(QObject *parent) const
     return new JobQmlWrapper(castedSelf, parent);
 }
 
+QJsonObject Job::toJson() const
+{
+    Q_D(const Job);
+    QJsonObject json;
+    json.insert("id", id());
+    json.insert("name", name());
+    json.insert("quantity", quantity());
+
+    QJsonArray workflowArray;
+
+    for(const auto &workflowElement : d->workflow)
+        workflowArray << workflowElement.toString();
+
+    json.insert("workflow", workflowArray);
+    return json;
+}
+
 JobSP Job::create(const QString &id)
 {
     JobSP result(new Job(id));
     initSelfWeakPtr(result);
     return result;
+}
+
+JobSP Job::fromJson(const QJsonObject &json)
+{
+    if (!json.contains("id"))
+        return JobSP();
+
+    QString id = json.value("id").toString("");
+    JobSP job = create(id);
+    job->setFetched(true);
+    job->setName(json.value("name").toString(""));
+    job->setQuantity(json.value("quantity").toInt());
+
+    QList<WorkflowElement> workflow;
+
+    QJsonArray workflowArray = json.value("workflow").toArray();
+
+    for (const auto &elementValue : workflowArray)
+        workflow << WorkflowElement(elementValue.toString());
+
+    job->setWorkflow(workflow);
+    return job;
 }
 
 Job::Job(const QString &id)

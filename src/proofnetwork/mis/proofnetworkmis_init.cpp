@@ -13,6 +13,7 @@ static void libraryInit()
 
     qRegisterMetaType<Proof::Mis::JobSP>("Proof::Mis::JobSP");
     qRegisterMetaType<Proof::Mis::JobWP>("Proof::Mis::JobWP");
+    qRegisterMetaType<QList<Proof::Mis::JobSP>>("QList<Proof::Mis::JobSP>");
 
     qRegisterMetaType<Proof::Mis::ApiHelper::WorkflowStatus>("Proof::Mis::ApiHelper::WorkflowStatus");
     qRegisterMetaType<Proof::Mis::ApiHelper::TransitionEvent>("Proof::Mis::ApiHelper::TransitionEvent");

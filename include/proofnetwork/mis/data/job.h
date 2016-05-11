@@ -9,6 +9,8 @@
 #include "proofnetwork/mis/data/qmlwrappers/jobqmlwrapper.h"
 #include "proofnetwork/mis/data/workflowelement.h"
 
+#include <QJsonObject>
+
 namespace Proof {
 namespace Mis {
 
@@ -33,7 +35,11 @@ public:
 
     JobQmlWrapper *toQmlWrapper(QObject *parent = 0) const override;
 
+    QJsonObject toJson() const;
+
     static JobSP create(const QString &id = QString());
+
+    static JobSP fromJson(const QJsonObject &json);
 
 signals:
     void idChanged(const QString &arg);
