@@ -1,5 +1,7 @@
 #include "epllabelgenerator.h"
 
+#include "qrcodegenerator.h"
+
 #include <QtMath>
 
 //All constants here are taken from manual https://www.zebra.com/content/dam/zebra/manuals/en-us/printer/epl2-pm-en.pdf
@@ -203,6 +205,23 @@ QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::Barc
     }
 
     return rect;
+}
+
+QRect EplLabelGenerator::addQrCode(const QString &data, int x, int y, int width)
+{
+    Q_D(EplLabelGenerator);
+    auto rawBinary = QrCodeGenerator::generateEplBinaryData(data, width);
+    width = width + ((width + 8) % 8);
+
+    d->lastLabel.append(QString("GW%1,%2,%3,%4,")
+                        .arg(x)
+                        .arg(y)
+                        .arg(width / 8)
+                        .arg(width));
+    d->lastLabel.append(rawBinary);
+    d->lastLabel.append("\n");
+
+    return QRect(x, y, width, width);
 }
 
 QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGenerator::LineType type)
