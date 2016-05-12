@@ -4,7 +4,6 @@
 #include "proofutils_global.h"
 
 #include <QImage>
-#include "qrencode.h"
 
 namespace Proof {
 

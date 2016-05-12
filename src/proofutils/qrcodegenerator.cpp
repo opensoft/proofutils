@@ -2,6 +2,8 @@
 
 #include <QPainter>
 
+#include <qrencode.h>
+
 using namespace Proof;
 
 namespace {
