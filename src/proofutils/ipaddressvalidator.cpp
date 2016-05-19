@@ -57,6 +57,9 @@ bool IpAddressValidator::maskValidationMode() const
 bool IpAddressValidator::ipBelongsToSubnet(const QString &ip, const QString &subnet) const
 {
     QList<int> parts = IpAddressValidatorPrivate::ipToIntParts(ip);
+    if (parts.isEmpty())
+        return false;
+
     quint32 ipAddress = IpAddressValidatorPrivate::ipToUInt(ip);
     quint32 networkAddress = 0;
     quint8 byte = 255;
@@ -176,6 +179,9 @@ quint32 IpAddressValidatorPrivate::ipToUInt(const QString &ip)
     quint32 address = 0;
 
     QList<int> parts = ipToIntParts(ip);
+
+    if (parts.isEmpty())
+        return 0;
 
     for (quint8 i = 0; i < parts.count(); ++i)
         address |= static_cast<quint8>(parts[i]) << ((3 - i) * 8);
