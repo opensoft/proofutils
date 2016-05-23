@@ -21,8 +21,6 @@ public:
     QValidator::State validate(QString &input, int &pos) const override;
     bool maskValidationMode() const;
 
-    Q_INVOKABLE bool ipBelongsToSubnet(const QString &ip, const QString &subnet) const;
-
 public slots:
     void setMaskValidationMode(bool maskValidationMode);
 

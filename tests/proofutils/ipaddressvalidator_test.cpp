@@ -20,13 +20,14 @@ INSTANTIATE_TEST_CASE_P(IpAdrressTestParameters,
                         testing::Values(
                             TestTuple("128.1.1.1", IpAddressValidator::Acceptable),
                             TestTuple("192.168.0.1", IpAddressValidator::Acceptable),
+                            TestTuple("128. .1.1", IpAddressValidator::Acceptable),
+                            TestTuple("192.168. .1", IpAddressValidator::Acceptable),
+
+                            TestTuple("8.8.8. ", IpAddressValidator::Invalid),
+                            TestTuple("4. . . ", IpAddressValidator::Invalid),
                             TestTuple("255.1.1.1", IpAddressValidator::Invalid),
                             TestTuple("192.168.0.0", IpAddressValidator::Invalid),
-                            TestTuple("128.335.343.344", IpAddressValidator::Invalid),
-                            TestTuple("128. .1.1", IpAddressValidator::Intermediate),
-                            TestTuple("192.168. .1", IpAddressValidator::Intermediate),
-                            TestTuple("8.8.8. ", IpAddressValidator::Intermediate),
-                            TestTuple("4. . . ", IpAddressValidator::Intermediate)
+                            TestTuple("128.335.343.344", IpAddressValidator::Invalid)
                             ));
 
 INSTANTIATE_TEST_CASE_P(SubnetMaskTestParameters,
@@ -64,17 +65,19 @@ INSTANTIATE_TEST_CASE_P(SubnetMaskTestParameters,
                             TestTuple("255.255.255.252", IpAddressValidator::Acceptable),
                             TestTuple("255.255.255.254", IpAddressValidator::Acceptable),
                             TestTuple("255.255.255.255", IpAddressValidator::Acceptable),
+                            TestTuple("255.255.255. ", IpAddressValidator::Acceptable),
+                            TestTuple("255. . . ", IpAddressValidator::Acceptable),
 
                             TestTuple("255.123.255.255", IpAddressValidator::Invalid),
                             TestTuple("255.255.123.255", IpAddressValidator::Invalid),
                             TestTuple("255.255.255.123", IpAddressValidator::Invalid),
                             TestTuple("0.255.255.255", IpAddressValidator::Invalid),
                             TestTuple("123.255.255.255", IpAddressValidator::Invalid),
+                            TestTuple("255. .255.255", IpAddressValidator::Invalid),
+                            TestTuple("255.255. .255", IpAddressValidator::Invalid),
 
-                            TestTuple("255. .255.255", IpAddressValidator::Intermediate),
-                            TestTuple("255.255. .255", IpAddressValidator::Intermediate),
-                            TestTuple("255.255.255. ", IpAddressValidator::Intermediate),
-                            TestTuple("255. . . ", IpAddressValidator::Intermediate)
+                            TestTuple("255.25.255.0", IpAddressValidator::Intermediate),
+                            TestTuple("255.255.25.0", IpAddressValidator::Intermediate)
                             ));
 
 TEST_P(IpAddressValidationTest, ipAddress)
