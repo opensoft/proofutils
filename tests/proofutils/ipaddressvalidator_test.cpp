@@ -23,11 +23,12 @@ INSTANTIATE_TEST_CASE_P(IpAdrressTestParameters,
                             TestTuple("128. .1.1", IpAddressValidator::Acceptable),
                             TestTuple("192.168. .1", IpAddressValidator::Acceptable),
 
-                            TestTuple("8.8.8. ", IpAddressValidator::Invalid),
-                            TestTuple("4. . . ", IpAddressValidator::Invalid),
                             TestTuple("255.1.1.1", IpAddressValidator::Invalid),
-                            TestTuple("192.168.0.0", IpAddressValidator::Invalid),
-                            TestTuple("128.335.343.344", IpAddressValidator::Invalid)
+                            TestTuple("128.335.343.344", IpAddressValidator::Invalid),
+
+                            TestTuple("8.8.8. ", IpAddressValidator::Intermediate),
+                            TestTuple("4. . . ", IpAddressValidator::Intermediate),
+                            TestTuple("192.168.0.0", IpAddressValidator::Intermediate)
                             ));
 
 INSTANTIATE_TEST_CASE_P(SubnetMaskTestParameters,

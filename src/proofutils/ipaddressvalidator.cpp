@@ -70,7 +70,7 @@ QValidator::State IpAddressValidatorPrivate::validateIp(const QList<quint8> &par
     if (parts[0] > 223)
         return QValidator::State::Invalid;
     if (parts[3] == 0)
-        return QValidator::State::Invalid;
+        return QValidator::State::Intermediate;
 
     return QValidator::State::Acceptable;
 }
