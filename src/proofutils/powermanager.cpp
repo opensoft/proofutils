@@ -4,6 +4,10 @@
 
 #include <QProcess>
 
+#ifdef Q_OS_ANDROID
+# include <QtAndroid>
+#endif
+
 namespace {
 
 class WorkerThread : public QThread
@@ -142,12 +146,17 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 void PowerManagerPrivate::restartApp()
 {
     Q_Q(PowerManager);
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    activity.callMethod<void>("restartApp", "()V");
+#else
     if (QProcess::startDetached(qApp->applicationFilePath())) {
         qApp->quit();
     } else {
         qCDebug(proofUtilsUpdatesLog) << "Can't restart application";
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Can't restart application", false);
     }
+#endif
 }
 
 } // namespace Proof
