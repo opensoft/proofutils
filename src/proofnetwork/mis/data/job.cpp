@@ -18,12 +18,13 @@ class JobPrivate : NetworkDataEntityPrivate
     QString id;
     QString name;
     qlonglong quantity = 0;
+    QString source;
     QList<WorkflowElement> workflow;
 };
 
-ObjectsCache<QString, Job> &jobsCache()
+ObjectsCache<JobCacheKey, Job> &jobsCache()
 {
-    return WeakObjectsCache<QString, Job>::instance();
+    return WeakObjectsCache<JobCacheKey, Job>::instance();
 }
 
 } // namespace Mis
@@ -47,6 +48,12 @@ qlonglong Job::quantity() const
 {
     Q_D(const Job);
     return d->quantity;
+}
+
+QString Job::source() const
+{
+    Q_D(const Job);
+    return d->source;
 }
 
 void JobPrivate::setId(const QString &arg)
@@ -73,6 +80,15 @@ void Job::setQuantity(qlonglong arg)
     if (d->quantity != arg) {
         d->quantity = arg;
         emit quantityChanged(arg);
+    }
+}
+
+void Job::setSource(const QString &source)
+{
+    Q_D(Job);
+    if (d->source != source) {
+        d->source = source;
+        emit sourceChanged(source);
     }
 }
 
@@ -148,6 +164,7 @@ QJsonObject Job::toJson() const
     json.insert("id", id());
     json.insert("name", name());
     json.insert("quantity", quantity());
+    json.insert("source", source());
 
     QJsonArray workflowArray;
 
@@ -158,9 +175,14 @@ QJsonObject Job::toJson() const
     return json;
 }
 
-JobSP Job::create(const QString &id)
+JobCacheKey Job::cacheKey()
 {
-    JobSP result(new Job(id));
+    return JobCacheKey(id(), source());
+}
+
+JobSP Job::create(const QString &id, const QString &source)
+{
+    JobSP result(new Job(id, source));
     initSelfWeakPtr(result);
     return result;
 }
@@ -175,6 +197,7 @@ JobSP Job::fromJson(const QJsonObject &json)
     job->setFetched(true);
     job->setName(json.value("name").toString(""));
     job->setQuantity(json.value("quantity").toInt());
+    job->setSource(json.value("source").toString(""));
 
     QList<WorkflowElement> workflow;
 
@@ -187,11 +210,12 @@ JobSP Job::fromJson(const QJsonObject &json)
     return job;
 }
 
-Job::Job(const QString &id)
+Job::Job(const QString &id, const QString &source)
     : NetworkDataEntity(*new JobPrivate)
 {
     Q_D(Job);
     d->setId(id);
+    setSource(source);
     setName(id);
 }
 
@@ -203,6 +227,7 @@ void JobPrivate::updateFrom(const NetworkDataEntitySP &other)
     setId(castedOther->id());
     q->setName(castedOther->name());
     q->setQuantity(castedOther->quantity());
+    q->setSource(castedOther->source());
     q->setWorkflow(castedOther->d_func()->workflow);
 
     NetworkDataEntityPrivate::updateFrom(other);

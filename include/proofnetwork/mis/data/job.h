@@ -14,6 +14,8 @@
 namespace Proof {
 namespace Mis {
 
+typedef QPair<QString, QString> JobCacheKey;
+
 class JobPrivate;
 class PROOF_NETWORK_MIS_EXPORT Job : public NetworkDataEntity
 {
@@ -23,6 +25,7 @@ public:
     QString id() const;
     QString name() const;
     qlonglong quantity() const;
+    QString source() const;
     void setWorkflowStatus(ApiHelper::WorkflowAction action,
                            ApiHelper::WorkflowStatus status,
                            ApiHelper::PaperSide paperSide = ApiHelper::PaperSide::NotSetSide);
@@ -31,13 +34,16 @@ public:
 
     void setName(const QString &name);
     void setQuantity(qlonglong quantity);
+    void setSource(const QString &source);
     void setWorkflow(const QList<WorkflowElement> &workflow);
 
     JobQmlWrapper *toQmlWrapper(QObject *parent = 0) const override;
 
     QJsonObject toJson() const;
 
-    static JobSP create(const QString &id = QString());
+    JobCacheKey cacheKey();
+
+    static JobSP create(const QString &id = QString(),  const QString &source = QString());
 
     static JobSP fromJson(const QJsonObject &json);
 
@@ -45,14 +51,15 @@ signals:
     void idChanged(const QString &arg);
     void nameChanged(const QString &arg);
     void quantityChanged(qlonglong arg);
+    void sourceChanged(const QString &arg);
     void workflowChanged();
 
 protected:
-    explicit Job(const QString &id);
+    explicit Job(const QString &id, const QString &source);
 
 };
 
-PROOF_NETWORK_MIS_EXPORT ObjectsCache<QString, Job> &jobsCache();
+PROOF_NETWORK_MIS_EXPORT ObjectsCache<JobCacheKey, Job> &jobsCache();
 
 }
 }

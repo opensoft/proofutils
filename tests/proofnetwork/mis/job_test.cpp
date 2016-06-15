@@ -20,14 +20,16 @@ protected:
         jobUT = Job::create("123");
         jobUT->setName("I-123");
         jobUT->setQuantity(100);
+        jobUT->setSource("ProFIT");
         jobUT->setWorkflowStatus(ApiHelper::WorkflowAction::CuttingAction,
                                  ApiHelper::WorkflowStatus::IsReadyForStatus);
         ASSERT_TRUE(jobUT);
 
         jobUT2 = Job::create("ABC");
-        jobUT->setName("T-ABC");
-        jobUT->setQuantity(1000);
-        jobUT->setWorkflowStatus(ApiHelper::WorkflowAction::CuttingAction,
+        jobUT2->setName("T-ABC");
+        jobUT2->setQuantity(1000);
+        jobUT2->setSource("Metrix");
+        jobUT2->setWorkflowStatus(ApiHelper::WorkflowAction::CuttingAction,
                                  ApiHelper::WorkflowStatus::InProgressStatus);
         ASSERT_TRUE(jobUT2);
 
@@ -66,6 +68,7 @@ TEST_F(JobTest, updateFrom)
     EXPECT_EQ(jobUT2->id(), jobUT->id());
     EXPECT_EQ(jobUT2->name(), jobUT->name());
     EXPECT_EQ(jobUT2->quantity(), jobUT->quantity());
+    EXPECT_EQ(jobUT2->source(), jobUT->source());
     EXPECT_EQ(jobUT2->workflowStatus(ApiHelper::WorkflowAction::CuttingAction),
               jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction));
 }
@@ -73,7 +76,7 @@ TEST_F(JobTest, updateFrom)
 TEST_F(JobTest, setWorkflowStatus)
 {
     ApiHelper::WorkflowStatus workflowStatus = jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction);
-    ApiHelper::WorkflowStatus workflowStatusUpdate = ApiHelper::WorkflowStatus::IsReadyForStatus;
+    ApiHelper::WorkflowStatus workflowStatusUpdate = ApiHelper::WorkflowStatus::InProgressStatus;
     EXPECT_TRUE(workflowStatus != workflowStatusUpdate);
     jobUT->setWorkflowStatus(ApiHelper::WorkflowAction::CuttingAction, workflowStatusUpdate);
     EXPECT_EQ(jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction), workflowStatusUpdate);
