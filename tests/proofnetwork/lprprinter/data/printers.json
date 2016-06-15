@@ -1,0 +1,12 @@
+[
+    {
+        "printer": "Zebra",
+        "accepts_raw": true,
+        "accepts_files": false
+    },
+    {
+        "printer": "HP",
+        "accepts_raw": false,
+        "accepts_files": true
+    }
+]

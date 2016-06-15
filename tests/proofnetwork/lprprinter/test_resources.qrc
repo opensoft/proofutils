@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>data/status.json</file>
+        <file>data/failed_status.json</file>
+        <file>data/file.txt</file>
+        <file>data/printers.json</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,9 @@
+include(proofnetwork.prf)
+
+win32 {
+    LIBS *= -lProofNetworkLprPrinter$${PROOF_VERSION_MAJOR}
+} else {
+    LIBS *= -lProofNetworkLprPrinter
+}
+
+android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofNetworkLprPrinter.so
