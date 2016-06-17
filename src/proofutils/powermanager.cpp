@@ -145,11 +145,11 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 
 void PowerManagerPrivate::restartApp()
 {
-    Q_Q(PowerManager);
 #ifdef Q_OS_ANDROID
     QAndroidJniObject activity = QtAndroid::androidActivity();
     activity.callMethod<void>("restartApp", "()V");
 #else
+    Q_Q(PowerManager);
     if (QProcess::startDetached(qApp->applicationFilePath())) {
         qApp->quit();
     } else {
