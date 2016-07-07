@@ -4,17 +4,17 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../powermanager.cpp" line="77"/>
+        <location filename="../powermanager.cpp" line="81"/>
         <source>This action is not supported for current platform</source>
         <translation>Dieser Funktion wird bei deser Version nicht unterstützt.</translation>
     </message>
     <message>
-        <location filename="../powermanager.cpp" line="114"/>
+        <location filename="../powermanager.cpp" line="118"/>
         <source>Incorrect password</source>
         <translation>Falsches Passwort</translation>
     </message>
     <message>
-        <location filename="../powermanager.cpp" line="120"/>
+        <location filename="../powermanager.cpp" line="124"/>
         <source>Something went wrong during shutdown. Please, contact IT department.</source>
         <translation>Beim Herunterfahren ist ein Fehler aufgetreten. Bitte wenden Sie sich an die IT-Abteilung</translation>
     </message>
