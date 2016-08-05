@@ -18,6 +18,8 @@ class PROOF_NETWORK_MIS_EXPORT JobQmlWrapper : public NetworkDataEntityQmlWrappe
     Q_PROPERTY(QString id READ id NOTIFY idChanged)
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(qlonglong quantity READ quantity NOTIFY quantityChanged)
+    Q_PROPERTY(double width READ width NOTIFY widthChanged)
+    Q_PROPERTY(double height READ height NOTIFY heightChanged)
     Q_PROPERTY(QString source READ source NOTIFY sourceChanged)
     Q_DECLARE_PRIVATE(JobQmlWrapper)
 public:
@@ -28,6 +30,8 @@ public:
     QString id() const;
     QString name() const;
     qlonglong quantity() const;
+    double width() const;
+    double height() const;
     QString source() const;
     Q_INVOKABLE Proof::Mis::ApiHelper::WorkflowStatus workflowStatus(Proof::Mis::ApiHelper::WorkflowAction action,
                                                                      Proof::Mis::ApiHelper::PaperSide paperSide = Proof::Mis::ApiHelper::PaperSide::NotSetSide) const;
@@ -36,6 +40,8 @@ signals:
     void idChanged(const QString &id);
     void nameChanged(const QString &name);
     void quantityChanged(qlonglong quantity);
+    void widthChanged(double width);
+    void heightChanged(double height);
     void sourceChanged(const QString &source);
     void workflowChanged();
 

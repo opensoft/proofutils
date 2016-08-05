@@ -25,6 +25,8 @@ public:
     QString id() const;
     QString name() const;
     qlonglong quantity() const;
+    double width() const;
+    double height() const;
     QString source() const;
     void setWorkflowStatus(ApiHelper::WorkflowAction action,
                            ApiHelper::WorkflowStatus status,
@@ -34,6 +36,8 @@ public:
 
     void setName(const QString &name);
     void setQuantity(qlonglong quantity);
+    void setWidth(double width);
+    void setHeight(double height);
     void setSource(const QString &source);
     void setWorkflow(const QList<WorkflowElement> &workflow);
 
@@ -51,6 +55,8 @@ signals:
     void idChanged(const QString &arg);
     void nameChanged(const QString &arg);
     void quantityChanged(qlonglong arg);
+    void widthChanged(double arg);
+    void heightChanged(double arg);
     void sourceChanged(const QString &arg);
     void workflowChanged();
 

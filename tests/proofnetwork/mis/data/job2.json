@@ -1,0 +1,12 @@
+{
+    "id": "43",
+    "name": "MT-43",
+    "source": "metrix2",
+    "quantity": 100,
+    "width": 1440,
+    "height": 1080,
+    "workflow": [
+        "in progress:cutting",
+        "done:boxing"
+    ]
+}

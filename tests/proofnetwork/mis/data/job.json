@@ -1,0 +1,12 @@
+{
+    "id": "42",
+    "name": "MT-42",
+    "source": "metrix",
+    "quantity": 50,
+    "width": 2016,
+    "height": 1350,
+    "workflow": [
+        "is ready for:cutting",
+        "needs:boxing"
+    ]
+}

@@ -18,6 +18,8 @@ class JobPrivate : NetworkDataEntityPrivate
     QString id;
     QString name;
     qlonglong quantity = 0;
+    double width = 0.0;
+    double height = 0.0;
     QString source;
     QList<WorkflowElement> workflow;
 };
@@ -50,6 +52,18 @@ qlonglong Job::quantity() const
     return d->quantity;
 }
 
+double Job::width() const
+{
+    Q_D(const Job);
+    return d->width;
+}
+
+double Job::height() const
+{
+    Q_D(const Job);
+    return d->height;
+}
+
 QString Job::source() const
 {
     Q_D(const Job);
@@ -65,21 +79,39 @@ void JobPrivate::setId(const QString &arg)
     }
 }
 
-void Job::setName(const QString &arg)
+void Job::setName(const QString &name)
 {
     Q_D(Job);
-    if (d->name != arg) {
-        d->name = arg;
-        emit nameChanged(arg);
+    if (d->name != name) {
+        d->name = name;
+        emit nameChanged(name);
     }
 }
 
-void Job::setQuantity(qlonglong arg)
+void Job::setQuantity(qlonglong quantity)
 {
     Q_D(Job);
-    if (d->quantity != arg) {
-        d->quantity = arg;
-        emit quantityChanged(arg);
+    if (d->quantity != quantity) {
+        d->quantity = quantity;
+        emit quantityChanged(quantity);
+    }
+}
+
+void Job::setWidth(double width)
+{
+    Q_D(Job);
+    if (!qFuzzyCompare(d->width + 1.0, width + 1.0)) {
+        d->width = width;
+        emit widthChanged(width);
+    }
+}
+
+void Job::setHeight(double height)
+{
+    Q_D(Job);
+    if (!qFuzzyCompare(d->height + 1.0, height + 1.0)) {
+        d->height = height;
+        emit heightChanged(height);
     }
 }
 
@@ -164,6 +196,8 @@ QJsonObject Job::toJson() const
     json.insert("id", id());
     json.insert("name", name());
     json.insert("quantity", quantity());
+    json.insert("width", width());
+    json.insert("height", height());
     json.insert("source", source());
 
     QJsonArray workflowArray;
@@ -197,6 +231,8 @@ JobSP Job::fromJson(const QJsonObject &json)
     job->setFetched(true);
     job->setName(json.value("name").toString(""));
     job->setQuantity(json.value("quantity").toInt());
+    job->setWidth(json.value("width").toDouble());
+    job->setHeight(json.value("height").toDouble());
     job->setSource(json.value("source").toString(""));
 
     QList<WorkflowElement> workflow;
@@ -227,6 +263,8 @@ void JobPrivate::updateFrom(const NetworkDataEntitySP &other)
     setId(castedOther->id());
     q->setName(castedOther->name());
     q->setQuantity(castedOther->quantity());
+    q->setWidth(castedOther->width());
+    q->setHeight(castedOther->height());
     q->setSource(castedOther->source());
     q->setWorkflow(castedOther->d_func()->workflow);
 

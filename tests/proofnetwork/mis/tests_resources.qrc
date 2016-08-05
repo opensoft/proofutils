@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>data/job.json</file>
+        <file>data/job2.json</file>
+    </qresource>
+</RCC>
