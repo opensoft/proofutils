@@ -58,6 +58,7 @@ WorkflowElement::WorkflowElement(const WorkflowElement &other)
 WorkflowElement::WorkflowElement(WorkflowElement &&other)
     : d_ptr(other.d_ptr.take())
 {
+    d_ptr->q_ptr = this;
 }
 
 WorkflowElement::~WorkflowElement()
@@ -135,4 +136,6 @@ void WorkflowElement::swap(WorkflowElement &other)
     WorkflowElementPrivate *otherPrivate = other.d_ptr.take();
     other.d_ptr.reset(d_ptr.take());
     d_ptr.reset(otherPrivate);
+    d_ptr->q_ptr = this;
+    other.d_ptr->q_ptr = &other;
 }

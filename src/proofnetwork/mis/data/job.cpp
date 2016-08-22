@@ -157,7 +157,7 @@ ApiHelper::WorkflowStatus Job::workflowStatus(ApiHelper::WorkflowAction action, 
 {
     Q_D(const Job);
     ApiHelper::WorkflowStatus fallbackStatus = ApiHelper::WorkflowStatus::UnknownStatus;
-    foreach (const WorkflowElement &element, d->workflow) {
+    for(const auto &element : qAsConst(d->workflow)) {
         if (element.action() != action)
             continue;
         if (element.paperSide() == paperSide) {
@@ -202,7 +202,7 @@ QJsonObject Job::toJson() const
 
     QJsonArray workflowArray;
 
-    for(const auto &workflowElement : d->workflow)
+    for(const auto &workflowElement : qAsConst(d->workflow))
         workflowArray << workflowElement.toString();
 
     json.insert("workflow", workflowArray);
@@ -239,7 +239,7 @@ JobSP Job::fromJson(const QJsonObject &json)
 
     QJsonArray workflowArray = json.value("workflow").toArray();
 
-    for (const auto &elementValue : workflowArray)
+    for (const auto &elementValue : qAsConst(workflowArray))
         workflow << WorkflowElement(elementValue.toString());
 
     job->setWorkflow(workflow);
