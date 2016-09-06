@@ -280,9 +280,11 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
             } else if (line.startsWith(GATEWAY)) {
                 networkConfiguration.gateway = regExpIp.cap();
             } else if (line.startsWith(DNS_NAMESERVERS)) {
+                int pos = regExpIp.indexIn(line);
                 networkConfiguration.preferredDns = regExpIp.cap();
-                regExpIp.indexIn(QString(line).remove(networkConfiguration.preferredDns));
-                networkConfiguration.alternateDns = regExpIp.cap();
+                line.remove(pos, networkConfiguration.preferredDns.length());
+                if (regExpIp.indexIn(line) != -1)
+                    networkConfiguration.alternateDns = regExpIp.cap();
             }
         }
     }
@@ -479,15 +481,17 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
 #endif
 
     NetworkConfiguration networkConfiguration = fetchNetworkConfigurationPrivate(networkAdapterDescription);
-    if (networkConfiguration.index == adapterIndex
-            && networkConfiguration.dhcpEnabled == dhcpEnabled
-            && (dhcpEnabled || (networkConfiguration.ipv4Address == ipv4Address && networkConfiguration.subnetMask == subnetMask && networkConfiguration.gateway == gateway))
-            && (networkConfiguration.preferredDns == preferredDns || networkConfiguration.preferredDns == alternateDns)
-            && (networkConfiguration.alternateDns == alternateDns || networkConfiguration.alternateDns == preferredDns)) {
+    bool indexMatch = networkConfiguration.index == adapterIndex;
+    bool dhcpMatch = networkConfiguration.dhcpEnabled == dhcpEnabled;
+    bool ipSettingsMatch = networkConfiguration.ipv4Address == ipv4Address && networkConfiguration.subnetMask == subnetMask && networkConfiguration.gateway == gateway;
+    bool preferredDnsMatch = networkConfiguration.preferredDns == preferredDns || networkConfiguration.preferredDns == alternateDns;
+    bool alternateDnsMatch = networkConfiguration.alternateDns == alternateDns || networkConfiguration.alternateDns == preferredDns;
+    bool ipAndDnsSettingsMatch = ipSettingsMatch && preferredDnsMatch && alternateDnsMatch;
+
+    if (indexMatch && dhcpMatch && (dhcpEnabled || ipAndDnsSettingsMatch))
         emit q->networkConfigurationWrote();
-    } else {
+    else
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
-    }
 }
 
 } // namespace Proof
