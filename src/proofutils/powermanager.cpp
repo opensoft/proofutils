@@ -86,7 +86,7 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
     shutdownProcess->waitForStarted();
     if (shutdownProcess->error() == QProcess::UnknownError) {
         if (!shutdownProcess->waitForReadyRead()) {
-            qCDebug(proofUtilsUpdatesLog) << "No answer from sudo. Returning";
+            qCDebug(proofUtilsMiscLog) << "No answer from sudo. Returning";
             emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, "No answer from OS", false);
             return;
         }
@@ -99,7 +99,7 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
         if (currentRead.contains("[sudo]") || currentRead.contains("password for")) {
             shutdownProcess->write(QString("%1\n").arg(password).toLatin1());
             if (!shutdownProcess->waitForReadyRead()) {
-                qCDebug(proofUtilsUpdatesLog) << "No answer from sudo. Returning";
+                qCDebug(proofUtilsMiscLog) << "No answer from sudo. Returning";
                 emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, "No answer from OS", false);
                 return;
             }
@@ -109,29 +109,29 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
             currentRead = currentRead.trimmed();
 
             if (currentRead.contains("is not in the sudoers")) {
-                qCDebug(proofUtilsUpdatesLog) << "User not in sudoers list; log:\n" << readBuffer;
+                qCDebug(proofUtilsMiscLog) << "User not in sudoers list; log:\n" << readBuffer;
                 emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UserNotASudoer, "User not in sudoers list", false);
                 return;
             }
             if (currentRead.contains("Sorry, try again")) {
-                qCDebug(proofUtilsUpdatesLog) << "Sudo rejected the password; log:\n" << readBuffer;
+                qCDebug(proofUtilsMiscLog) << "Sudo rejected the password; log:\n" << readBuffer;
                 emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::IncorrectPassword, QObject::tr("Incorrect password"), true);
                 return;
             }
 
             if (!currentRead.contains("The system is going down for")) {
-                qCDebug(proofUtilsUpdatesLog) << "Sudo doesn't do nothing; log:\n" << readBuffer;
+                qCDebug(proofUtilsMiscLog) << "Sudo doesn't do nothing; log:\n" << readBuffer;
                 emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::IncorrectPassword, QObject::tr("Something went wrong during shutdown. Please, contact IT department."), true);
                 return;
             }
         }
 
         shutdownProcess->waitForFinished(-1);
-        qCDebug(proofUtilsUpdatesLog) << "Shutdown exitcode =" << shutdownProcess->exitCode() << "; log:\n" << readBuffer + shutdownProcess->readAll().trimmed();
+        qCDebug(proofUtilsMiscLog) << "Shutdown exitcode =" << shutdownProcess->exitCode() << "; log:\n" << readBuffer + shutdownProcess->readAll().trimmed();
         if (shutdownProcess->exitCode())
             emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Unknown error", false);
     } else {
-        qCDebug(proofUtilsUpdatesLog) << "Process couldn't be started" << shutdownProcess->error() << shutdownProcess->errorString();
+        qCDebug(proofUtilsMiscLog) << "Process couldn't be started" << shutdownProcess->error() << shutdownProcess->errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Unknown error", false);
     }
 # endif
@@ -153,7 +153,7 @@ void PowerManagerPrivate::restartApp()
     if (QProcess::startDetached(qApp->applicationFilePath())) {
         qApp->quit();
     } else {
-        qCDebug(proofUtilsUpdatesLog) << "Can't restart application";
+        qCDebug(proofUtilsMiscLog) << "Can't restart application";
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Can't restart application", false);
     }
 #endif

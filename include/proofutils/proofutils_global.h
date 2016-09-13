@@ -9,9 +9,9 @@
 
 #include <QLoggingCategory>
 
+Q_DECLARE_LOGGING_CATEGORY(proofUtilsMiscLog)
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsEplGeneratorLog)
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsQrCodeGeneratorLog)
-Q_DECLARE_LOGGING_CATEGORY(proofUtilsUpdatesLog)
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsNetworkConfigurationLog)
 
 namespace Proof {
