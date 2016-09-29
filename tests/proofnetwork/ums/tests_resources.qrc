@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>data/umsuser.json</file>
+        <file>data/umsuser2.json</file>
+        <file>data/tokenJWT</file>
+    </qresource>
+</RCC>

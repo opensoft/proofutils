@@ -1,0 +1,15 @@
+{
+  "oid": "5a38ba5c-88d5-4cb2-9449-f25d47bbe577",
+  "user": "User2 User2",
+  "roles": [
+    {
+      "loc": "KY",
+      "srv": "UMS",
+      "name": "Manager"
+    }
+  ],
+  "nbf": 1474631248,
+  "exp": 1474717648,
+  "ver": "2.0",
+  "email": "user2.user2@opensoftdev.ru"
+}
