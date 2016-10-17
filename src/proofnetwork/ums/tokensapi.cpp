@@ -4,7 +4,10 @@
 #include "proofnetwork/ums/data/umsuser.h"
 
 #include <QNetworkReply>
-#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+
+#include <QtCrypto>
 
 namespace Proof {
 namespace Ums {
@@ -12,6 +15,7 @@ namespace Ums {
 class TokensApiPrivate : public AbstractRestApiPrivate
 {
     Q_DECLARE_PUBLIC(TokensApi)
+    QCA::RSAPublicKey rsaPublicKey;
 };
 
 }
@@ -25,6 +29,18 @@ TokensApi::TokensApi(const RestClientSP &restClient, QObject *parent)
 {
 }
 
+QCA::RSAPublicKey TokensApi::rsaKey() const
+{
+    Q_D(const TokensApi);
+    return d->rsaPublicKey;
+}
+
+void TokensApi::setRsaKey(const QCA::RSAPublicKey &key)
+{
+    Q_D(TokensApi);
+    d->rsaPublicKey = key;
+}
+
 qulonglong TokensApi::fetchTokenByBarcode(const QString &barcode)
 {
     Q_D(TokensApi);
@@ -34,26 +50,37 @@ qulonglong TokensApi::fetchTokenByBarcode(const QString &barcode)
         urlQuery.addQueryItem("barcode", barcode);
 
         RestAnswerHandler handler = [this, d](qulonglong operationId, QNetworkReply *reply) {
-            QByteArray token = reply->readAll();
+            QByteArray token = QJsonDocument::fromJson(reply->readAll()).object().value("access_token").toString().toUtf8();
             QByteArrayList tokenList = token.split('.');
 
             Proof::Ums::UmsUserSP umsUser;
-            QByteArray signature;
+            bool signatureVerified = false;
             if (tokenList.count() == 3) {
-                QJsonObject header = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList.first())).object();
-                QString algorithm = header.value("alg").toString();
-                QString tokenType = header.value("typ").toString();
-                Q_UNUSED(algorithm);
-                Q_UNUSED(tokenType);
+                QJsonObject header = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList[0])).object();
+                QString algorithm = header.value("alg").toString("none").toLower();
 
-                QJsonObject payload = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList.at(1))).object();
+                QJsonObject payload = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList[1])).object();
                 umsUser = Proof::Ums::UmsUser::fromJson(payload);
 
-                //TODO: verify signature is needed
-                signature = tokenList.last();
+                QByteArray signature = QByteArray::fromBase64(tokenList[2], QByteArray::Base64UrlEncoding);
+                QByteArray signedMessage;
+                signedMessage.append(tokenList[0]);
+                signedMessage.append(".");
+                signedMessage.append(tokenList[1]);
+                //TODO: add HS256 support if ever will be needed
+                if (algorithm == "rs256")
+                    signatureVerified = d->rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
+                else if (algorithm == "none")
+                    signatureVerified = true;
+                else
+                    qCDebug(proofNetworkUmsApiLog) << "JWT algorithm" << algorithm << "is not supported. Token verification failed";
             }
 
-            if (token.isEmpty() || !umsUser || !umsUser->isDirty()) {
+            if (!signatureVerified) {
+                emit errorOccurred(operationId, {RestApiError::Level::ClientError, 0,
+                                                 NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidTokenSignature,
+                                                 "Token signature verification failed"});
+            } else if (token.isEmpty() || !umsUser || !umsUser->isDirty()) {
                 emit errorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                                  NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidReply,
                                                  "Failed to parse JSON from server reply"});

@@ -52,21 +52,21 @@ TEST_F(UmsUserTest, fromJson)
 {
     EXPECT_TRUE(umsUserUT->isFetched());
 
-    EXPECT_EQ("User User", umsUserUT->userName());
-    EXPECT_EQ("User User", umsUserUT->fullName());
-    EXPECT_EQ("user.user@opensoftdev.ru", umsUserUT->email());
+    EXPECT_EQ("Vadim Petrunin", umsUserUT->userName());
+    EXPECT_EQ("Vadim Petrunin", umsUserUT->fullName());
+    EXPECT_EQ("vadim.petrunin@farheap.com", umsUserUT->email());
 
-    EXPECT_EQ("5a38ba5c-88d2-4cb2-9449-f25d47bbe577", umsUserUT->id());
+    EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", umsUserUT->id());
     EXPECT_EQ("1.0", umsUserUT->version());
-    EXPECT_EQ((uint)1474717647, umsUserUT->expiresAt().toTime_t());
-    EXPECT_EQ((uint)1474631247, umsUserUT->validFrom().toTime_t());
-    EXPECT_EQ(1, umsUserUT->roles().count());
+    EXPECT_EQ((uint)1476782390, umsUserUT->expiresAt().toTime_t());
+    EXPECT_EQ((uint)1476695990, umsUserUT->validFrom().toTime_t());
+    EXPECT_EQ(3, umsUserUT->roles().count());
 
     RoleSP role = umsUserUT->roles().first();
     ASSERT_TRUE(role);
     EXPECT_EQ("KY", role->locale());
     EXPECT_EQ("UMS", role->service());
-    EXPECT_EQ("Manager", role->name());
+    EXPECT_EQ("Admin", role->name());
 }
 
 TEST_F(UmsUserTest, updateFrom)

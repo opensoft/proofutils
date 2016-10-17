@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>data/umsuser.json</file>
         <file>data/umsuser2.json</file>
-        <file>data/tokenJWT</file>
+        <file>data/pub_rsa.key</file>
+        <file>data/token.json</file>
     </qresource>
 </RCC>

@@ -90,17 +90,17 @@ UmsUserSP UmsUser::create(const QString &userName)
 
 UmsUserSP UmsUser::fromJson(const QJsonObject &userJson)
 {
-    if (!userJson.contains("oid"))
+    if (!userJson.contains("sub"))
         return UmsUserSP();
 
-    QString fullName = userJson.value("user").toString("");
+    QString fullName = userJson.value("name").toString("");
     UmsUserSP umsUser = create(fullName);
     UmsUserPrivate * const d = umsUser->d_func();
     umsUser->setFetched(true);
     d->setFullName(fullName);
     d->setEmail(userJson.value("email").toString(""));
 
-    d->setId(userJson.value("oid").toString(""));
+    d->setId(userJson.value("sub").toString(""));
     d->setVersion(userJson.value("ver").toString(""));
     d->setExpiresAt(QDateTime::fromTime_t(userJson.value("exp").toInt()));
     d->setValidFrom(QDateTime::fromTime_t(userJson.value("nbf").toInt()));

@@ -30,6 +30,7 @@ protected:
         restClient->setScheme("http");
         restClient->setClientName("Proof-test");
         tokensApiUT = new Proof::Ums::TokensApi(restClient);
+        tokensApiUT->setRsaKey(QCA::PublicKey::fromPEM(dataFromFile(":/data/pub_rsa.key")).toRSA());
     }
 
     void TearDown() override
@@ -46,9 +47,10 @@ protected:
 TEST_F(TokensApiTest, fetchTokenByBarcode)
 {
     ASSERT_TRUE(serverRunner->serverIsRunning());
-    QByteArray tokenFromFile = dataFromFile(":/data/tokenJWT");
+    QByteArray tokenFromFile = dataFromFile(":/data/token.json");
     ASSERT_FALSE(tokenFromFile.isEmpty());
     serverRunner->setServerAnswer(tokenFromFile);
+    tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
     QSignalSpy spy(tokensApiUT, &Proof::Ums::TokensApi::tokenFetched);
     qulonglong opId = tokensApiUT->fetchTokenByBarcode("");
@@ -64,5 +66,5 @@ TEST_F(TokensApiTest, fetchTokenByBarcode)
     Proof::Ums::UmsUserSP umsUser = qvariant_cast<Proof::Ums::UmsUserSP>(arguments.at(2));
     EXPECT_EQ(opId, retOpId);
     EXPECT_TRUE(umsUser->isFetched());
-    EXPECT_EQ("5a38ba5c-88d2-4cb2-9449-f21d47bbe577", umsUser->id());
+    EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", umsUser->id());
 }
