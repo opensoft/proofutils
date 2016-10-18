@@ -7,7 +7,9 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include <QtCrypto>
+#ifndef Q_OS_ANDROID
+# include <QtCrypto>
+#endif
 
 namespace Proof {
 namespace Ums {
@@ -15,7 +17,9 @@ namespace Ums {
 class TokensApiPrivate : public AbstractRestApiPrivate
 {
     Q_DECLARE_PUBLIC(TokensApi)
+#ifndef Q_OS_ANDROID
     QCA::RSAPublicKey rsaPublicKey;
+#endif
 };
 
 }
@@ -29,6 +33,7 @@ TokensApi::TokensApi(const RestClientSP &restClient, QObject *parent)
 {
 }
 
+#ifndef Q_OS_ANDROID
 QCA::RSAPublicKey TokensApi::rsaKey() const
 {
     Q_D(const TokensApi);
@@ -40,6 +45,7 @@ void TokensApi::setRsaKey(const QCA::RSAPublicKey &key)
     Q_D(TokensApi);
     d->rsaPublicKey = key;
 }
+#endif
 
 qulonglong TokensApi::fetchTokenByBarcode(const QString &barcode)
 {
@@ -68,12 +74,18 @@ qulonglong TokensApi::fetchTokenByBarcode(const QString &barcode)
                 signedMessage.append(".");
                 signedMessage.append(tokenList[1]);
                 //TODO: add HS256 support if ever will be needed
-                if (algorithm == "rs256")
-                    signatureVerified = d->rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
-                else if (algorithm == "none")
+                if (algorithm == "rs256") {
+#ifdef Q_OS_ANDROID
+                    //TODO: add qca sippor
                     signatureVerified = true;
-                else
+#else
+                    signatureVerified = d->rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
+#endif
+                } else if (algorithm == "none") {
+                    signatureVerified = true;
+                } else {
                     qCDebug(proofNetworkUmsApiLog) << "JWT algorithm" << algorithm << "is not supported. Token verification failed";
+                }
             }
 
             if (!signatureVerified) {
