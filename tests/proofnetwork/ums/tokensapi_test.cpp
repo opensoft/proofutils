@@ -157,6 +157,7 @@ TEST_F(TokensApiTest, fetchPublicKey)
     ASSERT_EQ(2, arguments.count());
 
     qulonglong retOpId = arguments.at(0).toULongLong();
+    EXPECT_EQ(opId, retOpId);
     QString answer = qvariant_cast<QString>(arguments.at(1));
     EXPECT_EQ("12345", answer);
 }
@@ -174,6 +175,7 @@ TEST_F(TokensApiTest, fetchCertificate)
     ASSERT_EQ(2, arguments.count());
 
     qulonglong retOpId = arguments.at(0).toULongLong();
+    EXPECT_EQ(opId, retOpId);
     QString answer = qvariant_cast<QString>(arguments.at(1));
     EXPECT_EQ("12345", answer);
 }

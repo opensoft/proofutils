@@ -7,9 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#ifndef Q_OS_ANDROID
 # include <QtCrypto>
-#endif
 
 namespace Proof {
 namespace Ums {
@@ -20,9 +18,7 @@ class TokensApiPrivate : public AbstractRestApiPrivate
     void extractToken(qulonglong operationId, QNetworkReply *reply);
     bool verifyToken(const QByteArrayList &tokenList);
 
-#ifndef Q_OS_ANDROID
     QCA::RSAPublicKey rsaPublicKey;
-#endif
     QString clientId;
     QString clientSecret;
 };
@@ -41,7 +37,6 @@ TokensApi::TokensApi(const QString &clientId, const QString &clientSecret, const
     d->clientSecret = clientSecret;
 }
 
-#ifndef Q_OS_ANDROID
 QCA::RSAPublicKey TokensApi::rsaKey() const
 {
     Q_D(const TokensApi);
@@ -53,7 +48,6 @@ void TokensApi::setRsaKey(const QCA::RSAPublicKey &key)
     Q_D(TokensApi);
     d->rsaPublicKey = key;
 }
-#endif
 
 qulonglong TokensApi::fetchToken()
 {
@@ -200,12 +194,7 @@ bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
         signedMessage.append(tokenList[1]);
         //TODO: add HS256 support if ever will be needed
         if (algorithm == "rs256") {
-#ifdef Q_OS_ANDROID
-            //TODO: add qca support for android
-            signatureVerified = true;
-#else
             signatureVerified = rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
-#endif
         } else if (algorithm == "none") {
             signatureVerified = true;
         } else {
