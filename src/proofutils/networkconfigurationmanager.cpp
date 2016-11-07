@@ -299,8 +299,11 @@ bool NetworkConfigurationManagerPrivate::enterPassword(QProcess &process, const 
     QByteArray currentRead;
 
     if (!process.waitForReadyRead()) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << "No answer from command. Returning";
-        return false;
+        if (process.state() == QProcess::NotRunning)
+            qCDebug(proofUtilsNetworkConfigurationLog) << "No answer from command and process finished. Exitcode =" << process.exitCode();
+        else
+            qCDebug(proofUtilsNetworkConfigurationLog) << "No answer from command. Returning";
+        return process.state() == QProcess::NotRunning && process.exitCode() == 0;
     }
     currentRead = process.readAll();
     readBuffer.append(currentRead);
@@ -380,7 +383,6 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     writeInfoProcess.waitForFinished();
     QThread::msleep(1000);
 #else
-
     QProcess networkingProcess;
     networkingProcess.setProcessChannelMode(QProcess::MergedChannels);
     networkingProcess.start("sudo -S -k /sbin/ifdown " + networkAdapterDescription);
@@ -391,10 +393,8 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
         return;
     }
 
-    if (!enterPassword(networkingProcess, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
-        return;
-    }
+    //We don't need any check for proper ifdown finish because system can decline it due to no presence of iface in config file
+    enterPassword(networkingProcess, password);
 
     QFile settingsFile(NETWORK_SETTINGS_FILE);
     if (!settingsFile.open(QIODevice::ReadOnly)) {

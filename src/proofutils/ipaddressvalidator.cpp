@@ -39,7 +39,7 @@ QValidator::State IpAddressValidator::validate(QString &input, int &pos) const
     QList<quint8> parts = IpAddressValidatorPrivate::ipToUIntParts(input);
 
     if (parts.isEmpty())
-        return State::Invalid;
+        return State::Intermediate;
 
     if (d->maskValidationMode)
         return d->validateMask(parts);
@@ -65,10 +65,8 @@ void IpAddressValidator::setMaskValidationMode(bool maskValidationMode)
 
 QValidator::State IpAddressValidatorPrivate::validateIp(const QList<quint8> &parts) const
 {
-    if (parts[0] == 0)
-        return QValidator::State::Intermediate;
     if (parts[0] > 223)
-        return QValidator::State::Invalid;
+        return QValidator::State::Intermediate;
     if (parts[3] == 0)
         return QValidator::State::Intermediate;
 
@@ -77,10 +75,8 @@ QValidator::State IpAddressValidatorPrivate::validateIp(const QList<quint8> &par
 
 QValidator::State IpAddressValidatorPrivate::validateMask(const QList<quint8> &parts) const
 {
-    if (parts[0] < 100 && parts[0] != 0)
-        return QValidator::State::Intermediate;
     if (!checkBinary(parts[0]))
-        return QValidator::State::Invalid;
+        return QValidator::State::Intermediate;
 
     bool zeroFound = (parts[0] == 0);
     for (int i = 1; i < parts.count(); ++i) {
@@ -89,12 +85,10 @@ QValidator::State IpAddressValidatorPrivate::validateMask(const QList<quint8> &p
             continue;
         }
         if (zeroFound && parts[i] != 0)
-            return QValidator::State::Invalid;
-
-        if (parts[i] < 100)
             return QValidator::State::Intermediate;
+
         if (!checkBinary(parts[i]))
-            return QValidator::State::Invalid;
+            return QValidator::State::Intermediate;
     }
     return QValidator::State::Acceptable;
 }
@@ -122,7 +116,7 @@ QList<quint8> IpAddressValidatorPrivate::ipToUIntParts(const QString &ip)
 
     for (const auto &part : splittedInput) {
         bool ok = true;
-        uint convertedPart = part.trimmed().isEmpty() ? 0 : part.trimmed().toUInt(&ok);
+        uint convertedPart = part.trimmed().toUInt(&ok);
         if (!ok || convertedPart > 255)
             return QList<quint8>();
         parts.append(static_cast<quint8>(convertedPart));
