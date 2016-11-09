@@ -325,6 +325,8 @@ bool NetworkConfigurationManagerPrivate::enterPassword(QProcess &process, const 
         }
     }
     process.waitForFinished();
+    readBuffer.append(process.readAll());
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Process output:" << readBuffer;
     qCDebug(proofUtilsNetworkConfigurationLog) << "Exitcode =" << process.exitCode();
     return process.exitCode() == 0;
 }
@@ -385,6 +387,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
 #else
     QProcess networkingProcess;
     networkingProcess.setProcessChannelMode(QProcess::MergedChannels);
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Running ifdown";
     networkingProcess.start("sudo -S -k /sbin/ifdown " + networkAdapterDescription);
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
@@ -398,7 +401,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
 
     QFile settingsFile(NETWORK_SETTINGS_FILE);
     if (!settingsFile.open(QIODevice::ReadOnly)) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be openned:" << settingsFile.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
         return;
     }
@@ -406,9 +409,16 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     QByteArray newInterfaces;
     bool hideIpsForCurrentInterface = false;
     bool interfaceUpdated = false;
+    bool autoDirectiveFound = false;
+    bool allowHotplugDirectiveFound = false;
     while (!settingsFile.atEnd()) {
         QString line = settingsFile.readLine();
-        bool currentInterfaceFound = line.trimmed().startsWith("iface " + networkAdapterDescription);
+        QString trimmedLine = line.trimmed();
+        bool currentInterfaceFound = trimmedLine.startsWith("iface " + networkAdapterDescription);
+        if (!autoDirectiveFound)
+            autoDirectiveFound = trimmedLine.startsWith("auto " + networkAdapterDescription);
+        if (!allowHotplugDirectiveFound)
+            allowHotplugDirectiveFound = trimmedLine.startsWith("allow-hotplug " + networkAdapterDescription);
 
         if (settingsFile.atEnd() && !currentInterfaceFound && !interfaceUpdated) {
             newInterfaces.append(line);
@@ -432,7 +442,10 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
             }
             newInterfaces.append(line);
             interfaceUpdated = true;
-        } else if (line.startsWith("iface") || line.startsWith("auto") || line == "\n") {
+        } else if (trimmedLine.startsWith("iface") || trimmedLine.startsWith("auto")
+                   || trimmedLine.startsWith("mapping") || trimmedLine.startsWith("source")
+                   || trimmedLine.startsWith("no-auto-down") || trimmedLine.startsWith("no-scripts")
+                   || trimmedLine.startsWith("allow-") || trimmedLine.isEmpty()) {
             hideIpsForCurrentInterface = false;
         }
 
@@ -440,10 +453,14 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
             newInterfaces.append(line);
     }
     settingsFile.close();
+    if (!autoDirectiveFound)
+        newInterfaces.append("auto " + networkAdapterDescription + "\n");
+    if (!allowHotplugDirectiveFound)
+        newInterfaces.append("allow-hotplug " + networkAdapterDescription + "\n");
 
     QFile settingsFileTmp(NETWORK_SETTINGS_FILE_TMP);
     if (!settingsFileTmp.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be openned:" << settingsFileTmp.errorString();
+        qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFileTmp.errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
         return;
     }
@@ -451,6 +468,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     settingsFileTmp.close();
 
 
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Copying new interfaces config to" << NETWORK_SETTINGS_FILE;
     networkingProcess.start("sudo -S -k /bin/cp \"" + NETWORK_SETTINGS_FILE_TMP + "\" \"" + NETWORK_SETTINGS_FILE + "\"");
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
@@ -466,6 +484,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     }
     settingsFileTmp.remove();
 
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Running ifup";
     networkingProcess.start("sudo -S -k /sbin/ifup " + networkAdapterDescription);
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
