@@ -29,8 +29,8 @@ protected:
         restClient->setPort(9091); //Default port for FakeServer
         restClient->setScheme("http");
         restClient->setClientName("Proof-test");
-#ifndef QCA_DISABLED
         tokensApiUT = new Proof::Ums::TokensApi("test", "test", restClient);
+#ifndef QCA_DISABLED
         tokensApiUT->setRsaKey(QCA::PublicKey::fromPEM(dataFromFile(":/data/pub_rsa.key")).toRSA());
 #endif
     }
