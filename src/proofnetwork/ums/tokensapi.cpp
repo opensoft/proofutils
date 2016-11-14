@@ -203,7 +203,8 @@ bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
 #ifndef QCA_DISABLED
             signatureVerified = rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
 #else
-            qCDebug(proofNetworkUmsApiLog) << "rs256 algorithm" << algorithm << "is not supported. Token verification failed";
+            qCDebug(proofNetworkUmsApiLog) << "rs256 algorithm" << algorithm << "is not supported. Token verification force successed!";
+            signatureVerified = true;
 #endif
         } else if (algorithm == "none") {
             signatureVerified = true;
