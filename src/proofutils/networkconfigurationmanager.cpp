@@ -26,7 +26,7 @@ class WorkerThread : public QThread
     Q_OBJECT
 public:
     explicit WorkerThread(Proof::NetworkConfigurationManagerPrivate *networkConfigurationManager);
-    QStringList networkInterfaces();
+    void fetchNetworkInterfaces();
     void checkPassword(const QString &password);
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
     void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
@@ -56,7 +56,7 @@ class NetworkConfigurationManagerPrivate : public ProofObjectPrivate
     Q_DECLARE_PUBLIC(NetworkConfigurationManager)
 public:
     void checkPassword(const QString &password);
-    QStringList networkInterfaces();
+    void fetchNetworkInterfaces();
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
     void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
                                    const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
@@ -81,6 +81,16 @@ NetworkConfigurationManager::~NetworkConfigurationManager()
     d->thread->quit();
     d->thread->wait(1000);
     delete d->thread;
+}
+
+bool NetworkConfigurationManager::supported() const
+{
+#ifdef Q_OS_WIN
+    return true;
+#elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+    return true;
+#endif
+    return false;
 }
 
 bool NetworkConfigurationManager::passwordSupported() const
@@ -114,10 +124,10 @@ QVariantMap NetworkConfigurationManager::addresses() const
     return addresses;
 }
 
-QStringList NetworkConfigurationManager::networkInterfaces()
+void NetworkConfigurationManager::fetchNetworkInterfaces()
 {
     Q_D(NetworkConfigurationManager);
-    return d->networkInterfaces();
+    return d->fetchNetworkInterfaces();
 }
 
 void NetworkConfigurationManager::fetchNetworkConfiguration(const QString &networkAdapterDescription)
@@ -155,34 +165,55 @@ void NetworkConfigurationManagerPrivate::checkPassword(const QString &password)
 #endif
 }
 
-QStringList NetworkConfigurationManagerPrivate::networkInterfaces()
+void NetworkConfigurationManagerPrivate::fetchNetworkInterfaces()
 {
+    Q_Q(NetworkConfigurationManager);
+    if (ProofObject::call(thread, &WorkerThread::fetchNetworkInterfaces))
+        return;
+
     QStringList result;
-    if (!ProofObject::call(thread, &WorkerThread::networkInterfaces, Call::Block, result)) {
-#ifndef Q_OS_WIN
-        QFile settingsFile(NETWORK_SETTINGS_FILE);
-        if (settingsFile.open(QIODevice::ReadOnly)) {
-            while (!settingsFile.atEnd()) {
-                QString line = QString(settingsFile.readLine()).trimmed();
-                if (line.startsWith("iface")) {
-                    QStringList ifaceLine = line.split(" ", QString::SkipEmptyParts);
-                    if (ifaceLine.count() > 1)
-                        result.append(ifaceLine.at(1));
-                }
+#ifdef Q_OS_WIN
+    QProcess readInfoProcess;
+    readInfoProcess.setReadChannel(QProcess::StandardOutput);
+    readInfoProcess.start("PowerShell", {"-command", "Get-WmiObject win32_NetworkAdapter | %{ if ($_.PhysicalAdapter) {$_.MACAddress} }"});
+    readInfoProcess.waitForStarted();
+    QStringList macAddresses;
+    bool powerShellError = readInfoProcess.error() != QProcess::UnknownError;
+    if (powerShellError) {
+        qCDebug(proofUtilsNetworkConfigurationLog) <<  "PowerShell can't be started:" << readInfoProcess.errorString();
+    } else {
+        readInfoProcess.waitForFinished();
+        macAddresses = QString(readInfoProcess.readAll()).split("\r\n" , QString::SkipEmptyParts);
+    }
+
+    for (const auto &interface : QNetworkInterface::allInterfaces()) {
+        if (macAddresses.contains(interface.hardwareAddress()) || (powerShellError && !interface.flags().testFlag(QNetworkInterface::IsLoopBack)))
+            result.append(interface.humanReadableName());
+    }
+#elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+    QFile settingsFile(NETWORK_SETTINGS_FILE);
+    if (settingsFile.open(QIODevice::ReadOnly)) {
+        while (!settingsFile.atEnd()) {
+            QString line = QString(settingsFile.readLine()).trimmed();
+            if (line.startsWith("iface")) {
+                QStringList ifaceLine = line.split(" ", QString::SkipEmptyParts);
+                if (ifaceLine.count() > 1)
+                    result.append(ifaceLine.at(1));
             }
-        } else {
-            qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
         }
+    } else {
+        qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
+    }
+
+    for (const auto &interface : QNetworkInterface::allInterfaces()) {
+        if (interface.flags().testFlag(QNetworkInterface::IsLoopBack) || interface.flags().testFlag(QNetworkInterface::IsPointToPoint))
+            result.removeAll(interface.humanReadableName());
+        else if (!result.contains(interface.humanReadableName()))
+            result.append(interface.humanReadableName());
+    }
 #endif
 
-        for (const auto &interface : QNetworkInterface::allInterfaces()) {
-            if (interface.flags().testFlag(QNetworkInterface::IsLoopBack))
-                result.removeAll(interface.humanReadableName());
-            else if (!result.contains(interface.humanReadableName()))
-                result.append(interface.humanReadableName());
-        }
-    }
-    return result;
+    emit q->networkInterfacesFetched(result);
 }
 
 void NetworkConfigurationManagerPrivate::fetchNetworkConfiguration(const QString &networkAdapterDescription)
@@ -521,9 +552,9 @@ WorkerThread::WorkerThread(Proof::NetworkConfigurationManagerPrivate *networkCon
     moveToThread(this);
 }
 
-QStringList WorkerThread::networkInterfaces()
+void WorkerThread::fetchNetworkInterfaces()
 {
-    return networkConfigurationManager->networkInterfaces();
+    networkConfigurationManager->fetchNetworkInterfaces();
 }
 
 void WorkerThread::checkPassword(const QString &password)
