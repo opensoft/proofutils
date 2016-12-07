@@ -1,7 +1,12 @@
 ﻿#include "networkconfigurationmanager.h"
 
+#include "proofgui/guiapplication.h"
 #include "proofcore/proofobject_p.h"
+#include "proofcore/settings.h"
+#include "proofcore/settingsgroup.h"
 
+#include <QNetworkProxy>
+#include <QNetworkProxyFactory>
 #include <QNetworkInterface>
 #include <QProcess>
 #include <QFile>
@@ -19,7 +24,23 @@ static const QString DNS_NAMESERVERS = "dns-nameservers";
 
 static const QString REGEXP_IP("(((?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))");
 
+static const QHash<QString, QNetworkProxy::ProxyType> PROXY_TYPES = {
+    {"http", QNetworkProxy::ProxyType::HttpProxy},
+    {"caching http", QNetworkProxy::ProxyType::HttpCachingProxy},
+    {"socks5", QNetworkProxy::ProxyType::Socks5Proxy},
+    {"caching ftp", QNetworkProxy::ProxyType::FtpCachingProxy}
+};
+
 namespace {
+
+struct ProxySettings {
+    bool enabled;
+    QString host;
+    quint16 port;
+    QString type;
+    QString userName;
+    QString password;
+};
 
 class WorkerThread : public QThread
 {
@@ -33,12 +54,24 @@ public:
                                    const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
 
 private:
-    Proof::NetworkConfigurationManagerPrivate *networkConfigurationManager;
+    Proof::NetworkConfigurationManagerPrivate *networkConfigurationManager = nullptr;
 };
 
 }
 
 namespace Proof {
+
+class ProxyFactory : public QNetworkProxyFactory
+{
+public:
+    ProxyFactory(const QNetworkProxy &mainProxy, const QStringList &excludes);
+    QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery &query) override;
+
+private:
+    QNetworkProxy m_mainProxy;
+    QNetworkProxy m_emptyProxy;
+    QStringList m_excludes;
+};
 
 struct NetworkConfiguration {
     QString description;
@@ -60,11 +93,19 @@ public:
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
     void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
                                    const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
+    void fetchProxySettings();
+    void writeProxySettings(const ProxySettings &proxySettings);
+    void initProxySettings();
+
 private:
     NetworkConfiguration fetchNetworkConfigurationPrivate(const QString &networkAdapterDescription);
+    ProxySettings readProxySettingsFromConfig();
+    void setProxySettings(const ProxySettings &proxySettings);
     bool enterPassword(QProcess &process, const QString &password);
 
     WorkerThread *thread;
+    ProxySettings lastProxySettings;
+    QStringList proxyExcludes;
 };
 
 NetworkConfigurationManager::NetworkConfigurationManager(QObject *parent)
@@ -73,6 +114,8 @@ NetworkConfigurationManager::NetworkConfigurationManager(QObject *parent)
     Q_D(NetworkConfigurationManager);
     d->thread = new WorkerThread(d);
     d->thread->start();
+
+    d->initProxySettings();
 }
 
 NetworkConfigurationManager::~NetworkConfigurationManager()
@@ -83,7 +126,7 @@ NetworkConfigurationManager::~NetworkConfigurationManager()
     delete d->thread;
 }
 
-bool NetworkConfigurationManager::supported() const
+bool NetworkConfigurationManager::ipSettingsSupported() const
 {
 #ifdef Q_OS_WIN
     return true;
@@ -142,6 +185,23 @@ void NetworkConfigurationManager::writeNetworkConfiguration(const QString &netwo
     Q_D(NetworkConfigurationManager);
     d->writeNetworkConfiguration(networkAdapterDescription, dhcpEnabled, ipv4Address,
                                  subnetMask, gateway, preferredDns, alternateDns, password);
+}
+
+QStringList NetworkConfigurationManager::proxyTypes() const
+{
+    return PROXY_TYPES.keys();
+}
+
+void NetworkConfigurationManager::fetchProxySettings()
+{
+    Q_D(NetworkConfigurationManager);
+    d->fetchProxySettings();
+}
+
+void NetworkConfigurationManager::writeProxySettings(bool enabled, const QString &host, quint16 port, const QString &type, const QString &userName, const QString &password)
+{
+    Q_D(NetworkConfigurationManager);
+    d->writeProxySettings({enabled, host, port, type, userName, password});
 }
 
 void NetworkConfigurationManagerPrivate::checkPassword(const QString &password)
@@ -542,6 +602,94 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
         emit q->networkConfigurationWrote();
     else
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+}
+
+void NetworkConfigurationManagerPrivate::fetchProxySettings()
+{
+    Q_Q(NetworkConfigurationManager);
+    emit q->proxySettingsFetched(lastProxySettings.enabled, lastProxySettings.host, lastProxySettings.port, lastProxySettings.type, lastProxySettings.userName, lastProxySettings.password);
+}
+
+ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
+{
+    SettingsGroup *networkProxyGroup = qApp->settings()->group("network_proxy", Settings::NotFoundPolicy::Add);
+    ProxySettings proxySettings ({networkProxyGroup->value("enabled", !proxySettings.host.isEmpty(), Settings::NotFoundPolicy::Add).toBool(),
+                                  networkProxyGroup->value("host", "", Settings::NotFoundPolicy::Add).toString(),
+                                  static_cast<quint16>(networkProxyGroup->value("port", 8080, Settings::NotFoundPolicy::Add).toUInt()),
+                                  networkProxyGroup->value("type", "", Settings::NotFoundPolicy::Add).toString().trimmed(),
+                                  networkProxyGroup->value("username", "", Settings::NotFoundPolicy::Add).toString(),
+                                  networkProxyGroup->value("password", "", Settings::NotFoundPolicy::Add).toString()});
+    if (proxySettings.host.isEmpty())
+        proxySettings.enabled = false;
+    QStringList notTrimmedExcludes = networkProxyGroup->value("excludes", "", Settings::NotFoundPolicy::Add).toString().split("|");
+
+    proxyExcludes.clear();
+    for (auto exclude : notTrimmedExcludes) {
+        exclude = exclude.trimmed();
+        if (!exclude.isEmpty())
+            proxyExcludes << exclude;
+    }
+    return proxySettings;
+}
+
+void NetworkConfigurationManagerPrivate::setProxySettings(const ProxySettings &proxySettings)
+{
+    if (proxySettings.enabled && !proxySettings.host.isEmpty()) {
+        QNetworkProxy proxy;
+        proxy.setHostName(proxySettings.host);
+        proxy.setPort(proxySettings.port);
+        if (!proxySettings.userName.isEmpty())
+            proxy.setUser(proxySettings.userName);
+        if (!proxySettings.password.isEmpty())
+            proxy.setPassword(proxySettings.password);
+        proxy.setType(PROXY_TYPES.value(proxySettings.type, QNetworkProxy::ProxyType::HttpProxy));
+        QNetworkProxyFactory::setApplicationProxyFactory(new ProxyFactory(proxy, proxyExcludes));
+    } else {
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+    }
+
+    lastProxySettings = proxySettings;
+}
+
+void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings &proxySettings)
+{
+    Q_Q(NetworkConfigurationManager);
+    SettingsGroup *networkProxyGroup = qApp->settings()->group("network_proxy", Settings::NotFoundPolicy::Add);
+    networkProxyGroup->setValue("enabled", proxySettings.enabled);
+    networkProxyGroup->setValue("host", proxySettings.host);
+    networkProxyGroup->setValue("port", proxySettings.port);
+    networkProxyGroup->setValue("type", proxySettings.type);
+    networkProxyGroup->setValue("username", proxySettings.userName);
+    networkProxyGroup->setValue("password", proxySettings.password);
+
+    setProxySettings(proxySettings);
+
+    emit q->proxySettingsWrote();
+}
+
+void NetworkConfigurationManagerPrivate::initProxySettings()
+{
+    ProxySettings proxySettings = readProxySettingsFromConfig();
+    setProxySettings(proxySettings);
+    fetchProxySettings();
+}
+
+ProxyFactory::ProxyFactory(const QNetworkProxy &mainProxy, const QStringList &excludes)
+    : QNetworkProxyFactory(), m_mainProxy(mainProxy), m_excludes(excludes)
+{
+    m_emptyProxy.setType(QNetworkProxy::ProxyType::NoProxy);
+}
+
+QList<QNetworkProxy> ProxyFactory::queryProxy(const QNetworkProxyQuery &query)
+{
+    if (QHostAddress(query.peerHostName()).isLoopback())
+        return {m_emptyProxy};
+    for (const auto &exclude : m_excludes) {
+        QRegExp rx(exclude, Qt::CaseInsensitive, QRegExp::PatternSyntax::WildcardUnix);
+        if (rx.exactMatch(query.peerHostName()))
+            return {m_emptyProxy};
+    }
+    return {m_mainProxy};
 }
 
 } // namespace Proof
