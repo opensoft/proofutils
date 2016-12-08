@@ -34,9 +34,9 @@ static const QHash<QString, QNetworkProxy::ProxyType> PROXY_TYPES = {
 namespace {
 
 struct ProxySettings {
-    bool enabled;
+    bool enabled = false;
     QString host;
-    quint16 port;
+    quint16 port = 0;
     QString type;
     QString userName;
     QString password;
@@ -88,6 +88,8 @@ class NetworkConfigurationManagerPrivate : public ProofObjectPrivate
 {
     Q_DECLARE_PUBLIC(NetworkConfigurationManager)
 public:
+    explicit NetworkConfigurationManagerPrivate(Settings *settings);
+
     void checkPassword(const QString &password);
     void fetchNetworkInterfaces();
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
@@ -103,13 +105,14 @@ private:
     void setProxySettings(const ProxySettings &proxySettings);
     bool enterPassword(QProcess &process, const QString &password);
 
-    WorkerThread *thread;
+    WorkerThread *thread = nullptr;
+    Settings *appSettings = nullptr;
     ProxySettings lastProxySettings;
     QStringList proxyExcludes;
 };
 
-NetworkConfigurationManager::NetworkConfigurationManager(QObject *parent)
-    : ProofObject(*new NetworkConfigurationManagerPrivate, parent)
+NetworkConfigurationManager::NetworkConfigurationManager(Settings *settings, QObject *parent)
+    : ProofObject(*new NetworkConfigurationManagerPrivate(settings), parent)
 {
     Q_D(NetworkConfigurationManager);
     d->thread = new WorkerThread(d);
@@ -201,7 +204,20 @@ void NetworkConfigurationManager::fetchProxySettings()
 void NetworkConfigurationManager::writeProxySettings(bool enabled, const QString &host, quint16 port, const QString &type, const QString &userName, const QString &password)
 {
     Q_D(NetworkConfigurationManager);
-    d->writeProxySettings({enabled, host, port, type, userName, password});
+    ProxySettings proxySettings;
+    proxySettings.enabled = enabled;
+    proxySettings.host = host;
+    proxySettings.port = port;
+    proxySettings.type = type;
+    proxySettings.userName = userName;
+    proxySettings.password = password;
+    d->writeProxySettings(proxySettings);
+}
+
+NetworkConfigurationManagerPrivate::NetworkConfigurationManagerPrivate(Settings *settings)
+    : ProofObjectPrivate()
+{
+    appSettings = settings;
 }
 
 void NetworkConfigurationManagerPrivate::checkPassword(const QString &password)
@@ -612,13 +628,20 @@ void NetworkConfigurationManagerPrivate::fetchProxySettings()
 
 ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
 {
-    SettingsGroup *networkProxyGroup = qApp->settings()->group("network_proxy", Settings::NotFoundPolicy::Add);
-    ProxySettings proxySettings ({networkProxyGroup->value("enabled", !proxySettings.host.isEmpty(), Settings::NotFoundPolicy::Add).toBool(),
-                                  networkProxyGroup->value("host", "", Settings::NotFoundPolicy::Add).toString(),
-                                  static_cast<quint16>(networkProxyGroup->value("port", 8080, Settings::NotFoundPolicy::Add).toUInt()),
-                                  networkProxyGroup->value("type", "", Settings::NotFoundPolicy::Add).toString().trimmed(),
-                                  networkProxyGroup->value("username", "", Settings::NotFoundPolicy::Add).toString(),
-                                  networkProxyGroup->value("password", "", Settings::NotFoundPolicy::Add).toString()});
+    ProxySettings proxySettings;
+    if (!appSettings) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << "Application settings not found";
+        return proxySettings;
+    }
+
+    SettingsGroup *networkProxyGroup = appSettings->group("network_proxy", Settings::NotFoundPolicy::Add);
+    proxySettings.host = networkProxyGroup->value("host", "", Settings::NotFoundPolicy::Add).toString();
+    proxySettings.enabled = networkProxyGroup->value("enabled", !proxySettings.host.isEmpty(), Settings::NotFoundPolicy::Add).toBool();
+    proxySettings.port = networkProxyGroup->value("port", 8080, Settings::NotFoundPolicy::Add).toUInt();
+    proxySettings.type = networkProxyGroup->value("type", "", Settings::NotFoundPolicy::Add).toString().trimmed();
+    proxySettings.userName = networkProxyGroup->value("username", "", Settings::NotFoundPolicy::Add).toString();
+    proxySettings.password = networkProxyGroup->value("password", "", Settings::NotFoundPolicy::Add).toString();
+
     if (proxySettings.host.isEmpty())
         proxySettings.enabled = false;
     QStringList notTrimmedExcludes = networkProxyGroup->value("excludes", "", Settings::NotFoundPolicy::Add).toString().split("|");
@@ -654,7 +677,13 @@ void NetworkConfigurationManagerPrivate::setProxySettings(const ProxySettings &p
 void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings &proxySettings)
 {
     Q_Q(NetworkConfigurationManager);
-    SettingsGroup *networkProxyGroup = qApp->settings()->group("network_proxy", Settings::NotFoundPolicy::Add);
+
+    if (!appSettings) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << "Application settings not found";
+        return;
+    }
+
+    SettingsGroup *networkProxyGroup = appSettings->group("network_proxy", Settings::NotFoundPolicy::Add);
     networkProxyGroup->setValue("enabled", proxySettings.enabled);
     networkProxyGroup->setValue("host", proxySettings.host);
     networkProxyGroup->setValue("port", proxySettings.port);

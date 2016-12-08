@@ -8,6 +8,7 @@
 
 namespace Proof {
 
+class Settings;
 class NetworkConfigurationManagerPrivate;
 class PROOF_UTILS_EXPORT NetworkConfigurationManager : public ProofObject
 {
@@ -15,7 +16,8 @@ class PROOF_UTILS_EXPORT NetworkConfigurationManager : public ProofObject
     Q_DECLARE_PRIVATE(NetworkConfigurationManager)
     Q_PROPERTY(bool ipSettingsSupported READ ipSettingsSupported CONSTANT)
 public:
-    explicit NetworkConfigurationManager(QObject *parent = nullptr);
+    //TODO: 1.0: remove first arg when CoreApplication and GuiApplication will be castable to each other
+    explicit NetworkConfigurationManager(Settings *settings, QObject *parent = nullptr);
     ~NetworkConfigurationManager();
 
     bool ipSettingsSupported() const;
