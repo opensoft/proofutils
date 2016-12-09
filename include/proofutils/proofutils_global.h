@@ -23,7 +23,11 @@ enum Code {
     ApplicationCannotBeRestarted = 4,
     PlatformNotSupported = 5,
     UnknownError = 6,
-    NetworkConfigurationCannotBeWritten = 7
+    NetworkConfigurationCannotBeWritten = 7,
+    VpnCannotBeStarted = 8,
+    VpnCannotBeStopped = 9,
+    VpnConfigurationNotFound = 10,
+    VpnConfigurationCannotBeWritten = 11
 };
 }
 constexpr long UTILS_MODULE_CODE = 200;

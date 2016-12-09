@@ -10,9 +10,14 @@
 #include <QNetworkInterface>
 #include <QProcess>
 #include <QFile>
+#include <QDir>
 
 static const QString NETWORK_SETTINGS_FILE = "/etc/network/interfaces";
 static const QString NETWORK_SETTINGS_FILE_TMP = "/tmp/interfaces_tmp";
+static const QString VPN_SETTINGS_PATH = "/etc/openvpn/";
+
+static const int VPN_CHECK_WAITING_TIMEOUT = 1000 * 60 * 5; // 5  minutes
+static const int VPN_CHECK_INTERVAL = 1000; // 1 second
 
 static const QString STATIC_IP = "static";
 static const QString DYNAMIC_IP = "dhcp";
@@ -52,6 +57,10 @@ public:
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
     void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
                                    const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
+    void fetchVpnConfiguration();
+    void writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password);
+    void turnOnVpn(const QString &password);
+    void turnOffVpn(const QString &password);
 
 private:
     Proof::NetworkConfigurationManagerPrivate *networkConfigurationManager = nullptr;
@@ -99,6 +108,11 @@ public:
     void writeProxySettings(const ProxySettings &proxySettings);
     void initProxySettings();
 
+    void fetchVpnConfiguration();
+    void writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password);
+    void turnOnVpn(const QString &password);
+    void turnOffVpn(const QString &password);
+
 private:
     NetworkConfiguration fetchNetworkConfigurationPrivate(const QString &networkAdapterDescription);
     ProxySettings readProxySettingsFromConfig();
@@ -134,6 +148,14 @@ bool NetworkConfigurationManager::ipSettingsSupported() const
 #ifdef Q_OS_WIN
     return true;
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+    return true;
+#endif
+    return false;
+}
+
+bool NetworkConfigurationManager::vpnSettingsSupported() const
+{
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     return true;
 #endif
     return false;
@@ -214,10 +236,91 @@ void NetworkConfigurationManager::writeProxySettings(bool enabled, const QString
     d->writeProxySettings(proxySettings);
 }
 
+bool NetworkConfigurationManager::vpnEnabled()
+{
+    for (const auto &interface : QNetworkInterface::allInterfaces()) {
+        if (interface.flags().testFlag(QNetworkInterface::IsPointToPoint))
+            return true;
+    }
+    return false;
+}
+
 NetworkConfigurationManagerPrivate::NetworkConfigurationManagerPrivate(Settings *settings)
     : ProofObjectPrivate()
 {
     appSettings = settings;
+}
+
+void NetworkConfigurationManager::fetchVpnConfiguration()
+{
+    Q_D(NetworkConfigurationManager);
+    d->fetchVpnConfiguration();
+}
+
+void NetworkConfigurationManager::writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password)
+{
+    Q_D(NetworkConfigurationManager);
+    d->writeVpnConfiguration(absoluteFilePath, configuration, password);
+}
+
+void NetworkConfigurationManager::turnOnVpn(const QString &password)
+{
+    Q_D(NetworkConfigurationManager);
+    d->turnOnVpn(password);
+}
+
+void NetworkConfigurationManager::turnOffVpn(const QString &password)
+{
+    Q_D(NetworkConfigurationManager);
+    d->turnOffVpn(password);
+}
+
+void NetworkConfigurationManager::skipSwitchingVpnCheck()
+{
+    if (m_checkVpnStateTimerId != -1) {
+        killTimer(m_checkVpnStateTimerId);
+        m_checkVpnStateTimerId = -1;
+        m_currentTimeCheckVpn = 0;
+        m_vpnState = VpnState::Other;
+    }
+}
+
+void NetworkConfigurationManager::timerEvent(QTimerEvent *event)
+{
+    int timerId = event->timerId();
+    if (timerId == m_checkVpnStateTimerId) {
+        if (vpnEnabled() && m_vpnState == VpnState::Starting) {
+            skipSwitchingVpnCheck();
+            emit vpnTurnedOn();
+        } else if (!vpnEnabled() && m_vpnState == VpnState::Stopping) {
+            skipSwitchingVpnCheck();
+            emit vpnTurnedOff();
+        } else {
+            m_currentTimeCheckVpn += VPN_CHECK_INTERVAL;
+            if (m_currentTimeCheckVpn >= VPN_CHECK_WAITING_TIMEOUT) {
+                switch (m_vpnState) {
+                case VpnState::Starting:
+                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, "VPN can't be started", true);
+                    break;
+                case VpnState::Stopping:
+                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, "VPN can't be stopped", true);
+                    break;
+                default:
+                    break;
+                }
+                skipSwitchingVpnCheck();
+            }
+        }
+    }
+}
+
+void NetworkConfigurationManager::startTimerForCheckVpnState(VpnState vpnState)
+{
+    if (ProofObject::call(this, &NetworkConfigurationManager::startTimerForCheckVpnState, vpnState))
+        return;
+    skipSwitchingVpnCheck();
+    m_vpnState = vpnState;
+    m_checkVpnStateTimerId = startTimer(VPN_CHECK_INTERVAL);
 }
 
 void NetworkConfigurationManagerPrivate::checkPassword(const QString &password)
@@ -574,7 +677,6 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     settingsFileTmp.write(newInterfaces);
     settingsFileTmp.close();
 
-
     qCDebug(proofUtilsNetworkConfigurationLog) << "Copying new interfaces config to" << NETWORK_SETTINGS_FILE;
     networkingProcess.start("sudo -S -k /bin/cp \"" + NETWORK_SETTINGS_FILE_TMP + "\" \"" + NETWORK_SETTINGS_FILE + "\"");
     networkingProcess.waitForStarted();
@@ -615,7 +717,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     bool ipAndDnsSettingsMatch = ipSettingsMatch && preferredDnsMatch && alternateDnsMatch;
 
     if (indexMatch && dhcpMatch && (dhcpEnabled || ipAndDnsSettingsMatch))
-        emit q->networkConfigurationWrote();
+        emit q->networkConfigurationWritten();
     else
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
 }
@@ -693,7 +795,7 @@ void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings 
 
     setProxySettings(proxySettings);
 
-    emit q->proxySettingsWrote();
+    emit q->proxySettingsWritten();
 }
 
 void NetworkConfigurationManagerPrivate::initProxySettings()
@@ -701,6 +803,113 @@ void NetworkConfigurationManagerPrivate::initProxySettings()
     ProxySettings proxySettings = readProxySettingsFromConfig();
     setProxySettings(proxySettings);
     fetchProxySettings();
+}
+
+void NetworkConfigurationManagerPrivate::fetchVpnConfiguration()
+{
+    Q_Q(NetworkConfigurationManager);
+    if (ProofObject::call(thread, &WorkerThread::fetchVpnConfiguration))
+        return;
+
+    QFileInfoList fileInfoList = QDir(VPN_SETTINGS_PATH).entryInfoList({"*.conf"});
+    if (fileInfoList.count()) {
+        QFile file(fileInfoList.first().absoluteFilePath());
+        if (!file.open(QIODevice::ReadOnly)) {
+            qCDebug(proofUtilsNetworkConfigurationLog) << file.fileName() << "can't be opened";
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, "VPN configuration can't be opened", true);
+            return;
+        }
+        emit q->vpnConfigurationFetched(file.fileName(), file.readAll());
+    } else {
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, "VPN configuration not found", true);
+    }
+}
+
+void NetworkConfigurationManagerPrivate::writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password)
+{
+    Q_Q(NetworkConfigurationManager);
+    if (ProofObject::call(thread, &WorkerThread::writeVpnConfiguration, absoluteFilePath, configuration, password))
+        return;
+
+    QString fileName = QFileInfo(absoluteFilePath).fileName();
+    QFile settingsFileTmp("/tmp/" + fileName);
+    if (!settingsFileTmp.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        qCWarning(proofUtilsNetworkConfigurationLog) << settingsFileTmp.fileName() <<  "can't be opened:" << settingsFileTmp.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, "Can't write VPN configuration", true);
+        return;
+    }
+    settingsFileTmp.write(configuration.toLocal8Bit());
+    settingsFileTmp.close();
+
+    QProcess process;
+    process.setProcessChannelMode(QProcess::MergedChannels);
+    qCDebug(proofUtilsNetworkConfigurationLog) << "rewrite" << absoluteFilePath;
+    process.start("sudo -S -k /bin/cp \"" + settingsFileTmp.fileName() + "\" \"" + absoluteFilePath + "\"");
+    process.waitForStarted();
+    if (process.error() != QProcess::UnknownError) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << absoluteFilePath + " can't be rewritten:" << process.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, "Can't write VPN configuration", true);
+        return;
+    }
+
+    if (!enterPassword(process, password)) {
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, "Can't write VPN configuration", true);
+        settingsFileTmp.remove();
+        return;
+    }
+
+    settingsFileTmp.remove();
+    emit q->vpnConfigurationWritten();
+}
+
+void NetworkConfigurationManagerPrivate::turnOnVpn(const QString &password)
+{
+    Q_Q(NetworkConfigurationManager);
+    if (ProofObject::call(thread, &WorkerThread::turnOnVpn, password))
+        return;
+
+    QProcess process;
+    process.setProcessChannelMode(QProcess::MergedChannels);
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Starting VPN";
+    process.start("sudo -S -k service openvpn restart");
+    process.waitForStarted();
+    if (process.error() != QProcess::UnknownError) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be started:" << process.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, "VPN can't be started", true);
+        return;
+    }
+
+    if (!enterPassword(process, password)) {
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, "VPN can't be started. Password is wrong", true);
+        return;
+    }
+
+    q->startTimerForCheckVpnState(NetworkConfigurationManager::VpnState::Starting);
+}
+
+void NetworkConfigurationManagerPrivate::turnOffVpn(const QString &password)
+{
+    Q_Q(NetworkConfigurationManager);
+    if (ProofObject::call(thread, &WorkerThread::turnOffVpn, password))
+        return;
+
+    QProcess process;
+    process.setProcessChannelMode(QProcess::MergedChannels);
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Stopping VPN";
+    process.start("sudo -S -k service openvpn stop");
+    process.waitForStarted();
+    if (process.error() != QProcess::UnknownError) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be stopped:" << process.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, "VPN can't be stopped", true);
+        return;
+    }
+
+    if (!enterPassword(process, password)) {
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, "VPN can't be stopped. Password is wrong", true);
+        return;
+    }
+
+    q->startTimerForCheckVpnState(NetworkConfigurationManager::VpnState::Stopping);
 }
 
 ProxyFactory::ProxyFactory(const QNetworkProxy &mainProxy, const QStringList &excludes)
@@ -749,6 +958,26 @@ void WorkerThread::writeNetworkConfiguration(const QString &networkAdapterDescri
 {
     networkConfigurationManager->writeNetworkConfiguration(networkAdapterDescription, dhcpEnabled, ipv4Address, subnetMask,
                                                            gateway, preferredDns, alternateDns, password);
+}
+
+void WorkerThread::fetchVpnConfiguration()
+{
+    networkConfigurationManager->fetchVpnConfiguration();
+}
+
+void WorkerThread::writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password)
+{
+    networkConfigurationManager->writeVpnConfiguration(absoluteFilePath, configuration, password);
+}
+
+void WorkerThread::turnOnVpn(const QString &password)
+{
+    networkConfigurationManager->turnOnVpn(password);
+}
+
+void WorkerThread::turnOffVpn(const QString &password)
+{
+    networkConfigurationManager->turnOffVpn(password);
 }
 
 #include "networkconfigurationmanager.moc"
