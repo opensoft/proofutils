@@ -29,6 +29,12 @@ static const QString DNS_NAMESERVERS = "dns-nameservers";
 
 static const QString REGEXP_IP("(((?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))");
 
+#ifdef Q_OS_LINUX
+static const int REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT = 1;
+#else
+static const int REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT = 20;
+#endif
+
 static const QHash<QString, QNetworkProxy::ProxyType> PROXY_TYPES = {
     {"http", QNetworkProxy::ProxyType::HttpProxy},
     {"caching http", QNetworkProxy::ProxyType::HttpCachingProxy},
@@ -593,7 +599,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
         return;
     }
     writeInfoProcess.waitForFinished();
-    QThread::msleep(1000);
+
 #else
     QProcess networkingProcess;
     networkingProcess.setProcessChannelMode(QProcess::MergedChannels);
@@ -708,18 +714,54 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     }
 #endif
 
-    NetworkConfiguration networkConfiguration = fetchNetworkConfigurationPrivate(networkAdapterDescription);
-    bool indexMatch = networkConfiguration.index == adapterIndex;
-    bool dhcpMatch = networkConfiguration.dhcpEnabled == dhcpEnabled;
-    bool ipSettingsMatch = networkConfiguration.ipv4Address == ipv4Address && networkConfiguration.subnetMask == subnetMask && networkConfiguration.gateway == gateway;
-    bool preferredDnsMatch = networkConfiguration.preferredDns == preferredDns || networkConfiguration.preferredDns == alternateDns;
-    bool alternateDnsMatch = networkConfiguration.alternateDns == alternateDns || networkConfiguration.alternateDns == preferredDns;
-    bool ipAndDnsSettingsMatch = ipSettingsMatch && preferredDnsMatch && alternateDnsMatch;
+    bool successMatch = false;
+    bool indexMatch = false;
+    bool dhcpMatch = false;
+    bool ipSettingsMatch = false;
+    bool preferredDnsMatch = false;
+    bool alternateDnsMatch= false;
+    bool ipAndDnsSettingsMatch = false;
+    NetworkConfiguration networkConfiguration;
+    for (int i = 0; i < REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT; ++i) {
+        networkConfiguration = fetchNetworkConfigurationPrivate(networkAdapterDescription);
+        indexMatch = networkConfiguration.index == adapterIndex;
+        dhcpMatch = networkConfiguration.dhcpEnabled == dhcpEnabled;
+        ipSettingsMatch = networkConfiguration.ipv4Address == ipv4Address && networkConfiguration.subnetMask == subnetMask && networkConfiguration.gateway == gateway;
+        preferredDnsMatch = networkConfiguration.preferredDns == preferredDns || networkConfiguration.preferredDns == alternateDns;
+        alternateDnsMatch = networkConfiguration.alternateDns == alternateDns || networkConfiguration.alternateDns == preferredDns;
+        ipAndDnsSettingsMatch = ipSettingsMatch && preferredDnsMatch && alternateDnsMatch;
 
-    if (indexMatch && dhcpMatch && (dhcpEnabled || ipAndDnsSettingsMatch))
+        successMatch = indexMatch && dhcpMatch && (dhcpEnabled || ipAndDnsSettingsMatch);
+        if (successMatch)
+            break;
+
+        QThread::msleep(250);
+    }
+
+    if (successMatch) {
         emit q->networkConfigurationWritten();
-    else
+    } else {
+        if (!indexMatch)
+            qCDebug(proofUtilsNetworkConfigurationLog) << "index -" << "Actual:" << networkConfiguration.index << "Expected:" << adapterIndex;
+        if (!dhcpMatch)
+            qCDebug(proofUtilsNetworkConfigurationLog) << "dhcp -" << "Actual:" << networkConfiguration.dhcpEnabled << "Expected:" << dhcpEnabled;
+        if (!dhcpEnabled) {
+            if(!ipSettingsMatch) {
+                if (networkConfiguration.ipv4Address != ipv4Address)
+                    qCDebug(proofUtilsNetworkConfigurationLog) << "ipv4Address -" << "Actual:" << networkConfiguration.ipv4Address << "Expected:" << ipv4Address;
+                if (networkConfiguration.subnetMask != subnetMask)
+                    qCDebug(proofUtilsNetworkConfigurationLog) << "subnetMask -" << "Actual:" << networkConfiguration.subnetMask << "Expected:" << subnetMask;
+                if (networkConfiguration.gateway != gateway)
+                    qCDebug(proofUtilsNetworkConfigurationLog) << "gateway -" << "Actual:" << networkConfiguration.gateway << "Expected:" << gateway;
+            }
+            if (!preferredDnsMatch)
+                qCDebug(proofUtilsNetworkConfigurationLog) << "preferredDns -" << "Actual:" << networkConfiguration.preferredDns << "Expected:" << preferredDns;
+            if (!alternateDnsMatch)
+                qCDebug(proofUtilsNetworkConfigurationLog) << "alternateDns -" << "Actual:" << networkConfiguration.alternateDns << "Expected:" << alternateDns;
+        }
+
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+    }
 }
 
 void NetworkConfigurationManagerPrivate::fetchProxySettings()
