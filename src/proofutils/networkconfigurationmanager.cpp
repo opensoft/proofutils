@@ -306,10 +306,10 @@ void NetworkConfigurationManager::timerEvent(QTimerEvent *event)
             if (m_currentTimeCheckVpn >= VPN_CHECK_WAITING_TIMEOUT) {
                 switch (m_vpnState) {
                 case VpnState::Starting:
-                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, "VPN can't be started", true);
+                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, QObject::tr("VPN can't be started"), true);
                     break;
                 case VpnState::Stopping:
-                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, "VPN can't be stopped", true);
+                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, QObject::tr("VPN can't be stopped"), true);
                     break;
                 default:
                     break;
@@ -434,7 +434,7 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
     readInfoProcess.waitForStarted();
     if (readInfoProcess.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) <<  "PowerShell can't be started:" << readInfoProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't read network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't read network configuration"), true);
         return NetworkConfiguration();
     }
     readInfoProcess.waitForFinished();
@@ -472,7 +472,7 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
     QFile settingsFile(NETWORK_SETTINGS_FILE);
     if (!settingsFile.open(QIODevice::ReadOnly)) {
         qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't read network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't read network configuration"), true);
         return NetworkConfiguration();
     }
     bool isParsingInterface = false;
@@ -594,7 +594,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     writeInfoProcess.waitForStarted();
     if (writeInfoProcess.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "PowerShell can't be started:" << writeInfoProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
 
         return;
     }
@@ -608,7 +608,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "service networking can't be stopped:" << networkingProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
         return;
     }
 
@@ -618,7 +618,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     QFile settingsFile(NETWORK_SETTINGS_FILE);
     if (!settingsFile.open(QIODevice::ReadOnly)) {
         qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
         return;
     }
 
@@ -677,7 +677,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     QFile settingsFileTmp(NETWORK_SETTINGS_FILE_TMP);
     if (!settingsFileTmp.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
         qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFileTmp.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
         return;
     }
     settingsFileTmp.write(newInterfaces);
@@ -688,12 +688,12 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE + " can't be rewritten:" << networkingProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
         return;
     }
 
     if (!enterPassword(networkingProcess, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
         settingsFileTmp.remove();
         return;
     }
@@ -704,12 +704,12 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "service networking can't be started:" << networkingProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
         return;
     }
 
     if (!enterPassword(networkingProcess, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
         return;
     }
 #endif
@@ -760,7 +760,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
                 qCDebug(proofUtilsNetworkConfigurationLog) << "alternateDns -" << "Actual:" << networkConfiguration.alternateDns << "Expected:" << alternateDns;
         }
 
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, "Can't write network configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
     }
 }
 
@@ -782,7 +782,10 @@ ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
     proxySettings.host = networkProxyGroup->value("host", "", Settings::NotFoundPolicy::Add).toString();
     proxySettings.enabled = networkProxyGroup->value("enabled", !proxySettings.host.isEmpty(), Settings::NotFoundPolicy::Add).toBool();
     proxySettings.port = networkProxyGroup->value("port", 8080, Settings::NotFoundPolicy::Add).toUInt();
-    proxySettings.type = networkProxyGroup->value("type", "", Settings::NotFoundPolicy::Add).toString().trimmed();
+    QString defaultType = PROXY_TYPES.key(QNetworkProxy::ProxyType::HttpProxy);
+    proxySettings.type = networkProxyGroup->value("type", defaultType, Settings::NotFoundPolicy::Add).toString().trimmed();
+    if (proxySettings.type.isEmpty())
+        proxySettings.type = defaultType;
     proxySettings.userName = networkProxyGroup->value("username", "", Settings::NotFoundPolicy::Add).toString();
     proxySettings.password = networkProxyGroup->value("password", "", Settings::NotFoundPolicy::Add).toString();
 
@@ -827,6 +830,11 @@ void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings 
         return;
     }
 
+    if (!QFile::permissions(appSettings->filePath()).testFlag(QFileDevice::WriteUser)) {
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::ProxyConfigurationCannotBeWritten, QObject::tr("Proxy configuration can't be written. Permission denied"), true);
+        return;
+    }
+
     SettingsGroup *networkProxyGroup = appSettings->group("network_proxy", Settings::NotFoundPolicy::Add);
     networkProxyGroup->setValue("enabled", proxySettings.enabled);
     networkProxyGroup->setValue("host", proxySettings.host);
@@ -858,12 +866,12 @@ void NetworkConfigurationManagerPrivate::fetchVpnConfiguration()
         QFile file(fileInfoList.first().absoluteFilePath());
         if (!file.open(QIODevice::ReadOnly)) {
             qCDebug(proofUtilsNetworkConfigurationLog) << file.fileName() << "can't be opened";
-            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, "VPN configuration can't be opened", true);
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, QObject::tr("VPN configuration can't be opened"), true);
             return;
         }
         emit q->vpnConfigurationFetched(file.fileName(), file.readAll());
     } else {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, "VPN configuration not found", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, QObject::tr("VPN configuration not found"), true);
     }
 }
 
@@ -877,7 +885,7 @@ void NetworkConfigurationManagerPrivate::writeVpnConfiguration(const QString &ab
     QFile settingsFileTmp("/tmp/" + fileName);
     if (!settingsFileTmp.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
         qCWarning(proofUtilsNetworkConfigurationLog) << settingsFileTmp.fileName() <<  "can't be opened:" << settingsFileTmp.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, "Can't write VPN configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, QObject::tr("Can't write VPN configuration"), true);
         return;
     }
     settingsFileTmp.write(configuration.toLocal8Bit());
@@ -890,12 +898,12 @@ void NetworkConfigurationManagerPrivate::writeVpnConfiguration(const QString &ab
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << absoluteFilePath + " can't be rewritten:" << process.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, "Can't write VPN configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, QObject::tr("Can't write VPN configuration"), true);
         return;
     }
 
     if (!enterPassword(process, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, "Can't write VPN configuration", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, QObject::tr("Can't write VPN configuration"), true);
         settingsFileTmp.remove();
         return;
     }
@@ -917,12 +925,12 @@ void NetworkConfigurationManagerPrivate::turnOnVpn(const QString &password)
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be started:" << process.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, "VPN can't be started", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, QObject::tr("VPN can't be started"), true);
         return;
     }
 
     if (!enterPassword(process, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, "VPN can't be started. Password is wrong", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, QObject::tr("VPN can't be started. Password is wrong"), true);
         return;
     }
 
@@ -942,12 +950,12 @@ void NetworkConfigurationManagerPrivate::turnOffVpn(const QString &password)
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be stopped:" << process.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, "VPN can't be stopped", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, QObject::tr("VPN can't be stopped"), true);
         return;
     }
 
     if (!enterPassword(process, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, "VPN can't be stopped. Password is wrong", true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, QObject::tr("VPN can't be stopped. Password is wrong"), true);
         return;
     }
 

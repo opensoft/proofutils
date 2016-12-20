@@ -27,7 +27,8 @@ enum Code {
     VpnCannotBeStarted = 8,
     VpnCannotBeStopped = 9,
     VpnConfigurationNotFound = 10,
-    VpnConfigurationCannotBeWritten = 11
+    VpnConfigurationCannotBeWritten = 11,
+    ProxyConfigurationCannotBeWritten = 12
 };
 }
 constexpr long UTILS_MODULE_CODE = 200;
