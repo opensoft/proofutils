@@ -167,6 +167,35 @@ bool NetworkConfigurationManager::vpnSettingsSupported() const
     return false;
 }
 
+bool NetworkConfigurationManager::vpnCanBeControlled()
+{
+    bool result = false;
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+    if (ProofObject::call(this, &NetworkConfigurationManager::vpnCanBeControlled, Proof::Call::Block, result))
+        return result;
+
+    QProcess process;
+    process.setProcessChannelMode(QProcess::MergedChannels);
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Checking OpenVPN service existance";
+    process.start("/usr/sbin/service --status-all");
+    process.waitForStarted();
+    if (process.error() != QProcess::UnknownError) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service can't be checked" << process.errorString();
+        return false;
+    }
+
+    if (!process.waitForFinished(5000)) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service can't be checked and checker will be killed";
+        process.kill();
+        return false;
+    }
+
+    result = process.readAll().contains("openvpn");
+    qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service found:" << result;
+#endif
+    return result;
+}
+
 bool NetworkConfigurationManager::passwordSupported() const
 {
 #ifdef Q_OS_LINUX

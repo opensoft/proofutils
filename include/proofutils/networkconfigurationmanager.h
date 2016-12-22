@@ -30,6 +30,7 @@ public:
 
     bool ipSettingsSupported() const;
     bool vpnSettingsSupported() const;
+    Q_INVOKABLE bool vpnCanBeControlled();
     Q_INVOKABLE bool passwordSupported() const;
     Q_INVOKABLE void checkPassword(const QString &password);
     Q_INVOKABLE QVariantMap addresses() const;
