@@ -184,7 +184,7 @@ bool NetworkConfigurationManager::vpnCanBeControlled()
         return false;
     }
 
-    if (!process.waitForFinished(5000)) {
+    if (!process.waitForFinished(30000)) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service can't be checked and checker will be killed";
         process.kill();
         return false;
