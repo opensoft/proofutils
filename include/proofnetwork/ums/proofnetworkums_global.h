@@ -13,7 +13,6 @@
 Q_DECLARE_LOGGING_CATEGORY(proofNetworkUmsApiLog)
 Q_DECLARE_LOGGING_CATEGORY(proofNetworkUmsDataLog)
 
-
 namespace Proof {
 namespace NetworkErrorCode {
 enum UmsCode {

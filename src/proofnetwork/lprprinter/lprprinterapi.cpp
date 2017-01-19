@@ -167,6 +167,5 @@ bool LprPrinterApiPrivate::parsePrinterStatus(qulonglong operationId, QNetworkRe
     return false;
 }
 
-
 } // namespace NetworkServices
 } // namespace Proof

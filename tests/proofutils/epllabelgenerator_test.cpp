@@ -19,7 +19,6 @@ class EplLabelGenerator300SizesTest : public TestWithParam<SizeTestTuple>
 {
 };
 
-
 class EplLabelGeneratorBarcodeTest : public TestWithParam<BarcodeTestTuple>
 {
 };
@@ -344,7 +343,6 @@ TEST(EplLabelGeneratorTest, diagonalLine)
                                   << " != " << rect.x() << "," << rect.y() << ";" << rect.width() << "x" << rect.height();
 }
 
-
 TEST(EplLabelGeneratorTest, rotatedDiagonalLine)
 {
     EplLabelGenerator generator;
@@ -375,7 +373,6 @@ TEST_P(EplLabelGeneratorBarcodeTest, barcodes)
     QByteArray expected = std::get<0>(GetParam()).toLatin1();
     EXPECT_EQ(expected, result);
 }
-
 
 TEST(EplLabelGeneratorTest, straightBarcodeSize)
 {

@@ -76,4 +76,3 @@ void JobQmlWrapper::setupEntity(const QSharedPointer<NetworkDataEntity> &old)
 }
 }
 
-

@@ -32,5 +32,4 @@ namespace QrCodeGenerator
 }
 } // namespace Proof
 
-
 #endif // QRCODEGENERATOR_H

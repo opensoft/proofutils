@@ -104,4 +104,3 @@ TEST_P(SubnetMaskValidationTest, subnetMask)
     EXPECT_EQ(state, validator.validate(subnetMask, pos)) << subnetMask.toLatin1().constData();
 }
 
-

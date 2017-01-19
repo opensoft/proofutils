@@ -69,7 +69,6 @@ static const QHash<EplLabelGenerator::BarcodeType, QString> STRINGIFIED_BARCODE_
 
 using namespace Proof;
 
-
 EplLabelGenerator::EplLabelGenerator(int printerDpi)
     : d_ptr(new EplLabelGeneratorPrivate)
 {

@@ -24,7 +24,6 @@ protected:
         jsonDoc2 = QJsonDocument::fromJson(dataFromFile(":/data/job2.json"));
         ASSERT_FALSE(jsonDoc2.isEmpty());
 
-
         jobUT = Job::fromJson(jsonDoc.object());
         ASSERT_TRUE(jobUT);
 
