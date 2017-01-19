@@ -255,7 +255,7 @@ Job::Job(const QString &id, const QString &source)
     setName(id);
 }
 
-void JobPrivate::updateFrom(const NetworkDataEntitySP &other)
+void JobPrivate::updateFrom(const Proof::NetworkDataEntitySP &other)
 {
     Q_Q(Job);
     JobSP castedOther = qSharedPointerCast<Job>(other);

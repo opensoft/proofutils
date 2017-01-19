@@ -3,14 +3,14 @@
 #include "data/umsuser.h"
 #include "data/role.h"
 #include "proofnetworkums_global.h"
+#include "proofcore/proofglobal.h"
 
 #include <QtQml/QQmlListProperty>
 
 Q_LOGGING_CATEGORY(proofNetworkUmsApiLog, "proof.network.ums.api")
 Q_LOGGING_CATEGORY(proofNetworkUmsDataLog, "proof.network.ums.data")
 
-__attribute__((constructor))
-static void libraryInit()
+PROOF_LIBRARY_INITIALIZER(libraryInit)
 {
     qRegisterMetaType<Proof::Ums::UmsUserSP>("Proof::Ums::UmsUserSP");
     qRegisterMetaType<Proof::Ums::UmsUserWP>("Proof::Ums::UmsUserWP");

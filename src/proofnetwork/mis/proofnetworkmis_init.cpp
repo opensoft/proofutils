@@ -3,11 +3,11 @@
 #include "apihelper.h"
 
 #include "proofnetworkmis_global.h"
+#include "proofcore/proofglobal.h"
 
 Q_LOGGING_CATEGORY(proofNetworkMisDataLog, "proof.network.mis.data")
 
-__attribute__((constructor))
-static void libraryInit()
+PROOF_LIBRARY_INITIALIZER(libraryInit)
 {
     qRegisterMetaType<Proof::Mis::JobQmlWrapper *>("Proof::Mis::JobQmlWrapper *");
 
