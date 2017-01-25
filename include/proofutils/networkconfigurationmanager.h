@@ -30,7 +30,7 @@ public:
 
     bool ipSettingsSupported() const;
     bool vpnSettingsSupported() const;
-    Q_INVOKABLE bool vpnCanBeControlled();
+    Q_INVOKABLE void checkVpnCanBeControlled();
     Q_INVOKABLE bool passwordSupported() const;
     Q_INVOKABLE void checkPassword(const QString &password);
     Q_INVOKABLE QVariantMap addresses() const;
@@ -52,6 +52,7 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 signals:
+    void vpnCanBeControlledChecked(bool controllable);
     void passwordChecked(bool isCorrect);
     void networkInterfacesFetched(const QStringList &networkInterfaces);
     void networkConfigurationFetched(bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,

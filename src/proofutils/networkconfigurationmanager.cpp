@@ -59,6 +59,7 @@ class WorkerThread : public QThread
 public:
     explicit WorkerThread(Proof::NetworkConfigurationManagerPrivate *networkConfigurationManager);
     void fetchNetworkInterfaces();
+    void checkVpnCanBeControlled();
     void checkPassword(const QString &password);
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
     void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
@@ -105,6 +106,7 @@ class NetworkConfigurationManagerPrivate : public ProofObjectPrivate
 public:
     explicit NetworkConfigurationManagerPrivate(Settings *settings);
 
+    void checkVpnCanBeControlled();
     void checkPassword(const QString &password);
     void fetchNetworkInterfaces();
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
@@ -167,33 +169,10 @@ bool NetworkConfigurationManager::vpnSettingsSupported() const
     return false;
 }
 
-bool NetworkConfigurationManager::vpnCanBeControlled()
+void NetworkConfigurationManager::checkVpnCanBeControlled()
 {
-    bool result = false;
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-    if (ProofObject::call(this, &NetworkConfigurationManager::vpnCanBeControlled, Proof::Call::Block, result))
-        return result;
-
-    QProcess process;
-    process.setProcessChannelMode(QProcess::MergedChannels);
-    qCDebug(proofUtilsNetworkConfigurationLog) << "Checking OpenVPN service existance";
-    process.start("/usr/sbin/service --status-all");
-    process.waitForStarted();
-    if (process.error() != QProcess::UnknownError) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service can't be checked" << process.errorString();
-        return false;
-    }
-
-    if (!process.waitForFinished(30000)) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service can't be checked and checker will be killed";
-        process.kill();
-        return false;
-    }
-
-    result = process.readAll().contains("openvpn");
-    qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service found:" << result;
-#endif
-    return result;
+    Q_D(NetworkConfigurationManager);
+    d->checkVpnCanBeControlled();
 }
 
 bool NetworkConfigurationManager::passwordSupported() const
@@ -356,6 +335,38 @@ void NetworkConfigurationManager::startTimerForCheckVpnState(VpnState vpnState)
     skipSwitchingVpnCheck();
     m_vpnState = vpnState;
     m_checkVpnStateTimerId = startTimer(VPN_CHECK_INTERVAL);
+}
+
+void NetworkConfigurationManagerPrivate::checkVpnCanBeControlled()
+{
+    Q_Q(NetworkConfigurationManager);
+    bool result = false;
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+    if (ProofObject::call(thread, &WorkerThread::checkVpnCanBeControlled))
+        return;
+
+    QProcess process;
+    process.setProcessChannelMode(QProcess::MergedChannels);
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Checking OpenVPN service existance";
+    process.start("/usr/sbin/service --status-all");
+    process.waitForStarted();
+    if (process.error() != QProcess::UnknownError) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service can't be checked" << process.errorString();
+        emit q->vpnCanBeControlledChecked(false);
+        return;
+    }
+
+    if (!process.waitForFinished(30000)) {
+        qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service can't be checked and checker will be killed";
+        process.kill();
+        emit q->vpnCanBeControlledChecked(false);
+        return;
+    }
+
+    result = process.readAll().contains("openvpn");
+    qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service found:" << result;
+#endif
+    emit q->vpnCanBeControlledChecked(result);
 }
 
 void NetworkConfigurationManagerPrivate::checkPassword(const QString &password)
@@ -1020,6 +1031,11 @@ WorkerThread::WorkerThread(Proof::NetworkConfigurationManagerPrivate *networkCon
 void WorkerThread::fetchNetworkInterfaces()
 {
     networkConfigurationManager->fetchNetworkInterfaces();
+}
+
+void WorkerThread::checkVpnCanBeControlled()
+{
+    networkConfigurationManager->checkVpnCanBeControlled();
 }
 
 void WorkerThread::checkPassword(const QString &password)
