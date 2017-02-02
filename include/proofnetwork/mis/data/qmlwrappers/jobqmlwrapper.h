@@ -16,6 +16,7 @@ class PROOF_NETWORK_MIS_EXPORT JobQmlWrapper : public NetworkDataEntityQmlWrappe
 {
     Q_OBJECT
     Q_PROPERTY(QString id READ id NOTIFY idChanged)
+    Q_PROPERTY(Proof::Mis::ApiHelper::EntityStatus status READ status NOTIFY statusChanged)
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(qlonglong quantity READ quantity NOTIFY quantityChanged)
     Q_PROPERTY(double width READ width NOTIFY widthChanged)
@@ -28,6 +29,7 @@ public:
     PROOF_NDE_WRAPPER_TOOLS(Job)
 
     QString id() const;
+    Proof::Mis::ApiHelper::EntityStatus status() const;
     QString name() const;
     qlonglong quantity() const;
     double width() const;
@@ -38,6 +40,7 @@ public:
 
 signals:
     void idChanged(const QString &id);
+    void statusChanged(Proof::Mis::ApiHelper::EntityStatus status);
     void nameChanged(const QString &name);
     void quantityChanged(qlonglong quantity);
     void widthChanged(double width);

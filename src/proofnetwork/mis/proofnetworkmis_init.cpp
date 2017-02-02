@@ -15,6 +15,7 @@ PROOF_LIBRARY_INITIALIZER(libraryInit)
     qRegisterMetaType<Proof::Mis::JobWP>("Proof::Mis::JobWP");
     qRegisterMetaType<QList<Proof::Mis::JobSP>>("QList<Proof::Mis::JobSP>");
 
+    qRegisterMetaType<Proof::Mis::ApiHelper::EntityStatus>("Proof::Mis::ApiHelper::EntityStatus");
     qRegisterMetaType<Proof::Mis::ApiHelper::WorkflowStatus>("Proof::Mis::ApiHelper::WorkflowStatus");
     qRegisterMetaType<Proof::Mis::ApiHelper::TransitionEvent>("Proof::Mis::ApiHelper::TransitionEvent");
     qRegisterMetaType<Proof::Mis::ApiHelper::WorkflowAction>("Proof::Mis::ApiHelper::WorkflowAction");

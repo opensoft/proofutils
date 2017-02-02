@@ -5,6 +5,7 @@
     "quantity": 50,
     "width": 2016,
     "height": 1350,
+    "status": "valid",
     "workflow": [
         "is ready for:cutting",
         "needs:boxing"

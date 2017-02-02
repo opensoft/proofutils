@@ -23,6 +23,7 @@ class PROOF_NETWORK_MIS_EXPORT Job : public NetworkDataEntity
     Q_DECLARE_PRIVATE(Job)
 public:
     QString id() const;
+    ApiHelper::EntityStatus status() const;
     QString name() const;
     qlonglong quantity() const;
     double width() const;
@@ -34,6 +35,7 @@ public:
     ApiHelper::WorkflowStatus workflowStatus(ApiHelper::WorkflowAction action,
                                              ApiHelper::PaperSide paperSide = ApiHelper::PaperSide::NotSetSide) const;
 
+    void setStatus(ApiHelper::EntityStatus status);
     void setName(const QString &name);
     void setQuantity(qlonglong quantity);
     void setWidth(double width);
@@ -53,6 +55,7 @@ public:
 
 signals:
     void idChanged(const QString &arg);
+    void statusChanged(Proof::Mis::ApiHelper::EntityStatus arg);
     void nameChanged(const QString &arg);
     void quantityChanged(qlonglong arg);
     void widthChanged(double arg);

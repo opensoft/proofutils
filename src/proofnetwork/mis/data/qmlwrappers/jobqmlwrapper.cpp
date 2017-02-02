@@ -26,6 +26,7 @@ JobQmlWrapper::~JobQmlWrapper()
 PROOF_NDE_WRAPPER_TOOLS_IMPL(Job)
 
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, QString, id)
+PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, Proof::Mis::ApiHelper::EntityStatus, status)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, QString, name)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, qlonglong, quantity)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, double, width)
@@ -47,6 +48,7 @@ void JobQmlWrapper::setupEntity(const QSharedPointer<NetworkDataEntity> &old)
     Q_ASSERT(job);
 
     connect(job.data(), &Job::idChanged, this, &JobQmlWrapper::idChanged);
+    connect(job.data(), &Job::statusChanged, this, &JobQmlWrapper::statusChanged);
     connect(job.data(), &Job::nameChanged, this, &JobQmlWrapper::nameChanged);
     connect(job.data(), &Job::quantityChanged, this, &JobQmlWrapper::quantityChanged);
     connect(job.data(), &Job::widthChanged, this, &JobQmlWrapper::widthChanged);
@@ -58,6 +60,8 @@ void JobQmlWrapper::setupEntity(const QSharedPointer<NetworkDataEntity> &old)
     if (oldJob) {
         if (job->id() != oldJob->id())
             emit idChanged(job->id());
+        if (job->status() != oldJob->status())
+            emit statusChanged(job->status());
         if (job->name() != oldJob->name())
             emit nameChanged(job->name());
         if (job->quantity() != oldJob->quantity())

@@ -7,6 +7,13 @@ using namespace Proof::Mis;
  * Helper class for Mis API
  */
 
+static const QHash<QString, ApiHelper::EntityStatus> ENTITY_STATUSES = {
+    {"invalid", ApiHelper::EntityStatus::InvalidEntity},
+    {"not ready", ApiHelper::EntityStatus::NotReadyEntity},
+    {"valid", ApiHelper::EntityStatus::ValidEntity},
+    {"deleted", ApiHelper::EntityStatus::DeletedEntity}
+};
+
 static const QHash<QString, ApiHelper::WorkflowStatus> WORKFLOW_STATUSES = {
     {"needs", ApiHelper::WorkflowStatus::NeedsStatus},
     {"is ready for", ApiHelper::WorkflowStatus::IsReadyForStatus},
@@ -65,6 +72,11 @@ static const QHash<QString, ApiHelper::PaperSide> PAPER_SIDES = {
     {"back", ApiHelper::PaperSide::BackSide}
 };
 
+QString ApiHelper::entityStatusToString(ApiHelper::EntityStatus status)
+{
+    return ENTITY_STATUSES.key(status, "");
+}
+
 QString ApiHelper::workflowStatusToString(ApiHelper::WorkflowStatus status)
 {
     return WORKFLOW_STATUSES.key(status, "");
@@ -83,6 +95,14 @@ QString ApiHelper::transitionEventToString(ApiHelper::TransitionEvent event)
 QString ApiHelper::paperSideToString(ApiHelper::PaperSide side)
 {
     return PAPER_SIDES.key(side, "");
+}
+
+ApiHelper::EntityStatus ApiHelper::entityStatusFromString(QString statusString, bool *ok)
+{
+    statusString = statusString.toLower();
+    if (ok != nullptr)
+        *ok = ENTITY_STATUSES.contains(statusString);
+    return ENTITY_STATUSES.value(statusString, EntityStatus::InvalidEntity);
 }
 
 ApiHelper::WorkflowStatus ApiHelper::workflowStatusFromString(QString statusString, bool *ok)
@@ -154,6 +174,11 @@ uint qHash(ApiHelper::WorkflowStatus arg, uint seed)
 }
 
 uint qHash(ApiHelper::PaperSide arg, uint seed)
+{
+    return ::qHash(static_cast<int>(arg), seed);
+}
+
+uint qHash(ApiHelper::EntityStatus arg, uint seed)
 {
     return ::qHash(static_cast<int>(arg), seed);
 }

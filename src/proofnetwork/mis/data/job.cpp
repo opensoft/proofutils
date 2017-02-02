@@ -16,6 +16,7 @@ class JobPrivate : NetworkDataEntityPrivate
     void setId(const QString &id);
 
     QString id;
+    ApiHelper::EntityStatus status = ApiHelper::EntityStatus::InvalidEntity;
     QString name;
     qlonglong quantity = 0;
     double width = 0.0;
@@ -38,6 +39,12 @@ QString Job::id() const
 {
     Q_D(const Job);
     return d->id;
+}
+
+ApiHelper::EntityStatus Job::status() const
+{
+    Q_D(const Job);
+    return d->status;
 }
 
 QString Job::name() const
@@ -76,6 +83,15 @@ void JobPrivate::setId(const QString &arg)
     if (id != arg) {
         id = arg;
         emit q->idChanged(arg);
+    }
+}
+
+void Job::setStatus(ApiHelper::EntityStatus status)
+{
+    Q_D(Job);
+    if (d->status != status) {
+        d->status = status;
+        emit statusChanged(status);
     }
 }
 
@@ -194,6 +210,7 @@ QJsonObject Job::toJson() const
     Q_D(const Job);
     QJsonObject json;
     json.insert("id", id());
+    json.insert("status", ApiHelper::entityStatusToString(status()));
     json.insert("name", name());
     json.insert("quantity", quantity());
     json.insert("width", width());
@@ -229,6 +246,7 @@ JobSP Job::fromJson(const QJsonObject &json)
     QString id = json.value("id").toString("");
     JobSP job = create(id);
     job->setFetched(true);
+    job->setStatus(ApiHelper::entityStatusFromString(json.value("status").toString()));
     job->setName(json.value("name").toString(""));
     job->setQuantity(json.value("quantity").toInt());
     job->setWidth(json.value("width").toDouble());
@@ -262,6 +280,7 @@ void JobPrivate::updateFrom(const Proof::NetworkDataEntitySP &other)
     Q_ASSERT(castedOther);
     setId(castedOther->id());
     q->setName(castedOther->name());
+    q->setStatus(castedOther->status());
     q->setQuantity(castedOther->quantity());
     q->setWidth(castedOther->width());
     q->setHeight(castedOther->height());

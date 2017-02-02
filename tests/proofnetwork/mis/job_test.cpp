@@ -57,18 +57,20 @@ TEST_F(JobTest, fromJson)
     EXPECT_DOUBLE_EQ(1350.0, jobUT->height());
     EXPECT_EQ(ApiHelper::WorkflowStatus::IsReadyForStatus, jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction));
     EXPECT_EQ(ApiHelper::WorkflowStatus::NeedsStatus, jobUT->workflowStatus(ApiHelper::WorkflowAction::BoxingAction));
+    EXPECT_EQ(ApiHelper::EntityStatus::ValidEntity, jobUT->status());
 }
 
 TEST_F(JobTest, toJson)
 {
     JobSP job = Job::fromJson(jobUT->toJson());
-    EXPECT_EQ("42", jobUT->id());
-    EXPECT_EQ("MT-42", jobUT->name());
-    EXPECT_EQ("metrix", jobUT->source());
-    EXPECT_DOUBLE_EQ(2016.0, jobUT->width());
-    EXPECT_DOUBLE_EQ(1350.0, jobUT->height());
-    EXPECT_EQ(ApiHelper::WorkflowStatus::IsReadyForStatus, jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction));
-    EXPECT_EQ(ApiHelper::WorkflowStatus::NeedsStatus, jobUT->workflowStatus(ApiHelper::WorkflowAction::BoxingAction));
+    EXPECT_EQ("42", job->id());
+    EXPECT_EQ("MT-42", job->name());
+    EXPECT_EQ("metrix", job->source());
+    EXPECT_DOUBLE_EQ(2016.0, job->width());
+    EXPECT_DOUBLE_EQ(1350.0, job->height());
+    EXPECT_EQ(ApiHelper::WorkflowStatus::IsReadyForStatus, job->workflowStatus(ApiHelper::WorkflowAction::CuttingAction));
+    EXPECT_EQ(ApiHelper::WorkflowStatus::NeedsStatus, job->workflowStatus(ApiHelper::WorkflowAction::BoxingAction));
+    EXPECT_EQ(ApiHelper::EntityStatus::ValidEntity, job->status());
 }
 
 TEST_F(JobTest, customJob)
@@ -81,12 +83,14 @@ TEST_F(JobTest, customJob)
     job->setHeight(512.0);
     job->setWorkflowStatus(ApiHelper::WorkflowAction::CuttingAction,
                              ApiHelper::WorkflowStatus::IsReadyForStatus);
+    job->setStatus(ApiHelper::EntityStatus::NotReadyEntity);
     EXPECT_EQ("123", job->id());
     EXPECT_EQ("I-123", job->name());
     EXPECT_EQ("ProFIT", job->source());
     EXPECT_DOUBLE_EQ(1024.0, job->width());
     EXPECT_DOUBLE_EQ(512.0, job->height());
     EXPECT_EQ(ApiHelper::WorkflowStatus::IsReadyForStatus, job->workflowStatus(ApiHelper::WorkflowAction::CuttingAction));
+    EXPECT_EQ(ApiHelper::EntityStatus::NotReadyEntity, job->status());
 }
 
 TEST_F(JobTest, updateFrom)
@@ -113,6 +117,7 @@ TEST_F(JobTest, updateFrom)
     EXPECT_EQ(jobUT2->width(), jobUT->width());
     EXPECT_EQ(jobUT2->height(), jobUT->height());
     EXPECT_EQ(jobUT2->source(), jobUT->source());
+    EXPECT_EQ(jobUT2->status(), jobUT->status());
     EXPECT_EQ(jobUT2->workflowStatus(ApiHelper::WorkflowAction::CuttingAction),
               jobUT->workflowStatus(ApiHelper::WorkflowAction::CuttingAction));
     EXPECT_EQ(jobUT2->workflowStatus(ApiHelper::WorkflowAction::BoxingAction),
