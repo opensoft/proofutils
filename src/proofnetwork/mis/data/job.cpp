@@ -246,7 +246,7 @@ JobSP Job::fromJson(const QJsonObject &json)
     QString id = json.value("id").toString("");
     JobSP job = create(id);
     job->setFetched(true);
-    job->setStatus(ApiHelper::entityStatusFromString(json.value("status").toString()));
+    job->setStatus(ApiHelper::entityStatusFromString(json.value("status").toString("valid")));
     job->setName(json.value("name").toString(""));
     job->setQuantity(json.value("quantity").toInt());
     job->setWidth(json.value("width").toDouble());
