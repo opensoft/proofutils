@@ -16,7 +16,7 @@ class JobPrivate : NetworkDataEntityPrivate
     void setId(const QString &id);
 
     QString id;
-    ApiHelper::EntityStatus status = ApiHelper::EntityStatus::InvalidEntity;
+    ApiHelper::EntityStatus status = ApiHelper::EntityStatus::ValidEntity;
     QString name;
     qlonglong quantity = 0;
     double width = 0.0;
