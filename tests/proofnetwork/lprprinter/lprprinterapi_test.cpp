@@ -50,7 +50,7 @@ TEST_F(LprPrinterApiTest, fetchStatus)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, SIGNAL(statusFetched(qulonglong,Proof::NetworkServices::LprPrinterStatus)));
+    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::statusFetched);
     const qulonglong operationId = lprPrinterApi->fetchStatus();
 
     ASSERT_TRUE(spy.wait());
@@ -74,7 +74,7 @@ TEST_F(LprPrinterApiTest, fetchBadStatus)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, SIGNAL(statusFetched(qulonglong,Proof::NetworkServices::LprPrinterStatus)));
+    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::statusFetched);
     const qulonglong operationId = lprPrinterApi->fetchStatus();
 
     ASSERT_TRUE(spy.wait());
@@ -98,7 +98,7 @@ TEST_F(LprPrinterApiTest, printLabel)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, SIGNAL(labelPrinted(qulonglong)));
+    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::labelPrinted);
     const qulonglong operationId = lprPrinterApi->printLabel("something");
 
     ASSERT_TRUE(spy.wait());
@@ -118,8 +118,8 @@ TEST_F(LprPrinterApiTest, failedPrintLabel)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, SIGNAL(labelPrinted(qulonglong)));
-    QSignalSpy errorSpy(lprPrinterApi, SIGNAL(errorOccurred(qulonglong,Proof::RestApiError)));
+    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::labelPrinted);
+    QSignalSpy errorSpy(lprPrinterApi, &LprPrinterApi::errorOccurred);
     const qulonglong operationId = lprPrinterApi->printLabel("something");
 
     ASSERT_TRUE(errorSpy.wait());
@@ -145,7 +145,7 @@ TEST_F(LprPrinterApiTest, printFile)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, SIGNAL(filePrinted(qulonglong)));
+    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::filePrinted);
     const qulonglong operationId = lprPrinterApi->printFile(":/data/status.json");
 
     ASSERT_TRUE(spy.wait());
@@ -165,8 +165,8 @@ TEST_F(LprPrinterApiTest, failedPrintFile)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, SIGNAL(filePrinted(qulonglong)));
-    QSignalSpy errorSpy(lprPrinterApi, SIGNAL(errorOccurred(qulonglong,Proof::RestApiError)));
+    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::filePrinted);
+    QSignalSpy errorSpy(lprPrinterApi, &LprPrinterApi::errorOccurred);
     const qulonglong operationId = lprPrinterApi->printFile(":/data/status.json");
 
     ASSERT_TRUE(errorSpy.wait());
@@ -192,7 +192,7 @@ TEST_F(LprPrinterApiTest, fetchPrintersList)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, SIGNAL(printersListFetched(qulonglong,QList<Proof::NetworkServices::LprPrinterInfo>)));
+    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::printersListFetched);
     const qulonglong operationId = lprPrinterApi->fetchPrintersList();
 
     ASSERT_TRUE(spy.wait());
