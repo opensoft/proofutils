@@ -1,8 +1,6 @@
 #ifndef PROOF_NETWORKCONFIGURATIONMANAGER_H
 #define PROOF_NETWORKCONFIGURATIONMANAGER_H
 
-// Use this class only from gui application
-
 #include "proofutils_global.h"
 #include "proofcore/proofobject.h"
 
@@ -24,8 +22,7 @@ class PROOF_UTILS_EXPORT NetworkConfigurationManager : public ProofObject
     };
 
 public:
-    //TODO: 1.0: remove first arg when CoreApplication and GuiApplication will be castable to each other
-    explicit NetworkConfigurationManager(Settings *settings, QObject *parent = nullptr);
+    explicit NetworkConfigurationManager(QObject *parent = nullptr);
     ~NetworkConfigurationManager();
 
     bool ipSettingsSupported() const;

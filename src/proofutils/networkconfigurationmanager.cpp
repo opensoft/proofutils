@@ -1,6 +1,6 @@
 ﻿#include "networkconfigurationmanager.h"
 
-#include "proofgui/guiapplication.h"
+#include "proofcore/coreapplication.h"
 #include "proofcore/proofobject_p.h"
 #include "proofcore/settings.h"
 #include "proofcore/settingsgroup.h"
@@ -104,8 +104,6 @@ class NetworkConfigurationManagerPrivate : public ProofObjectPrivate
 {
     Q_DECLARE_PUBLIC(NetworkConfigurationManager)
 public:
-    explicit NetworkConfigurationManagerPrivate(Settings *settings);
-
     void checkVpnCanBeControlled();
     void checkPassword(const QString &password);
     void fetchNetworkInterfaces();
@@ -128,13 +126,12 @@ private:
     bool enterPassword(QProcess &process, const QString &password);
 
     WorkerThread *thread = nullptr;
-    Settings *appSettings = nullptr;
     ProxySettings lastProxySettings;
     QStringList proxyExcludes;
 };
 
-NetworkConfigurationManager::NetworkConfigurationManager(Settings *settings, QObject *parent)
-    : ProofObject(*new NetworkConfigurationManagerPrivate(settings), parent)
+NetworkConfigurationManager::NetworkConfigurationManager(QObject *parent)
+    : ProofObject(*new NetworkConfigurationManagerPrivate, parent)
 {
     Q_D(NetworkConfigurationManager);
     d->thread = new WorkerThread(d);
@@ -257,12 +254,6 @@ bool NetworkConfigurationManager::vpnEnabled()
             return true;
     }
     return false;
-}
-
-NetworkConfigurationManagerPrivate::NetworkConfigurationManagerPrivate(Settings *settings)
-    : ProofObjectPrivate()
-{
-    appSettings = settings;
 }
 
 void NetworkConfigurationManager::fetchVpnConfiguration()
@@ -813,12 +804,8 @@ void NetworkConfigurationManagerPrivate::fetchProxySettings()
 ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
 {
     ProxySettings proxySettings;
-    if (!appSettings) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << "Application settings not found";
-        return proxySettings;
-    }
 
-    SettingsGroup *networkProxyGroup = appSettings->group("network_proxy", Settings::NotFoundPolicy::Add);
+    SettingsGroup *networkProxyGroup = proofApp->settings()->group("network_proxy", Settings::NotFoundPolicy::Add);
     proxySettings.host = networkProxyGroup->value("host", "", Settings::NotFoundPolicy::Add).toString();
     proxySettings.enabled = networkProxyGroup->value("enabled", !proxySettings.host.isEmpty(), Settings::NotFoundPolicy::Add).toBool();
     proxySettings.port = networkProxyGroup->value("port", 8080, Settings::NotFoundPolicy::Add).toUInt();
@@ -865,17 +852,12 @@ void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings 
 {
     Q_Q(NetworkConfigurationManager);
 
-    if (!appSettings) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << "Application settings not found";
-        return;
-    }
-
-    if (!QFile::permissions(appSettings->filePath()).testFlag(QFileDevice::WriteUser)) {
+    if (!QFile::permissions(proofApp->settings()->filePath()).testFlag(QFileDevice::WriteUser)) {
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::ProxyConfigurationCannotBeWritten, QObject::tr("Proxy configuration can't be written. Permission denied"), true);
         return;
     }
 
-    SettingsGroup *networkProxyGroup = appSettings->group("network_proxy", Settings::NotFoundPolicy::Add);
+    SettingsGroup *networkProxyGroup = proofApp->settings()->group("network_proxy", Settings::NotFoundPolicy::Add);
     networkProxyGroup->setValue("enabled", proxySettings.enabled);
     networkProxyGroup->setValue("host", proxySettings.host);
     networkProxyGroup->setValue("port", proxySettings.port);
