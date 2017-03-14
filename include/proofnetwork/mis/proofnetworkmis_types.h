@@ -10,8 +10,8 @@ namespace Proof {
 namespace Mis {
 
 class Job;
-typedef QSharedPointer<Job> JobSP;
-typedef QWeakPointer<Job> JobWP;
+using JobSP = QSharedPointer<Job>;
+using JobWP = QWeakPointer<Job>;
 
 }
 }

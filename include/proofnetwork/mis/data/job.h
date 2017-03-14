@@ -14,7 +14,7 @@
 namespace Proof {
 namespace Mis {
 
-typedef QPair<QString, QString> JobCacheKey;
+using JobCacheKey = QPair<QString, QString>;
 
 class JobPrivate;
 class PROOF_NETWORK_MIS_EXPORT Job : public NetworkDataEntity

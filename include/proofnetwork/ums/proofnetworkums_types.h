@@ -10,12 +10,12 @@ namespace Proof {
 namespace Ums {
 
 class Role;
-typedef QSharedPointer<Role> RoleSP;
-typedef QWeakPointer<Role> RoleWP;
+using RoleSP = QSharedPointer<Role>;
+using RoleWP = QWeakPointer<Role>;
 
 class UmsUser;
-typedef QSharedPointer<UmsUser> UmsUserSP;
-typedef QWeakPointer<UmsUser> UmsUserWP;
+using UmsUserSP = QSharedPointer<UmsUser>;
+using UmsUserWP = QWeakPointer<UmsUser>;
 
 }
 }
