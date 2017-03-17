@@ -12,7 +12,7 @@ class PROOF_UTILS_EXPORT MobileUtils : public ProofObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(MobileUtils)
 public:
-    explicit MobileUtils(QObject *parent = 0);
+    explicit MobileUtils(QObject *parent = nullptr);
     ~MobileUtils();
 
     Q_INVOKABLE void callPhoneNumber(const QString &phoneNumber);

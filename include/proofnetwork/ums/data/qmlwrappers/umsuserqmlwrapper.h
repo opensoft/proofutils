@@ -24,7 +24,7 @@ class PROOF_NETWORK_UMS_EXPORT UmsUserQmlWrapper : public UserQmlWrapper
 
     Q_DECLARE_PRIVATE(UmsUserQmlWrapper)
 public:
-    UmsUserQmlWrapper(const UmsUserSP &user, QObject *parent = 0);
+    UmsUserQmlWrapper(const UmsUserSP &user, QObject *parent = nullptr);
     PROOF_NDE_WRAPPER_TOOLS(UmsUser)
 
     QString id() const;

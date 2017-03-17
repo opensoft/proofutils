@@ -24,7 +24,7 @@ class PROOF_NETWORK_MIS_EXPORT JobQmlWrapper : public NetworkDataEntityQmlWrappe
     Q_PROPERTY(QString source READ source NOTIFY sourceChanged)
     Q_DECLARE_PRIVATE(JobQmlWrapper)
 public:
-    explicit JobQmlWrapper(const JobSP &job, QObject *parent = 0);
+    explicit JobQmlWrapper(const JobSP &job, QObject *parent = nullptr);
     ~JobQmlWrapper();
     PROOF_NDE_WRAPPER_TOOLS(Job)
 

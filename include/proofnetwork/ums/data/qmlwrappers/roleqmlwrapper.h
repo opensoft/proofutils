@@ -16,7 +16,7 @@ class PROOF_NETWORK_UMS_EXPORT RoleQmlWrapper : public NetworkDataEntityQmlWrapp
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_DECLARE_PRIVATE(RoleQmlWrapper)
 public:
-    RoleQmlWrapper(const RoleSP &role, QObject *parent = 0);
+    RoleQmlWrapper(const RoleSP &role, QObject *parent = nullptr);
     PROOF_NDE_WRAPPER_TOOLS(Role)
 
     QString locale() const;

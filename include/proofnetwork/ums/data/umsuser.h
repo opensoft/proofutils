@@ -26,7 +26,7 @@ public:
     QDateTime validFrom() const;
     QList<RoleSP> roles() const;
 
-    UmsUserQmlWrapper *toQmlWrapper(QObject *parent = 0) const override;
+    UmsUserQmlWrapper *toQmlWrapper(QObject *parent = nullptr) const override;
 
     static UmsUserSP create(const QString &userName = QString());
     static UmsUserSP fromJson(const QJsonObject &userJson);

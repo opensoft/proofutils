@@ -30,7 +30,7 @@ class PROOF_NETWORK_LPRPRINTER_EXPORT LprPrinterApi : public ProofServiceRestApi
     Q_OBJECT
     Q_DECLARE_PRIVATE(LprPrinterApi)
 public:
-    explicit LprPrinterApi(const RestClientSP &restClient, QObject *parent = 0);
+    explicit LprPrinterApi(const RestClientSP &restClient, QObject *parent = nullptr);
 
     qulonglong fetchStatus(const QString &printer = QString());
     qulonglong printLabel(const QByteArray &label, const QString &printer = QString());

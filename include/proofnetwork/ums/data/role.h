@@ -22,7 +22,7 @@ public:
     QString service() const;
     QString name() const;
 
-    RoleQmlWrapper *toQmlWrapper(QObject *parent = 0) const override;
+    RoleQmlWrapper *toQmlWrapper(QObject *parent = nullptr) const override;
 
     static RoleSP create();
     static RoleSP fromJson(const QJsonObject &roleJson);

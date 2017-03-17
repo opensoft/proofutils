@@ -12,7 +12,7 @@ class PROOF_UTILS_EXPORT PowerManager : public ProofObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(PowerManager)
 public:
-    explicit PowerManager(QObject *parent = 0);
+    explicit PowerManager(QObject *parent = nullptr);
     ~PowerManager();
 
     Q_INVOKABLE void restart(const QString &password = "");

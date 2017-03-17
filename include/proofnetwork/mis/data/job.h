@@ -43,7 +43,7 @@ public:
     void setSource(const QString &source);
     void setWorkflow(const QList<WorkflowElement> &workflow);
 
-    JobQmlWrapper *toQmlWrapper(QObject *parent = 0) const override;
+    JobQmlWrapper *toQmlWrapper(QObject *parent = nullptr) const override;
 
     QJsonObject toJson() const;
 
