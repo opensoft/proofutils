@@ -12,6 +12,7 @@ Q_LOGGING_CATEGORY(proofNetworkUmsDataLog, "proof.network.ums.data")
 
 PROOF_LIBRARY_INITIALIZER(libraryInit)
 {
+    //clang-format off
     qRegisterMetaType<Proof::Ums::UmsUserSP>("Proof::Ums::UmsUserSP");
     qRegisterMetaType<Proof::Ums::UmsUserWP>("Proof::Ums::UmsUserWP");
 
@@ -22,4 +23,5 @@ PROOF_LIBRARY_INITIALIZER(libraryInit)
 
     qRegisterMetaType<Proof::Ums::RoleQmlWrapper *>("Proof::Ums::RoleQmlWrapper *");
     qRegisterMetaType<QQmlListProperty<Proof::Ums::RoleQmlWrapper>>("QQmlListProperty<Proof::Ums::RoleQmlWrapper>");
+    //clang-format on
 }

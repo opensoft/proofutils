@@ -9,6 +9,7 @@ Q_LOGGING_CATEGORY(proofNetworkMisDataLog, "proof.network.mis.data")
 
 PROOF_LIBRARY_INITIALIZER(libraryInit)
 {
+    //clang-format off
     qRegisterMetaType<Proof::Mis::JobQmlWrapper *>("Proof::Mis::JobQmlWrapper *");
 
     qRegisterMetaType<Proof::Mis::JobSP>("Proof::Mis::JobSP");
@@ -20,4 +21,5 @@ PROOF_LIBRARY_INITIALIZER(libraryInit)
     qRegisterMetaType<Proof::Mis::ApiHelper::TransitionEvent>("Proof::Mis::ApiHelper::TransitionEvent");
     qRegisterMetaType<Proof::Mis::ApiHelper::WorkflowAction>("Proof::Mis::ApiHelper::WorkflowAction");
     qRegisterMetaType<Proof::Mis::ApiHelper::PaperSide>("Proof::Mis::ApiHelper::PaperSide");
+    //clang-format on
 }

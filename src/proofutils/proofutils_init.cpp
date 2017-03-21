@@ -8,4 +8,6 @@ Q_LOGGING_CATEGORY(proofUtilsNetworkConfigurationLog, "proof.utils.networkconfig
 
 PROOF_LIBRARY_INITIALIZER(libraryInit)
 {
+    //clang-format off
+    //clang-format on
 }
