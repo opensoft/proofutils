@@ -66,9 +66,9 @@ void JobQmlWrapper::setupEntity(const QSharedPointer<NetworkDataEntity> &old)
             emit nameChanged(job->name());
         if (job->quantity() != oldJob->quantity())
             emit quantityChanged(job->quantity());
-        if (!qFuzzyCompare(job->width() + 1, oldJob->width() + 1))
+        if (!qFuzzyCompare(job->width() + 1.0, oldJob->width() + 1.0))
             emit widthChanged(job->width());
-        if (!qFuzzyCompare(job->height() + 1, oldJob->height() + 1))
+        if (!qFuzzyCompare(job->height() + 1.0, oldJob->height() + 1.0))
             emit heightChanged(job->height());
         if (job->source() != oldJob->source())
             emit sourceChanged(job->source());
