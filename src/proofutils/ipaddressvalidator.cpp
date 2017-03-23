@@ -34,7 +34,7 @@ IpAddressValidator::~IpAddressValidator()
 QValidator::State IpAddressValidator::validate(QString &input, int &pos) const
 {
     Q_D(const IpAddressValidator);
-    Q_UNUSED(pos);
+    Q_UNUSED(pos)
 
     QList<quint8> parts = IpAddressValidatorPrivate::ipToUIntParts(input);
 

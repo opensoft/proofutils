@@ -375,7 +375,7 @@ void NetworkConfigurationManagerPrivate::checkPassword(const QString &password)
     else
         qCDebug(proofUtilsNetworkConfigurationLog) << "Process couldn't be started" << checker.error() << checker.errorString();
 #else
-    Q_UNUSED(password);
+    Q_UNUSED(password)
     qCDebug(proofUtilsNetworkConfigurationLog) << "Password check is not supported for this platform";
     emit q->passwordChecked(true);
 #endif
@@ -594,7 +594,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
         }
     }
 #ifdef Q_OS_WIN
-    Q_UNUSED(password);
+    Q_UNUSED(password)
     QProcess writeInfoProcess;
     writeInfoProcess.setReadChannel(QProcess::StandardOutput);
     QString query;
