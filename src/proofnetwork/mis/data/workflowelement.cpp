@@ -10,9 +10,9 @@ class WorkflowElementPrivate
     Q_DECLARE_PUBLIC(WorkflowElement)
     WorkflowElement *q_ptr;
 
-    ApiHelper::WorkflowAction action = ApiHelper::WorkflowAction::UnknownAction;
-    ApiHelper::WorkflowStatus status = ApiHelper::WorkflowStatus::UnknownStatus;
-    ApiHelper::PaperSide paperSide = ApiHelper::PaperSide::NotSetSide;
+    WorkflowAction action = WorkflowAction::UnknownAction;
+    WorkflowStatus status = WorkflowStatus::UnknownStatus;
+    PaperSide paperSide = PaperSide::NotSetSide;
 };
 }
 }
@@ -28,15 +28,15 @@ WorkflowElement::WorkflowElement(const QString &string)
     if (!string.isEmpty()) {
         QRegExp re("([^:]*)\\:([^:]*)(?:\\:([^:]*))?");
         if (re.indexIn(string) != -1) {
-            d_ptr->status = ApiHelper::workflowStatusFromString(re.cap(1));
-            d_ptr->action = ApiHelper::workflowActionFromString(re.cap(2));
+            d_ptr->status = workflowStatusFromString(re.cap(1));
+            d_ptr->action = workflowActionFromString(re.cap(2));
             if (re.captureCount() > 2)
-                d_ptr->paperSide = ApiHelper::paperSideFromString(re.cap(3));
+                d_ptr->paperSide = paperSideFromString(re.cap(3));
         }
     }
 }
 
-WorkflowElement::WorkflowElement(ApiHelper::WorkflowAction action, ApiHelper::WorkflowStatus status, ApiHelper::PaperSide paperSide)
+WorkflowElement::WorkflowElement(WorkflowAction action, WorkflowStatus status, PaperSide paperSide)
     : d_ptr(new WorkflowElementPrivate)
 {
     d_ptr->q_ptr = this;
@@ -65,32 +65,32 @@ WorkflowElement::~WorkflowElement()
 {
 }
 
-ApiHelper::WorkflowAction WorkflowElement::action() const
+WorkflowAction WorkflowElement::action() const
 {
     return d_ptr->action;
 }
 
-void WorkflowElement::setAction(ApiHelper::WorkflowAction arg)
+void WorkflowElement::setAction(WorkflowAction arg)
 {
     d_ptr->action = arg;
 }
 
-ApiHelper::WorkflowStatus WorkflowElement::status() const
+WorkflowStatus WorkflowElement::status() const
 {
     return d_ptr->status;
 }
 
-void WorkflowElement::setStatus(ApiHelper::WorkflowStatus arg)
+void WorkflowElement::setStatus(WorkflowStatus arg)
 {
     d_ptr->status = arg;
 }
 
-ApiHelper::PaperSide WorkflowElement::paperSide() const
+PaperSide WorkflowElement::paperSide() const
 {
     return d_ptr->paperSide;
 }
 
-void WorkflowElement::setPaperSide(ApiHelper::PaperSide arg)
+void WorkflowElement::setPaperSide(PaperSide arg)
 {
     d_ptr->paperSide = arg;
 }
@@ -98,11 +98,11 @@ void WorkflowElement::setPaperSide(ApiHelper::PaperSide arg)
 QString WorkflowElement::toString() const
 {
     return QString("%1:%2%3")
-            .arg(ApiHelper::workflowStatusToString(d_ptr->status))
-            .arg(ApiHelper::workflowActionToString(d_ptr->action))
-            .arg(d_ptr->paperSide == ApiHelper::PaperSide::NotSetSide
+            .arg(workflowStatusToString(d_ptr->status))
+            .arg(workflowActionToString(d_ptr->action))
+            .arg(d_ptr->paperSide == PaperSide::NotSetSide
                  ? ""
-                 : QString(":%1").arg(ApiHelper::paperSideToString(d_ptr->paperSide)));
+                 : QString(":%1").arg(paperSideToString(d_ptr->paperSide)));
 }
 
 WorkflowElement &WorkflowElement::operator=(const WorkflowElement &other)

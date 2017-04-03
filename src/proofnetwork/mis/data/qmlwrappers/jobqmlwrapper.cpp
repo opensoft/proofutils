@@ -26,14 +26,14 @@ JobQmlWrapper::~JobQmlWrapper()
 PROOF_NDE_WRAPPER_TOOLS_IMPL(Job)
 
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, QString, id)
-PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, Proof::Mis::ApiHelper::EntityStatus, status)
+PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, Proof::Mis::EntityStatus, status)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, QString, name)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, qlonglong, quantity)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, double, width)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, double, height)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, QString, source)
 
-ApiHelper::WorkflowStatus JobQmlWrapper::workflowStatus(ApiHelper::WorkflowAction action, ApiHelper::PaperSide paperSide) const
+WorkflowStatus JobQmlWrapper::workflowStatus(WorkflowAction action, PaperSide paperSide) const
 {
     Q_D(const JobQmlWrapper);
     const JobSP job = d->entity<Job>();

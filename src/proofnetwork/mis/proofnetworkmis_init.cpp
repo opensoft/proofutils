@@ -16,10 +16,10 @@ PROOF_LIBRARY_INITIALIZER(libraryInit)
     qRegisterMetaType<Proof::Mis::JobWP>("Proof::Mis::JobWP");
     qRegisterMetaType<QList<Proof::Mis::JobSP>>("QList<Proof::Mis::JobSP>");
 
-    qRegisterMetaType<Proof::Mis::ApiHelper::EntityStatus>("Proof::Mis::ApiHelper::EntityStatus");
-    qRegisterMetaType<Proof::Mis::ApiHelper::WorkflowStatus>("Proof::Mis::ApiHelper::WorkflowStatus");
-    qRegisterMetaType<Proof::Mis::ApiHelper::TransitionEvent>("Proof::Mis::ApiHelper::TransitionEvent");
-    qRegisterMetaType<Proof::Mis::ApiHelper::WorkflowAction>("Proof::Mis::ApiHelper::WorkflowAction");
-    qRegisterMetaType<Proof::Mis::ApiHelper::PaperSide>("Proof::Mis::ApiHelper::PaperSide");
+    qRegisterMetaType<Proof::Mis::EntityStatus>("Proof::Mis::EntityStatus");
+    qRegisterMetaType<Proof::Mis::WorkflowStatus>("Proof::Mis::WorkflowStatus");
+    qRegisterMetaType<Proof::Mis::TransitionEvent>("Proof::Mis::TransitionEvent");
+    qRegisterMetaType<Proof::Mis::WorkflowAction>("Proof::Mis::WorkflowAction");
+    qRegisterMetaType<Proof::Mis::PaperSide>("Proof::Mis::PaperSide");
     //clang-format on
 }

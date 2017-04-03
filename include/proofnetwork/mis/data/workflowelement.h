@@ -13,18 +13,18 @@ class PROOF_NETWORK_MIS_EXPORT WorkflowElement
     Q_DECLARE_PRIVATE(WorkflowElement)
 public:
     explicit WorkflowElement(const QString &string = "");
-    WorkflowElement(ApiHelper::WorkflowAction action, ApiHelper::WorkflowStatus status,
-                    ApiHelper::PaperSide paperSide = ApiHelper::PaperSide::NotSetSide);
+    WorkflowElement(WorkflowAction action, WorkflowStatus status,
+                    PaperSide paperSide = PaperSide::NotSetSide);
     WorkflowElement(const WorkflowElement &other);
     WorkflowElement(WorkflowElement &&other);
     ~WorkflowElement();
 
-    ApiHelper::WorkflowAction action() const;
-    void setAction(ApiHelper::WorkflowAction arg);
-    ApiHelper::WorkflowStatus status() const;
-    void setStatus(ApiHelper::WorkflowStatus arg);
-    ApiHelper::PaperSide paperSide() const;
-    void setPaperSide(ApiHelper::PaperSide arg);
+    WorkflowAction action() const;
+    void setAction(WorkflowAction arg);
+    WorkflowStatus status() const;
+    void setStatus(WorkflowStatus arg);
+    PaperSide paperSide() const;
+    void setPaperSide(PaperSide arg);
 
     QString toString() const;
 

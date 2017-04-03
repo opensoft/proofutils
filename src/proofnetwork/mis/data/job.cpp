@@ -16,7 +16,7 @@ class JobPrivate : NetworkDataEntityPrivate
     void setId(const QString &id);
 
     QString id;
-    ApiHelper::EntityStatus status = ApiHelper::EntityStatus::ValidEntity;
+    EntityStatus status = EntityStatus::ValidEntity;
     QString name;
     qlonglong quantity = 0;
     double width = 0.0;
@@ -41,7 +41,7 @@ QString Job::id() const
     return d->id;
 }
 
-ApiHelper::EntityStatus Job::status() const
+EntityStatus Job::status() const
 {
     Q_D(const Job);
     return d->status;
@@ -86,7 +86,7 @@ void JobPrivate::setId(const QString &arg)
     }
 }
 
-void Job::setStatus(ApiHelper::EntityStatus status)
+void Job::setStatus(EntityStatus status)
 {
     Q_D(Job);
     if (d->status != status) {
@@ -152,9 +152,9 @@ void Job::setWorkflow(const QList<WorkflowElement> &arg)
     }
 }
 
-void Job::setWorkflowStatus(ApiHelper::WorkflowAction action,
-                            ApiHelper::WorkflowStatus status,
-                            ApiHelper::PaperSide paperSide)
+void Job::setWorkflowStatus(WorkflowAction action,
+                            WorkflowStatus status,
+                            PaperSide paperSide)
 {
     Q_D(Job);
     bool found = false;
@@ -169,28 +169,28 @@ void Job::setWorkflowStatus(ApiHelper::WorkflowAction action,
         d->workflow.append(WorkflowElement(action, status, paperSide));
 }
 
-ApiHelper::WorkflowStatus Job::workflowStatus(ApiHelper::WorkflowAction action, ApiHelper::PaperSide paperSide) const
+WorkflowStatus Job::workflowStatus(WorkflowAction action, PaperSide paperSide) const
 {
     Q_D(const Job);
-    ApiHelper::WorkflowStatus fallbackStatus = ApiHelper::WorkflowStatus::UnknownStatus;
+    WorkflowStatus fallbackStatus = WorkflowStatus::UnknownStatus;
     for(const auto &element : qAsConst(d->workflow)) {
         if (element.action() != action)
             continue;
         if (element.paperSide() == paperSide) {
             return element.status();
-        } else if (paperSide == ApiHelper::PaperSide::NotSetSide) {
-            if (fallbackStatus == ApiHelper::WorkflowStatus::UnknownStatus)
+        } else if (paperSide == PaperSide::NotSetSide) {
+            if (fallbackStatus == WorkflowStatus::UnknownStatus)
                 fallbackStatus = element.status();
-            else if ((element.status() == ApiHelper::WorkflowStatus::SuspendedStatus || fallbackStatus == ApiHelper::WorkflowStatus::SuspendedStatus))
-                fallbackStatus = ApiHelper::WorkflowStatus::SuspendedStatus;
-            else if ((element.status() == ApiHelper::WorkflowStatus::InProgressStatus || fallbackStatus == ApiHelper::WorkflowStatus::InProgressStatus))
-                fallbackStatus = ApiHelper::WorkflowStatus::InProgressStatus;
-            else if ((element.status() == ApiHelper::WorkflowStatus::IsReadyForStatus || fallbackStatus == ApiHelper::WorkflowStatus::IsReadyForStatus))
-                fallbackStatus = ApiHelper::WorkflowStatus::IsReadyForStatus;
-            else if ((element.status() == ApiHelper::WorkflowStatus::NeedsStatus || fallbackStatus == ApiHelper::WorkflowStatus::NeedsStatus))
-                fallbackStatus = ApiHelper::WorkflowStatus::NeedsStatus;
-        } else if (element.paperSide() == ApiHelper::PaperSide::NotSetSide) {
-            if (paperSide == ApiHelper::PaperSide::FrontSide && fallbackStatus == ApiHelper::WorkflowStatus::UnknownStatus)
+            else if ((element.status() == WorkflowStatus::SuspendedStatus || fallbackStatus == WorkflowStatus::SuspendedStatus))
+                fallbackStatus = WorkflowStatus::SuspendedStatus;
+            else if ((element.status() == WorkflowStatus::InProgressStatus || fallbackStatus == WorkflowStatus::InProgressStatus))
+                fallbackStatus = WorkflowStatus::InProgressStatus;
+            else if ((element.status() == WorkflowStatus::IsReadyForStatus || fallbackStatus == WorkflowStatus::IsReadyForStatus))
+                fallbackStatus = WorkflowStatus::IsReadyForStatus;
+            else if ((element.status() == WorkflowStatus::NeedsStatus || fallbackStatus == WorkflowStatus::NeedsStatus))
+                fallbackStatus = WorkflowStatus::NeedsStatus;
+        } else if (element.paperSide() == PaperSide::NotSetSide) {
+            if (paperSide == PaperSide::FrontSide && fallbackStatus == WorkflowStatus::UnknownStatus)
                 fallbackStatus = element.status();
         }
     }
@@ -210,7 +210,7 @@ QJsonObject Job::toJson() const
     Q_D(const Job);
     QJsonObject json;
     json.insert("id", id());
-    json.insert("status", ApiHelper::entityStatusToString(status()));
+    json.insert("status", entityStatusToString(status()));
     json.insert("name", name());
     json.insert("quantity", quantity());
     json.insert("width", width());
@@ -246,7 +246,7 @@ JobSP Job::fromJson(const QJsonObject &json)
     QString id = json.value("id").toString("");
     JobSP job = create(id);
     job->setFetched(true);
-    job->setStatus(ApiHelper::entityStatusFromString(json.value("status").toString("valid")));
+    job->setStatus(entityStatusFromString(json.value("status").toString("valid")));
     job->setName(json.value("name").toString(""));
     job->setQuantity(json.value("quantity").toInt());
     job->setWidth(json.value("width").toDouble());
