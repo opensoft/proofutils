@@ -6,7 +6,7 @@
 
 namespace Proof {
 namespace Mis {
-Q_NAMESPACE
+PROOF_NETWORK_MIS_EXPORT Q_NAMESPACE
 
 enum class EntityStatus {
     NotReadyEntity,
