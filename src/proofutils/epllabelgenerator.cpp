@@ -129,7 +129,7 @@ QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize
                         .arg(fontSize)
                         .arg(horizontalScale)
                         .arg(verticalScale)
-                        .arg(inverseColors ? "R" : "N")
+                        .arg(inverseColors ? "R" : "N") // clazy:exclude=qstring-arg
                         .arg(preparedText));
 
     QRect rect(QPoint(x, y), textSize(text, fontSize, horizontalScale, verticalScale));
@@ -181,7 +181,7 @@ QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::Barc
                         .arg(narrowBarWidth)
                         .arg(wideBarWidth)
                         .arg(height)
-                        .arg(printReadableCode ? "B" : "N")
+                        .arg(printReadableCode ? "B" : "N") // clazy:exclude=qstring-arg
                         .arg(preparedData));
 
     if (printReadableCode)

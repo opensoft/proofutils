@@ -190,8 +190,10 @@ void NetworkConfigurationManager::checkPassword(const QString &password)
 QVariantMap NetworkConfigurationManager::addresses() const
 {
     QVariantMap addresses;
-    for (const auto &interface : QNetworkInterface::allInterfaces()) {
-        for (const auto &address : interface.addressEntries()) {
+    const auto allIfaces = QNetworkInterface::allInterfaces();
+    for (const auto &interface : allIfaces) {
+        const auto addressEntries = interface.addressEntries();
+        for (const auto &address : addressEntries) {
             auto ip = address.ip();
             if (ip.isLoopback())
                 continue;
@@ -249,7 +251,8 @@ void NetworkConfigurationManager::writeProxySettings(bool enabled, const QString
 
 bool NetworkConfigurationManager::vpnEnabled()
 {
-    for (const auto &interface : QNetworkInterface::allInterfaces()) {
+    const auto allIfaces = QNetworkInterface::allInterfaces();
+    for (const auto &interface : allIfaces) {
         if (interface.flags().testFlag(QNetworkInterface::IsPointToPoint))
             return true;
     }
@@ -449,7 +452,8 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
 
     NetworkConfiguration networkConfiguration;
     networkConfiguration.description = networkAdapterDescription;
-    for (const auto &interface : QNetworkInterface::allInterfaces()) {
+    const auto allIfaces = QNetworkInterface::allInterfaces();
+    for (const auto &interface : allIfaces) {
         if (interface.humanReadableName() == networkAdapterDescription) {
             networkConfiguration.index = QString::number(interface.index());
             break;
@@ -587,7 +591,8 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
         return;
 
     QString adapterIndex;
-    for (const auto &interface : QNetworkInterface::allInterfaces()) {
+    const auto allIfaces = QNetworkInterface::allInterfaces();
+    for (const auto &interface : allIfaces) {
         if (interface.humanReadableName() == networkAdapterDescription) {
             adapterIndex = QString::number(interface.index());
             break;
@@ -669,7 +674,9 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
 
         if (settingsFile.atEnd() && !currentInterfaceFound && !interfaceUpdated) {
             newInterfaces.append(line);
-            line = QString("iface %1 inet %2\n").arg(networkAdapterDescription).arg(dhcpEnabled ? DYNAMIC_IP : STATIC_IP);
+            line = QString("iface %1 inet %2\n")
+                    .arg(networkAdapterDescription,
+                         dhcpEnabled ? DYNAMIC_IP : STATIC_IP);
             currentInterfaceFound = true;
         }
 
@@ -994,7 +1001,7 @@ QList<QNetworkProxy> ProxyFactory::queryProxy(const QNetworkProxyQuery &query)
 {
     if (QHostAddress(query.peerHostName()).isLoopback())
         return {m_emptyProxy};
-    for (const auto &exclude : m_excludes) {
+    for (const auto &exclude : qAsConst(m_excludes)) {
         QRegExp rx(exclude, Qt::CaseInsensitive, QRegExp::PatternSyntax::WildcardUnix);
         if (rx.exactMatch(query.peerHostName()))
             return {m_emptyProxy};
