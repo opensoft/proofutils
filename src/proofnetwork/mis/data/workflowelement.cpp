@@ -98,9 +98,9 @@ void WorkflowElement::setPaperSide(PaperSide arg)
 QString WorkflowElement::toString() const
 {
     return QString("%1:%2%3")
-            .arg(workflowStatusToString(d_ptr->status))
-            .arg(workflowActionToString(d_ptr->action))
-            .arg(d_ptr->paperSide == PaperSide::NotSetSide
+            .arg(workflowStatusToString(d_ptr->status),
+                 workflowActionToString(d_ptr->action),
+                 d_ptr->paperSide == PaperSide::NotSetSide
                  ? ""
                  : QString(":%1").arg(paperSideToString(d_ptr->paperSide)));
 }

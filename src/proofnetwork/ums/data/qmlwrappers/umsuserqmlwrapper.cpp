@@ -93,11 +93,12 @@ void UmsUserQmlWrapperPrivate::updateRoles()
 {
     Q_Q(UmsUserQmlWrapper);
     UmsUserSP user = entity<UmsUser>();
-    for (RoleQmlWrapper *wrapper : roles)
+    for (RoleQmlWrapper *wrapper : qAsConst(roles))
         wrapper->deleteLater();
 
     roles.clear();
-    for (const RoleSP &role : user->roles())
+    const auto ndeRoles = user->roles();
+    for (const RoleSP &role : ndeRoles)
         roles << role->toQmlWrapper(q);
 
     qmlRolesList = QQmlListProperty<Proof::Ums::RoleQmlWrapper>(q, &roles,
