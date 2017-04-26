@@ -15,5 +15,45 @@
         <source>Something went wrong during shutdown. Please, contact IT department.</source>
         <translation>Algo fallo durante el apagar. Favor de contactar al departmento de IT.</translation>
     </message>
+    <message>
+        <source>VPN can&apos;t be started</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPN can&apos;t be stopped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Can&apos;t read network configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Can&apos;t write network configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Proxy configuration can&apos;t be written. Permission denied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPN configuration can&apos;t be opened</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPN configuration not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Can&apos;t write VPN configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPN can&apos;t be started. Password is wrong</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VPN can&apos;t be stopped. Password is wrong</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>
