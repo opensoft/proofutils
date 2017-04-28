@@ -29,6 +29,7 @@ uint qHash(EplLabelGenerator::BarcodeType barcodeType, uint seed = 0)
     return ::qHash(static_cast<int>(barcodeType), seed);
 }
 
+//TODO: consider moving all big statics to Q_GLOBAL_STATIC
 static const QHash<EplLabelGenerator::BarcodeType, QString> STRINGIFIED_BARCODE_TYPES = {
     {EplLabelGenerator::BarcodeType::Code39, "3"},
     {EplLabelGenerator::BarcodeType::Code39WithCheckDigit, "3C"},

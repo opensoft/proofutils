@@ -79,6 +79,7 @@ namespace Proof {
 
 class ProxyFactory : public QNetworkProxyFactory
 {
+    Q_DISABLE_COPY(ProxyFactory)
 public:
     ProxyFactory(const QNetworkProxy &mainProxy, const QStringList &excludes);
     QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery &query) override;
