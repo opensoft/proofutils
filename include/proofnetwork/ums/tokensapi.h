@@ -33,7 +33,7 @@ public:
     qulonglong fetchPublicKey();
     qulonglong fetchCertificate();
 signals:
-    void tokenFetched(qulonglong operationId, const QString &token, Proof::Ums::UmsUserSP user);
+    void tokenFetched(qulonglong operationId, const QString &token, const Proof::Ums::UmsUserSP &user);
     void publicKeyFetched(qulonglong operationId, const QString &publicKey);
     void certificateFetched(qulonglong operationId, const QString &certificate);
 };

@@ -13,7 +13,7 @@ namespace Proof {
 namespace Ums {
 
 class UmsUserPrivate;
-class PROOF_NETWORK_UMS_EXPORT UmsUser : public User
+class PROOF_NETWORK_UMS_EXPORT UmsUser : public User // clazy:exclude=ctor-missing-parent-argument
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(UmsUser)

@@ -11,7 +11,7 @@ namespace Ums {
 
 class RolePrivate;
 
-class PROOF_NETWORK_UMS_EXPORT Role : public NetworkDataEntity
+class PROOF_NETWORK_UMS_EXPORT Role : public NetworkDataEntity // clazy:exclude=ctor-missing-parent-argument
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(Role)
