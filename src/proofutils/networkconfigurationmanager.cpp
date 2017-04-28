@@ -53,7 +53,7 @@ struct ProxySettings {
     QString password;
 };
 
-class WorkerThread : public QThread
+class WorkerThread : public QThread // clazy:exclude=ctor-missing-parent-argument
 {
     Q_OBJECT
 public:
@@ -208,7 +208,7 @@ QVariantMap NetworkConfigurationManager::addresses() const
 void NetworkConfigurationManager::fetchNetworkInterfaces()
 {
     Q_D(NetworkConfigurationManager);
-    return d->fetchNetworkInterfaces();
+    d->fetchNetworkInterfaces();
 }
 
 void NetworkConfigurationManager::fetchNetworkConfiguration(const QString &networkAdapterDescription)

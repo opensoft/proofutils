@@ -10,7 +10,7 @@
 
 namespace {
 
-class WorkerThread : public QThread
+class WorkerThread : public QThread // clazy:exclude=ctor-missing-parent-argument
 {
     Q_OBJECT
 public:
