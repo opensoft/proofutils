@@ -6,17 +6,17 @@
     <message>
         <location filename="../powermanager.cpp" line="81"/>
         <source>This action is not supported for current platform</source>
-        <translation type="unfinished"></translation>
+        <translation>当前平台不支持此操作</translation>
     </message>
     <message>
         <location filename="../powermanager.cpp" line="118"/>
         <source>Incorrect password</source>
-        <translation type="unfinished"></translation>
+        <translation>密码错误</translation>
     </message>
     <message>
         <location filename="../powermanager.cpp" line="124"/>
         <source>Something went wrong during shutdown. Please, contact IT department.</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭时出现问题， 请联系电脑部门</translation>
     </message>
     <message>
         <location filename="../networkconfigurationmanager.cpp" line="338"/>
