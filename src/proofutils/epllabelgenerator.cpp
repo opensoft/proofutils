@@ -119,18 +119,18 @@ QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize
         verticalScale = 9;
 
     QString preparedText = text;
-    preparedText.replace("\\", "\\\\").replace("\"", "\\\"");
+    preparedText.replace(QLatin1String("\\"), QLatin1String("\\\\")).replace(QLatin1String("\""), QLatin1String("\\\""));
 
     rotation = (rotation % 360) / 90;
 
-    d->lastLabel.append(QString("A%1,%2,%3,%4,%5,%6,%7,\"%8\"\n")
+    d->lastLabel.append(QStringLiteral("A%1,%2,%3,%4,%5,%6,%7,\"%8\"\n")
                         .arg(x)
                         .arg(y)
                         .arg(rotation)
                         .arg(fontSize)
                         .arg(horizontalScale)
                         .arg(verticalScale)
-                        .arg(inverseColors ? "R" : "N") // clazy:exclude=qstring-arg
+                        .arg(inverseColors ? QStringLiteral("R") : QStringLiteral("N")) // clazy:exclude=qstring-arg
                         .arg(preparedText));
 
     QRect rect(QPoint(x, y), textSize(text, fontSize, horizontalScale, verticalScale));
@@ -170,19 +170,19 @@ QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::Barc
 {
     Q_D(EplLabelGenerator);
     QString preparedData = data;
-    preparedData.replace("\\", "\\\\").replace("\"", "\\\"");
+    preparedData.replace(QLatin1String("\\"), QLatin1String("\\\\")).replace(QLatin1String("\""), QLatin1String("\\\""));
 
     rotation = (rotation % 360) / 90;
 
-    d->lastLabel.append(QString("B%1,%2,%3,%4,%5,%6,%7,%8,\"%9\"\n")
+    d->lastLabel.append(QStringLiteral("B%1,%2,%3,%4,%5,%6,%7,%8,\"%9\"\n")
                         .arg(x)
                         .arg(y)
                         .arg(rotation)
-                        .arg(STRINGIFIED_BARCODE_TYPES.value(type, "1"))
+                        .arg(STRINGIFIED_BARCODE_TYPES.value(type, QStringLiteral("1")))
                         .arg(narrowBarWidth)
                         .arg(wideBarWidth)
                         .arg(height)
-                        .arg(printReadableCode ? "B" : "N") // clazy:exclude=qstring-arg
+                        .arg(printReadableCode ? QStringLiteral("B") : QStringLiteral("N")) // clazy:exclude=qstring-arg
                         .arg(preparedData));
 
     if (printReadableCode)
@@ -213,7 +213,7 @@ QRect EplLabelGenerator::addQrCode(const QString &data, int x, int y, int width)
     auto rawBinary = QrCodeGenerator::generateEplBinaryData(data, width);
     width = width + ((width + 8) % 8);
 
-    d->lastLabel.append(QString("GW%1,%2,%3,%4,")
+    d->lastLabel.append(QStringLiteral("GW%1,%2,%3,%4,")
                         .arg(x)
                         .arg(y)
                         .arg(width / 8)
@@ -240,7 +240,7 @@ QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGe
         break;
     }
 
-    d->lastLabel.append(QString("L%1%2,%3,%4,%5\n")
+    d->lastLabel.append(QStringLiteral("L%1%2,%3,%4,%5\n")
                         .arg(lineTypeString)
                         .arg(x)
                         .arg(y)
@@ -253,7 +253,7 @@ QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGe
 QRect EplLabelGenerator::addDiagonalLine(int x, int y, int endX, int endY, int width)
 {
     Q_D(EplLabelGenerator);
-    d->lastLabel.append(QString("LS%1,%2,%3,%4,%5\n")
+    d->lastLabel.append(QStringLiteral("LS%1,%2,%3,%4,%5\n")
                         .arg(x)
                         .arg(y)
                         .arg(width)
@@ -266,7 +266,7 @@ QRect EplLabelGenerator::addDiagonalLine(int x, int y, int endX, int endY, int w
 void EplLabelGenerator::addPrintCommand(int copies)
 {
     Q_D(EplLabelGenerator);
-    d->lastLabel.append(QString("P%1\n").arg(copies));
+    d->lastLabel.append(QStringLiteral("P%1\n").arg(copies));
 }
 
 void EplLabelGenerator::addClearBufferCommand()
@@ -280,10 +280,10 @@ void EplLabelGenerator::startPage()
     Q_D(EplLabelGenerator);
     d->lastLabel.append("I8,A,001\n");
     d->lastLabel.append("OD\n");
-    d->lastLabel.append(QString("q%1\n").arg(d->labelWidth));
-    d->lastLabel.append(QString("Q%1,%2\n").arg(d->labelHeight).arg(d->gapLength));
-    d->lastLabel.append(QString("S%1\n").arg(d->speed));
-    d->lastLabel.append(QString("D%1\n").arg(d->density));
+    d->lastLabel.append(QStringLiteral("q%1\n").arg(d->labelWidth));
+    d->lastLabel.append(QStringLiteral("Q%1,%2\n").arg(d->labelHeight).arg(d->gapLength));
+    d->lastLabel.append(QStringLiteral("S%1\n").arg(d->speed));
+    d->lastLabel.append(QStringLiteral("D%1\n").arg(d->density));
     d->lastLabel.append("JF\n\n");
 }
 

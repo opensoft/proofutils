@@ -12,22 +12,22 @@
 #include <QFile>
 #include <QDir>
 
-static const QString NETWORK_SETTINGS_FILE = "/etc/network/interfaces";
-static const QString NETWORK_SETTINGS_FILE_TMP = "/tmp/interfaces_tmp";
-static const QString VPN_SETTINGS_PATH = "/etc/openvpn/";
+static const QString NETWORK_SETTINGS_FILE = QStringLiteral("/etc/network/interfaces");
+static const QString NETWORK_SETTINGS_FILE_TMP = QStringLiteral("/tmp/interfaces_tmp");
+static const QString VPN_SETTINGS_PATH = QStringLiteral("/etc/openvpn/");
 
 static const int VPN_CHECK_WAITING_TIMEOUT = 1000 * 60 * 5; // 5  minutes
 static const int VPN_CHECK_INTERVAL = 1000; // 1 second
 
-static const QString STATIC_IP = "static";
-static const QString DYNAMIC_IP = "dhcp";
+static const QString STATIC_IP = QStringLiteral("static");
+static const QString DYNAMIC_IP = QStringLiteral("dhcp");
 
-static const QString ADDRESS = "address";
-static const QString NETMASK = "netmask";
-static const QString GATEWAY = "gateway";
-static const QString DNS_NAMESERVERS = "dns-nameservers";
+static const QString ADDRESS = QStringLiteral("address");
+static const QString NETMASK = QStringLiteral("netmask");
+static const QString GATEWAY = QStringLiteral("gateway");
+static const QString DNS_NAMESERVERS = QStringLiteral("dns-nameservers");
 
-static const QString REGEXP_IP("(((?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))");
+static const QString REGEXP_IP(QStringLiteral("(((?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))"));
 
 #ifdef Q_OS_LINUX
 static const int REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT = 1;
@@ -515,7 +515,7 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
     QRegExp regExpIp(REGEXP_IP);
     while (!settingsFile.atEnd()) {
         QString line = QString(settingsFile.readLine()).trimmed();
-        if (line.startsWith("iface")) {
+        if (line.startsWith(QLatin1String("iface"))) {
             if (isParsingInterface) {
                 break;
             } else if (line.contains(networkAdapterDescription)) {
@@ -561,7 +561,7 @@ bool NetworkConfigurationManagerPrivate::enterPassword(QProcess &process, const 
     readBuffer.append(currentRead);
     currentRead = currentRead.trimmed();
     if (currentRead.contains("[sudo]") || currentRead.contains("password for")) {
-        process.write(QString("%1\n").arg(password).toLatin1());
+        process.write(QStringLiteral("%1\n").arg(password).toLatin1());
         process.waitForReadyRead();
         currentRead = process.readAll();
         readBuffer.append(currentRead);
@@ -675,7 +675,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
 
         if (settingsFile.atEnd() && !currentInterfaceFound && !interfaceUpdated) {
             newInterfaces.append(line);
-            line = QString("iface %1 inet %2\n")
+            line = QStringLiteral("iface %1 inet %2\n")
                     .arg(networkAdapterDescription,
                          dhcpEnabled ? DYNAMIC_IP : STATIC_IP);
             currentInterfaceFound = true;
@@ -693,14 +693,14 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
                 if (!gateway.isEmpty())
                     line.append(GATEWAY + " " + gateway + "\n");
                 if (!preferredDns.isEmpty() || !alternateDns.isEmpty())
-                    line.append(DNS_NAMESERVERS + " " + QStringList({preferredDns, alternateDns}).join(" ") + "\n");
+                    line.append(DNS_NAMESERVERS + " " + QStringList({preferredDns, alternateDns}).join(QStringLiteral(" ")) + "\n");
             }
             newInterfaces.append(line);
             interfaceUpdated = true;
-        } else if (trimmedLine.startsWith("iface") || trimmedLine.startsWith("auto")
-                   || trimmedLine.startsWith("mapping") || trimmedLine.startsWith("source")
-                   || trimmedLine.startsWith("no-auto-down") || trimmedLine.startsWith("no-scripts")
-                   || trimmedLine.startsWith("allow-") || trimmedLine.isEmpty()) {
+        } else if (trimmedLine.startsWith(QLatin1String("iface")) || trimmedLine.startsWith(QLatin1String("auto"))
+                   || trimmedLine.startsWith(QLatin1String("mapping")) || trimmedLine.startsWith(QLatin1String("source"))
+                   || trimmedLine.startsWith(QLatin1String("no-auto-down")) || trimmedLine.startsWith(QLatin1String("no-scripts"))
+                   || trimmedLine.startsWith(QLatin1String("allow-")) || trimmedLine.isEmpty()) {
             hideIpsForCurrentInterface = false;
         }
 
@@ -813,20 +813,20 @@ ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
 {
     ProxySettings proxySettings;
 
-    SettingsGroup *networkProxyGroup = proofApp->settings()->group("network_proxy", Settings::NotFoundPolicy::Add);
-    proxySettings.host = networkProxyGroup->value("host", "", Settings::NotFoundPolicy::Add).toString();
-    proxySettings.enabled = networkProxyGroup->value("enabled", !proxySettings.host.isEmpty(), Settings::NotFoundPolicy::Add).toBool();
-    proxySettings.port = networkProxyGroup->value("port", 8080, Settings::NotFoundPolicy::Add).toUInt();
+    SettingsGroup *networkProxyGroup = proofApp->settings()->group(QStringLiteral("network_proxy"), Settings::NotFoundPolicy::Add);
+    proxySettings.host = networkProxyGroup->value(QStringLiteral("host"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
+    proxySettings.enabled = networkProxyGroup->value(QStringLiteral("enabled"), !proxySettings.host.isEmpty(), Settings::NotFoundPolicy::Add).toBool();
+    proxySettings.port = networkProxyGroup->value(QStringLiteral("port"), 8080, Settings::NotFoundPolicy::Add).toUInt();
     QString defaultType = PROXY_TYPES.key(QNetworkProxy::ProxyType::HttpProxy);
-    proxySettings.type = networkProxyGroup->value("type", defaultType, Settings::NotFoundPolicy::Add).toString().trimmed();
+    proxySettings.type = networkProxyGroup->value(QStringLiteral("type"), defaultType, Settings::NotFoundPolicy::Add).toString().trimmed();
     if (proxySettings.type.isEmpty())
         proxySettings.type = defaultType;
-    proxySettings.userName = networkProxyGroup->value("username", "", Settings::NotFoundPolicy::Add).toString();
-    proxySettings.password = networkProxyGroup->value("password", "", Settings::NotFoundPolicy::Add).toString();
+    proxySettings.userName = networkProxyGroup->value(QStringLiteral("username"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
+    proxySettings.password = networkProxyGroup->value(QStringLiteral("password"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
 
     if (proxySettings.host.isEmpty())
         proxySettings.enabled = false;
-    QStringList notTrimmedExcludes = networkProxyGroup->value("excludes", "", Settings::NotFoundPolicy::Add).toString().split("|");
+    QStringList notTrimmedExcludes = networkProxyGroup->value(QStringLiteral("excludes"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString().split(QStringLiteral("|"));
 
     proxyExcludes.clear();
     for (auto exclude : notTrimmedExcludes) {
@@ -865,13 +865,13 @@ void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings 
         return;
     }
 
-    SettingsGroup *networkProxyGroup = proofApp->settings()->group("network_proxy", Settings::NotFoundPolicy::Add);
-    networkProxyGroup->setValue("enabled", proxySettings.enabled);
-    networkProxyGroup->setValue("host", proxySettings.host);
-    networkProxyGroup->setValue("port", proxySettings.port);
-    networkProxyGroup->setValue("type", proxySettings.type);
-    networkProxyGroup->setValue("username", proxySettings.userName);
-    networkProxyGroup->setValue("password", proxySettings.password);
+    SettingsGroup *networkProxyGroup = proofApp->settings()->group(QStringLiteral("network_proxy"), Settings::NotFoundPolicy::Add);
+    networkProxyGroup->setValue(QStringLiteral("enabled"), proxySettings.enabled);
+    networkProxyGroup->setValue(QStringLiteral("host"), proxySettings.host);
+    networkProxyGroup->setValue(QStringLiteral("port"), proxySettings.port);
+    networkProxyGroup->setValue(QStringLiteral("type"), proxySettings.type);
+    networkProxyGroup->setValue(QStringLiteral("username"), proxySettings.userName);
+    networkProxyGroup->setValue(QStringLiteral("password"), proxySettings.password);
 
     setProxySettings(proxySettings);
 
@@ -951,7 +951,7 @@ void NetworkConfigurationManagerPrivate::turnOnVpn(const QString &password)
     QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
     qCDebug(proofUtilsNetworkConfigurationLog) << "Starting VPN";
-    process.start("sudo -S -k service openvpn restart");
+    process.start(QStringLiteral("sudo -S -k service openvpn restart"));
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be started:" << process.errorString();
@@ -976,7 +976,7 @@ void NetworkConfigurationManagerPrivate::turnOffVpn(const QString &password)
     QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
     qCDebug(proofUtilsNetworkConfigurationLog) << "Stopping VPN";
-    process.start("sudo -S -k service openvpn stop");
+    process.start(QStringLiteral("sudo -S -k service openvpn stop"));
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be stopped:" << process.errorString();

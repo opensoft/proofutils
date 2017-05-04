@@ -209,20 +209,20 @@ QJsonObject Job::toJson() const
 {
     Q_D(const Job);
     QJsonObject json;
-    json.insert("id", id());
-    json.insert("status", entityStatusToString(status()));
-    json.insert("name", name());
-    json.insert("quantity", quantity());
-    json.insert("width", width());
-    json.insert("height", height());
-    json.insert("source", source());
+    json.insert(QStringLiteral("id"), id());
+    json.insert(QStringLiteral("status"), entityStatusToString(status()));
+    json.insert(QStringLiteral("name"), name());
+    json.insert(QStringLiteral("quantity"), quantity());
+    json.insert(QStringLiteral("width"), width());
+    json.insert(QStringLiteral("height"), height());
+    json.insert(QStringLiteral("source"), source());
 
     QJsonArray workflowArray;
 
     for(const auto &workflowElement : qAsConst(d->workflow))
         workflowArray << workflowElement.toString();
 
-    json.insert("workflow", workflowArray);
+    json.insert(QStringLiteral("workflow"), workflowArray);
     return json;
 }
 
@@ -240,22 +240,22 @@ JobSP Job::create(const QString &id, const QString &source)
 
 JobSP Job::fromJson(const QJsonObject &json)
 {
-    if (!json.contains("id"))
+    if (!json.contains(QLatin1String("id")))
         return JobSP();
 
-    QString id = json.value("id").toString("");
+    QString id = json.value(QStringLiteral("id")).toString(QLatin1String(""));
     JobSP job = create(id);
     job->setFetched(true);
-    job->setStatus(entityStatusFromString(json.value("status").toString("valid")));
-    job->setName(json.value("name").toString(""));
-    job->setQuantity(json.value("quantity").toInt());
-    job->setWidth(json.value("width").toDouble());
-    job->setHeight(json.value("height").toDouble());
-    job->setSource(json.value("source").toString(""));
+    job->setStatus(entityStatusFromString(json.value(QStringLiteral("status")).toString(QStringLiteral("valid"))));
+    job->setName(json.value(QStringLiteral("name")).toString(QLatin1String("")));
+    job->setQuantity(json.value(QStringLiteral("quantity")).toInt());
+    job->setWidth(json.value(QStringLiteral("width")).toDouble());
+    job->setHeight(json.value(QStringLiteral("height")).toDouble());
+    job->setSource(json.value(QStringLiteral("source")).toString(QLatin1String("")));
 
     QList<WorkflowElement> workflow;
 
-    QJsonArray workflowArray = json.value("workflow").toArray();
+    QJsonArray workflowArray = json.value(QStringLiteral("workflow")).toArray();
 
     for (const auto &elementValue : qAsConst(workflowArray))
         workflow << WorkflowElement(elementValue.toString());

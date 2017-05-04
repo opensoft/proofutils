@@ -82,12 +82,13 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 # else
     QScopedPointer<QProcess> shutdownProcess(new QProcess);
     shutdownProcess->setProcessChannelMode(QProcess::MergedChannels);
-    shutdownProcess->start(QString("sudo -S -k shutdown -%1 now").arg(restart ? "r" : "h"));
+    shutdownProcess->start(QStringLiteral("sudo -S -k shutdown -%1 now")
+                           .arg(restart ? QStringLiteral("r") : QStringLiteral("h")));
     shutdownProcess->waitForStarted();
     if (shutdownProcess->error() == QProcess::UnknownError) {
         if (!shutdownProcess->waitForReadyRead()) {
             qCDebug(proofUtilsMiscLog) << "No answer from sudo. Returning";
-            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, "No answer from OS", false);
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, QStringLiteral("No answer from OS"), false);
             return;
         }
         QByteArray readBuffer;
@@ -97,10 +98,10 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
         readBuffer.append(currentRead);
         currentRead = currentRead.trimmed();
         if (currentRead.contains("[sudo]") || currentRead.contains("password for")) {
-            shutdownProcess->write(QString("%1\n").arg(password).toLatin1());
+            shutdownProcess->write(QStringLiteral("%1\n").arg(password).toLatin1());
             if (!shutdownProcess->waitForReadyRead()) {
                 qCDebug(proofUtilsMiscLog) << "No answer from sudo. Returning";
-                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, "No answer from OS", false);
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, QStringLiteral("No answer from OS"), false);
                 return;
             }
 
@@ -110,7 +111,7 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 
             if (currentRead.contains("is not in the sudoers")) {
                 qCDebug(proofUtilsMiscLog) << "User not in sudoers list; log:\n" << readBuffer;
-                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UserNotASudoer, "User not in sudoers list", false);
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UserNotASudoer, QStringLiteral("User not in sudoers list"), false);
                 return;
             }
             if (currentRead.contains("Sorry, try again")) {
@@ -129,10 +130,10 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
         shutdownProcess->waitForFinished(-1);
         qCDebug(proofUtilsMiscLog) << "Shutdown exitcode =" << shutdownProcess->exitCode() << "; log:\n" << readBuffer + shutdownProcess->readAll().trimmed();
         if (shutdownProcess->exitCode())
-            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Unknown error", false);
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, QStringLiteral("Unknown error"), false);
     } else {
         qCDebug(proofUtilsMiscLog) << "Process couldn't be started" << shutdownProcess->error() << shutdownProcess->errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Unknown error", false);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, QStringLiteral("Unknown error"), false);
     }
 # endif
 #else
@@ -154,7 +155,7 @@ void PowerManagerPrivate::restartApp()
         qApp->quit();
     } else {
         qCDebug(proofUtilsMiscLog) << "Can't restart application";
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, "Can't restart application", false);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, QStringLiteral("Can't restart application"), false);
     }
 #endif
 }

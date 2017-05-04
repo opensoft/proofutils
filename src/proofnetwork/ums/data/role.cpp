@@ -78,15 +78,15 @@ RoleSP Role::create()
 */
 RoleSP Role::fromJson(const QJsonObject &roleJson)
 {
-    if (!roleJson.contains("name"))
+    if (!roleJson.contains(QLatin1String("name")))
         return RoleSP();
 
     RoleSP role = create();
     RolePrivate * const d = role->d_func();
     role->setFetched(true);
-    d->setLocale(roleJson.value("loc").toString(""));
-    d->setService(roleJson.value("srv").toString(""));
-    d->setName(roleJson.value("name").toString(""));
+    d->setLocale(roleJson.value(QStringLiteral("loc")).toString(QLatin1String("")));
+    d->setService(roleJson.value(QStringLiteral("srv")).toString(QLatin1String("")));
+    d->setName(roleJson.value(QStringLiteral("name")).toString(QLatin1String("")));
 
     return role;
 }

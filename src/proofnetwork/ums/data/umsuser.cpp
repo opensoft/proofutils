@@ -90,23 +90,23 @@ UmsUserSP UmsUser::create(const QString &userName)
 
 UmsUserSP UmsUser::fromJson(const QJsonObject &userJson)
 {
-    if (!userJson.contains("sub"))
+    if (!userJson.contains(QLatin1String("sub")))
         return UmsUserSP();
 
-    QString fullName = userJson.value("name").toString("");
+    QString fullName = userJson.value(QStringLiteral("name")).toString(QLatin1String(""));
     UmsUserSP umsUser = create(fullName);
     UmsUserPrivate * const d = umsUser->d_func();
     umsUser->setFetched(true);
     d->setFullName(fullName);
-    d->setEmail(userJson.value("email").toString(""));
+    d->setEmail(userJson.value(QStringLiteral("email")).toString(QLatin1String("")));
 
-    d->setId(userJson.value("sub").toString(""));
-    d->setVersion(userJson.value("ver").toString(""));
-    d->setExpiresAt(QDateTime::fromTime_t(userJson.value("exp").toInt()));
-    d->setValidFrom(QDateTime::fromTime_t(userJson.value("nbf").toInt()));
+    d->setId(userJson.value(QStringLiteral("sub")).toString(QLatin1String("")));
+    d->setVersion(userJson.value(QStringLiteral("ver")).toString(QLatin1String("")));
+    d->setExpiresAt(QDateTime::fromTime_t(userJson.value(QStringLiteral("exp")).toInt()));
+    d->setValidFrom(QDateTime::fromTime_t(userJson.value(QStringLiteral("nbf")).toInt()));
 
     QList<RoleSP> roles;
-    QJsonArray rolesArray = userJson.value("roles").toArray();
+    QJsonArray rolesArray = userJson.value(QStringLiteral("roles")).toArray();
     for (const auto &roleValue : rolesArray) {
         RoleSP role = Role::fromJson(roleValue.toObject());
         if (!role) {

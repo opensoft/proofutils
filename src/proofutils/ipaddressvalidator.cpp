@@ -108,7 +108,7 @@ bool Proof::IpAddressValidatorPrivate::checkBinary(quint8 byte) const
 
 QList<quint8> IpAddressValidatorPrivate::ipToUIntParts(const QString &ip)
 {
-    QStringList splittedInput = ip.split(".");
+    QStringList splittedInput = ip.split(QStringLiteral("."));
     if (splittedInput.count() != 4)
         return QList<quint8>();
 

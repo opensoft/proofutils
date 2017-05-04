@@ -61,14 +61,14 @@ qulonglong TokensApi::fetchToken()
     qulonglong operationId = 0;
     if (!call(this, &TokensApi::fetchToken, Proof::Call::BlockEvents, operationId)) {
         QUrlQuery urlQuery;
-        urlQuery.addQueryItem("grant_type", "client_credentials");
-        urlQuery.addQueryItem("client_id", d->clientId);
-        urlQuery.addQueryItem("client_secret", d->clientSecret);
+        urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("client_credentials"));
+        urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
+        urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
 
         RestAnswerHandler handler = [d](qulonglong operationId, QNetworkReply *reply) {
             d->extractToken(operationId, reply);
         };
-        d->post(operationId, std::move(handler), QString("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
+        d->post(operationId, std::move(handler), QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
     }
     return operationId;
 }
@@ -79,15 +79,15 @@ qulonglong TokensApi::fetchTokenByBarcode(const QString &barcode)
     qulonglong operationId = 0;
     if (!call(this, &TokensApi::fetchTokenByBarcode, Proof::Call::BlockEvents, operationId, barcode)) {
         QUrlQuery urlQuery;
-        urlQuery.addQueryItem("grant_type", "client_credentials");
-        urlQuery.addQueryItem("client_id", d->clientId);
-        urlQuery.addQueryItem("client_secret", d->clientSecret);
-        urlQuery.addQueryItem("barcode", barcode);
+        urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("client_credentials"));
+        urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
+        urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
+        urlQuery.addQueryItem(QStringLiteral("barcode"), barcode);
 
         RestAnswerHandler handler = [d](qulonglong operationId, QNetworkReply *reply) {
             d->extractToken(operationId, reply);
         };
-        d->post(operationId, std::move(handler), QString("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
+        d->post(operationId, std::move(handler), QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
     }
     return operationId;
 }
@@ -98,16 +98,16 @@ qulonglong TokensApi::fetchTokenByLogin(const QString &login, const QString &pas
     qulonglong operationId = 0;
     if (!call(this, &TokensApi::fetchTokenByLogin, Proof::Call::BlockEvents, operationId, login, password)) {
         QUrlQuery urlQuery;
-        urlQuery.addQueryItem("grant_type", "password");
-        urlQuery.addQueryItem("client_id", d->clientId);
-        urlQuery.addQueryItem("client_secret", d->clientSecret);
-        urlQuery.addQueryItem("username", login);
-        urlQuery.addQueryItem("password", password);
+        urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("password"));
+        urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
+        urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
+        urlQuery.addQueryItem(QStringLiteral("username"), login);
+        urlQuery.addQueryItem(QStringLiteral("password"), password);
 
         RestAnswerHandler handler = [d](qulonglong operationId, QNetworkReply *reply) {
             d->extractToken(operationId, reply);
         };
-        d->post(operationId, std::move(handler), QString("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
+        d->post(operationId, std::move(handler), QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
     }
     return operationId;
 }
@@ -118,15 +118,15 @@ qulonglong TokensApi::refreshToken(const QString &oldToken)
     qulonglong operationId = 0;
     if (!call(this, &TokensApi::refreshToken, Proof::Call::BlockEvents, operationId, oldToken)) {
         QUrlQuery urlQuery;
-        urlQuery.addQueryItem("grant_type", "refresh_token");
-        urlQuery.addQueryItem("client_id", d->clientId);
-        urlQuery.addQueryItem("client_secret", d->clientSecret);
-        urlQuery.addQueryItem("refresh_token", oldToken);
+        urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("refresh_token"));
+        urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
+        urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
+        urlQuery.addQueryItem(QStringLiteral("refresh_token"), oldToken);
 
         RestAnswerHandler handler = [d](qulonglong operationId, QNetworkReply *reply) {
             d->extractToken(operationId, reply);
         };
-        d->post(operationId, std::move(handler), QString("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
+        d->post(operationId, std::move(handler), QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
     }
     return operationId;
 }
@@ -140,7 +140,7 @@ qulonglong TokensApi::fetchPublicKey()
         RestAnswerHandler handler = [this](qulonglong operationId, QNetworkReply *reply) {
             emit publicKeyFetched(operationId, reply->readAll());
         };
-        d->get(operationId, std::move(handler), QString("/Token/GetPublicKey"));
+        d->get(operationId, std::move(handler), QStringLiteral("/Token/GetPublicKey"));
     }
     return operationId;
 }
@@ -154,7 +154,7 @@ qulonglong TokensApi::fetchCertificate()
         RestAnswerHandler handler = [this](qulonglong operationId, QNetworkReply *reply) {
             emit certificateFetched(operationId, reply->readAll());
         };
-        d->get(operationId, std::move(handler), QString("/Token/GetCertificate"));
+        d->get(operationId, std::move(handler), QStringLiteral("/Token/GetCertificate"));
     }
     return operationId;
 }
@@ -163,7 +163,7 @@ void TokensApiPrivate::extractToken(qulonglong operationId, QNetworkReply *reply
 {
     Q_Q(TokensApi);
 
-    QString token = QJsonDocument::fromJson(reply->readAll()).object().value("access_token").toString();
+    QString token = QJsonDocument::fromJson(reply->readAll()).object().value(QStringLiteral("access_token")).toString();
     QByteArrayList tokenList = token.toUtf8().split('.');
 
     Proof::Ums::UmsUserSP umsUser;
@@ -176,11 +176,11 @@ void TokensApiPrivate::extractToken(qulonglong operationId, QNetworkReply *reply
     if (!signatureVerified) {
         emit q->errorOccurred(operationId, {RestApiError::Level::ClientError, 0,
                                             NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidTokenSignature,
-                                            "Token signature verification failed"});
+                                            QStringLiteral("Token signature verification failed")});
     } else if (token.isEmpty() || !umsUser || !umsUser->isDirty()) {
         emit q->errorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                             NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidReply,
-                                            "Failed to parse JSON from server reply"});
+                                            QStringLiteral("Failed to parse JSON from server reply")});
     } else {
         emit q->tokenFetched(operationId, token, umsUser);
     }
@@ -191,7 +191,7 @@ bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
     bool signatureVerified = false;
     if (tokenList.count() == 3) {
         QJsonObject header = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList[0])).object();
-        QString algorithm = header.value("alg").toString("none").toLower();
+        QString algorithm = header.value(QStringLiteral("alg")).toString(QStringLiteral("none")).toLower();
 
         QByteArray signature = QByteArray::fromBase64(tokenList[2], QByteArray::Base64UrlEncoding);
         QByteArray signedMessage;
@@ -199,7 +199,7 @@ bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
         signedMessage.append(".");
         signedMessage.append(tokenList[1]);
         //TODO: add HS256 support if ever will be needed
-        if (algorithm == "rs256") {
+        if (algorithm == QLatin1String("rs256")) {
 #ifndef QCA_DISABLED
             signatureVerified = rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
 #else
@@ -207,7 +207,7 @@ bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
             qCDebug(proofNetworkUmsApiLog) << "rs256 algorithm" << algorithm << "is not supported. Token verification force successed!";
             signatureVerified = true;
 #endif
-        } else if (algorithm == "none") {
+        } else if (algorithm == QLatin1String("none")) {
             signatureVerified = true;
         } else {
             qCDebug(proofNetworkUmsApiLog) << "JWT algorithm" << algorithm << "is not supported. Token verification failed";

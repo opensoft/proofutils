@@ -88,27 +88,27 @@ static const QHash<QString, PaperSide> PAPER_SIDES = {
 
 QString entityStatusToString(EntityStatus status)
 {
-    return ENTITY_STATUSES.key(status, "");
+    return ENTITY_STATUSES.key(status, QLatin1String(""));
 }
 
 QString workflowStatusToString(WorkflowStatus status)
 {
-    return WORKFLOW_STATUSES.key(status, "");
+    return WORKFLOW_STATUSES.key(status, QLatin1String(""));
 }
 
 QString workflowActionToString(WorkflowAction action)
 {
-    return WORKFLOW_ACTIONS.key(action, "");
+    return WORKFLOW_ACTIONS.key(action, QLatin1String(""));
 }
 
 QString transitionEventToString(TransitionEvent event)
 {
-    return TRANSITION_EVENTS.key(event, "");
+    return TRANSITION_EVENTS.key(event, QLatin1String(""));
 }
 
 QString paperSideToString(PaperSide side)
 {
-    return PAPER_SIDES.key(side, "");
+    return PAPER_SIDES.key(side, QLatin1String(""));
 }
 
 EntityStatus entityStatusFromString(QString statusString, bool *ok)

@@ -97,12 +97,12 @@ void WorkflowElement::setPaperSide(PaperSide arg)
 
 QString WorkflowElement::toString() const
 {
-    return QString("%1:%2%3")
+    return QStringLiteral("%1:%2%3")
             .arg(workflowStatusToString(d_ptr->status),
                  workflowActionToString(d_ptr->action),
                  d_ptr->paperSide == PaperSide::NotSetSide
-                 ? ""
-                 : QString(":%1").arg(paperSideToString(d_ptr->paperSide)));
+                 ? QLatin1String("")
+                 : QStringLiteral(":%1").arg(paperSideToString(d_ptr->paperSide)));
 }
 
 WorkflowElement &WorkflowElement::operator=(const WorkflowElement &other)
