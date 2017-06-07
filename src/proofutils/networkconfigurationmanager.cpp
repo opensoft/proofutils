@@ -12,6 +12,10 @@
 #include <QFile>
 #include <QDir>
 
+#ifdef Q_OS_LINUX
+ #include <proxy.h>
+#endif
+
 static const QString NETWORK_SETTINGS_FILE = QStringLiteral("/etc/network/interfaces");
 static const QString NETWORK_SETTINGS_FILE_TMP = QStringLiteral("/tmp/interfaces_tmp");
 static const QString VPN_SETTINGS_PATH = QStringLiteral("/etc/openvpn/");
@@ -28,6 +32,7 @@ static const QString GATEWAY = QStringLiteral("gateway");
 static const QString DNS_NAMESERVERS = QStringLiteral("dns-nameservers");
 
 static const QString REGEXP_IP(QStringLiteral("(((?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))"));
+static const QString VPN_REMOTE_REGEXP(QStringLiteral("^remote(\\s+)(\\S+)(\\s+)(\\d+)"));
 
 #ifdef Q_OS_LINUX
 static const int REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT = 1;
@@ -35,22 +40,35 @@ static const int REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT = 1;
 static const int REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT = 20;
 #endif
 
-static const QHash<QString, QNetworkProxy::ProxyType> PROXY_TYPES = {
-    {"http", QNetworkProxy::ProxyType::HttpProxy},
-    {"caching http", QNetworkProxy::ProxyType::HttpCachingProxy},
-    {"socks5", QNetworkProxy::ProxyType::Socks5Proxy},
-    {"caching ftp", QNetworkProxy::ProxyType::FtpCachingProxy}
+namespace {
+#ifdef Q_OS_LINUX
+struct ProxyFactoryFree
+{
+    static void cleanup(pxProxyFactory *factory)
+    {
+        px_proxy_factory_free(factory);
+    }
 };
 
-namespace {
+struct ProxyListFree
+{
+    static void cleanup(char **proxies)
+    {
+        for (std::size_t i = 0; proxies[i] != nullptr; ++i)
+            free(proxies[i]);
+        free(proxies);
+    }
+};
 
+using ProxyFactoryPtr = QScopedPointer<pxProxyFactory, ProxyFactoryFree>;
+using ProxyListPtr = QScopedArrayPointer<char *, ProxyListFree>;
+#endif
 struct ProxySettings {
-    bool enabled = false;
-    QString host;
-    quint16 port = 0;
-    QString type;
+    QString url;
     QString userName;
     QString password;
+    Proof::NetworkConfigurationManager::ProxyType type = Proof::NetworkConfigurationManager::ProxyType::NoProxyType;
+    quint16 port = 0;
 };
 
 class WorkerThread : public QThread // clazy:exclude=ctor-missing-parent-argument
@@ -125,6 +143,7 @@ private:
     ProxySettings readProxySettingsFromConfig();
     void setProxySettings(const ProxySettings &proxySettings);
     bool enterPassword(QProcess &process, const QString &password);
+    QSharedPointer<QFile> vpnConfigurationFile();
 
     WorkerThread *thread = nullptr;
     ProxySettings lastProxySettings;
@@ -226,9 +245,10 @@ void NetworkConfigurationManager::writeNetworkConfiguration(const QString &netwo
                                  subnetMask, gateway, preferredDns, alternateDns, password);
 }
 
-QStringList NetworkConfigurationManager::proxyTypes() const
+QList<int> NetworkConfigurationManager::proxyTypes() const
 {
-    return PROXY_TYPES.keys();
+    return {static_cast<int>(ProxyType::NoProxyType), static_cast<int>(ProxyType::HttpProxyType), static_cast<int>(ProxyType::SocksProxyType),
+            static_cast<int>(ProxyType::AutoConfigurationProxyType), static_cast<int>(ProxyType::AutoDiscoveryProxyType)};
 }
 
 void NetworkConfigurationManager::fetchProxySettings()
@@ -237,14 +257,13 @@ void NetworkConfigurationManager::fetchProxySettings()
     d->fetchProxySettings();
 }
 
-void NetworkConfigurationManager::writeProxySettings(bool enabled, const QString &host, quint16 port, const QString &type, const QString &userName, const QString &password)
+void NetworkConfigurationManager::writeProxySettings(ProxyType proxyType, const QString &host, quint16 port, const QString &userName, const QString &password)
 {
     Q_D(NetworkConfigurationManager);
     ProxySettings proxySettings;
-    proxySettings.enabled = enabled;
-    proxySettings.host = host;
+    proxySettings.type = proxyType;
+    proxySettings.url = host;
     proxySettings.port = port;
-    proxySettings.type = type;
     proxySettings.userName = userName;
     proxySettings.password = password;
     d->writeProxySettings(proxySettings);
@@ -583,6 +602,25 @@ bool NetworkConfigurationManagerPrivate::enterPassword(QProcess &process, const 
     return process.exitCode() == 0;
 }
 
+QSharedPointer<QFile> NetworkConfigurationManagerPrivate::vpnConfigurationFile()
+{
+    Q_Q(NetworkConfigurationManager);
+
+    QFileInfoList fileInfoList = QDir(VPN_SETTINGS_PATH).entryInfoList({QStringLiteral("*.conf")});
+    if (fileInfoList.count()) {
+        auto file = QSharedPointer<QFile>::create(fileInfoList.first().absoluteFilePath());
+        if (!file->open(QIODevice::ReadOnly)) {
+            qCDebug(proofUtilsNetworkConfigurationLog) << file->fileName() << "can't be opened";
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, QObject::tr("VPN configuration can't be opened"), true);
+            return QSharedPointer<QFile>();
+        }
+        return file;
+    } else {
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, QObject::tr("VPN configuration not found"), true);
+        return QSharedPointer<QFile>();
+    }
+}
+
 void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
                                                                    const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password)
 {
@@ -806,7 +844,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
 void NetworkConfigurationManagerPrivate::fetchProxySettings()
 {
     Q_Q(NetworkConfigurationManager);
-    emit q->proxySettingsFetched(lastProxySettings.enabled, lastProxySettings.host, lastProxySettings.port, lastProxySettings.type, lastProxySettings.userName, lastProxySettings.password);
+    emit q->proxySettingsFetched(lastProxySettings.type, lastProxySettings.url, lastProxySettings.port, lastProxySettings.userName, lastProxySettings.password);
 }
 
 ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
@@ -814,20 +852,26 @@ ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
     ProxySettings proxySettings;
 
     SettingsGroup *networkProxyGroup = proofApp->settings()->group(QStringLiteral("network_proxy"), Settings::NotFoundPolicy::Add);
-    proxySettings.host = networkProxyGroup->value(QStringLiteral("host"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
-    proxySettings.enabled = networkProxyGroup->value(QStringLiteral("enabled"), !proxySettings.host.isEmpty(), Settings::NotFoundPolicy::Add).toBool();
-    proxySettings.port = networkProxyGroup->value(QStringLiteral("port"), 8080, Settings::NotFoundPolicy::Add).toUInt();
-    QString defaultType = PROXY_TYPES.key(QNetworkProxy::ProxyType::HttpProxy);
-    proxySettings.type = networkProxyGroup->value(QStringLiteral("type"), defaultType, Settings::NotFoundPolicy::Add).toString().trimmed();
-    if (proxySettings.type.isEmpty())
-        proxySettings.type = defaultType;
-    proxySettings.userName = networkProxyGroup->value(QStringLiteral("username"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
-    proxySettings.password = networkProxyGroup->value(QStringLiteral("password"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
+    proxySettings.type = static_cast<NetworkConfigurationManager::ProxyType>(networkProxyGroup->value(QStringLiteral("type"),
+                                                                                                      static_cast<int>(NetworkConfigurationManager::ProxyType::NoProxyType),
+                                                                                                      Settings::NotFoundPolicy::Add).toInt());
+    switch (proxySettings.type) {
+    case NetworkConfigurationManager::ProxyType::NoProxyType:
+    case NetworkConfigurationManager::ProxyType::AutoDiscoveryProxyType:
+        break;
+    case NetworkConfigurationManager::ProxyType::HttpProxyType:
+    case NetworkConfigurationManager::ProxyType::SocksProxyType:
+        proxySettings.url = networkProxyGroup->value(QStringLiteral("host"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
+        proxySettings.port = networkProxyGroup->value(QStringLiteral("port"), 8080, Settings::NotFoundPolicy::Add).toUInt();
+        proxySettings.userName = networkProxyGroup->value(QStringLiteral("username"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
+        proxySettings.password = networkProxyGroup->value(QStringLiteral("password"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
+        break;
+    case NetworkConfigurationManager::ProxyType::AutoConfigurationProxyType:
+        proxySettings.url = networkProxyGroup->value(QStringLiteral("url"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
+        break;
+    }
 
-    if (proxySettings.host.isEmpty())
-        proxySettings.enabled = false;
     QStringList notTrimmedExcludes = networkProxyGroup->value(QStringLiteral("excludes"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString().split(QStringLiteral("|"));
-
     proxyExcludes.clear();
     for (auto exclude : notTrimmedExcludes) {
         exclude = exclude.trimmed();
@@ -839,18 +883,44 @@ ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
 
 void NetworkConfigurationManagerPrivate::setProxySettings(const ProxySettings &proxySettings)
 {
-    if (proxySettings.enabled && !proxySettings.host.isEmpty()) {
+    static const char httpProxyEnvironmentVariable[] = "HTTP_PROXY";
+    static const char wpadEnvironmentValue[] = "wpad://";
+    switch (proxySettings.type) {
+    case NetworkConfigurationManager::ProxyType::HttpProxyType:
+    case NetworkConfigurationManager::ProxyType::SocksProxyType: {
+        qunsetenv(httpProxyEnvironmentVariable);
         QNetworkProxy proxy;
-        proxy.setHostName(proxySettings.host);
+        proxy.setHostName(proxySettings.url);
         proxy.setPort(proxySettings.port);
         if (!proxySettings.userName.isEmpty())
             proxy.setUser(proxySettings.userName);
         if (!proxySettings.password.isEmpty())
             proxy.setPassword(proxySettings.password);
-        proxy.setType(PROXY_TYPES.value(proxySettings.type, QNetworkProxy::ProxyType::HttpProxy));
+        proxy.setType(proxySettings.type == NetworkConfigurationManager::ProxyType::HttpProxyType ? QNetworkProxy::ProxyType::HttpCachingProxy : QNetworkProxy::ProxyType::Socks5Proxy);
         QNetworkProxyFactory::setApplicationProxyFactory(new ProxyFactory(proxy, proxyExcludes));
-    } else {
+        break;
+    }
+
+    case NetworkConfigurationManager::ProxyType::AutoConfigurationProxyType: {
+        QUrl url(proxySettings.url);
+        QString scheme = url.scheme();
+        if (scheme.isEmpty())
+            url.setScheme(QStringLiteral("pac+http"));
+        else
+            url.setScheme(QString("pac+%1").arg(scheme));
+        qputenv(httpProxyEnvironmentVariable, url.toEncoded());
         QNetworkProxyFactory::setUseSystemConfiguration(true);
+        qCDebug(proofUtilsNetworkConfigurationLog) << "Environment variable" << qgetenv(httpProxyEnvironmentVariable);
+        break;
+    }
+    case NetworkConfigurationManager::ProxyType::AutoDiscoveryProxyType:
+        qunsetenv(httpProxyEnvironmentVariable);
+        qputenv(httpProxyEnvironmentVariable, QByteArray(wpadEnvironmentValue));
+        break;
+    case NetworkConfigurationManager::ProxyType::NoProxyType:
+        qunsetenv(httpProxyEnvironmentVariable);
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+        break;
     }
 
     lastProxySettings = proxySettings;
@@ -865,13 +935,28 @@ void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings 
         return;
     }
 
-    SettingsGroup *networkProxyGroup = proofApp->settings()->group(QStringLiteral("network_proxy"), Settings::NotFoundPolicy::Add);
-    networkProxyGroup->setValue(QStringLiteral("enabled"), proxySettings.enabled);
-    networkProxyGroup->setValue(QStringLiteral("host"), proxySettings.host);
-    networkProxyGroup->setValue(QStringLiteral("port"), proxySettings.port);
-    networkProxyGroup->setValue(QStringLiteral("type"), proxySettings.type);
-    networkProxyGroup->setValue(QStringLiteral("username"), proxySettings.userName);
-    networkProxyGroup->setValue(QStringLiteral("password"), proxySettings.password);
+    static const QString groupName = QStringLiteral("network_proxy");
+
+    auto settings = proofApp->settings();
+    settings->deleteGroup(groupName);
+    SettingsGroup *networkProxyGroup = settings->group(groupName, Settings::NotFoundPolicy::Add);
+    networkProxyGroup->setValue(QStringLiteral("type"), static_cast<int>(proxySettings.type));
+    switch (proxySettings.type) {
+    case NetworkConfigurationManager::ProxyType::NoProxyType:
+    case NetworkConfigurationManager::ProxyType::AutoDiscoveryProxyType:
+        break;
+    case NetworkConfigurationManager::ProxyType::HttpProxyType:
+    case NetworkConfigurationManager::ProxyType::SocksProxyType:
+        networkProxyGroup->setValue(QStringLiteral("host"), proxySettings.url);
+        networkProxyGroup->setValue(QStringLiteral("port"), proxySettings.port);
+        networkProxyGroup->setValue(QStringLiteral("username"), proxySettings.userName);
+        networkProxyGroup->setValue(QStringLiteral("password"), proxySettings.password);
+        break;
+    case NetworkConfigurationManager::ProxyType::AutoConfigurationProxyType:
+        networkProxyGroup->setValue(QStringLiteral("url"), proxySettings.url);
+        break;
+    }
+    settings->sync();
 
     setProxySettings(proxySettings);
 
@@ -891,18 +976,9 @@ void NetworkConfigurationManagerPrivate::fetchVpnConfiguration()
     if (ProofObject::call(thread, &WorkerThread::fetchVpnConfiguration))
         return;
 
-    QFileInfoList fileInfoList = QDir(VPN_SETTINGS_PATH).entryInfoList({"*.conf"});
-    if (fileInfoList.count()) {
-        QFile file(fileInfoList.first().absoluteFilePath());
-        if (!file.open(QIODevice::ReadOnly)) {
-            qCDebug(proofUtilsNetworkConfigurationLog) << file.fileName() << "can't be opened";
-            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, QObject::tr("VPN configuration can't be opened"), true);
-            return;
-        }
-        emit q->vpnConfigurationFetched(file.fileName(), file.readAll());
-    } else {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, QObject::tr("VPN configuration not found"), true);
-    }
+    auto file = vpnConfigurationFile();
+    if (file)
+        emit q->vpnConfigurationFetched(file->fileName(), file->readAll());
 }
 
 void NetworkConfigurationManagerPrivate::writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password)
@@ -948,10 +1024,49 @@ void NetworkConfigurationManagerPrivate::turnOnVpn(const QString &password)
     if (ProofObject::call(thread, &WorkerThread::turnOnVpn, password))
         return;
 
+    qCDebug(proofUtilsNetworkConfigurationLog) << "Proxy type:" << (int)lastProxySettings.type;
+    auto configFile = vpnConfigurationFile();
+    if (!configFile)
+        return;
+    QUrl proxy;
+    if (lastProxySettings.type != Proof::NetworkConfigurationManager::ProxyType::AutoDiscoveryProxyType) {
+        QString remote;
+        for (QString line = configFile->readLine(); !line.isEmpty() && !configFile->atEnd() && !configFile->errorString().isEmpty(); line = configFile->readLine()) {
+            qCDebug(proofUtilsNetworkConfigurationLog) << "Line:" << line;
+            QRegExp regExp(VPN_REMOTE_REGEXP);
+            if (regExp.indexIn(line) != -1) {
+                qCDebug(proofUtilsNetworkConfigurationLog) << "Caps:" << regExp.capturedTexts();
+                remote = QStringLiteral("%1:%2").arg(regExp.cap(2), regExp.cap(4));
+                break;
+            }
+        }
+        qCDebug(proofUtilsNetworkConfigurationLog) << "Remote:" << remote;
+        if (!remote.isEmpty()) {
+#ifdef Q_OS_LINUX
+            ProxyFactoryPtr factory(px_proxy_factory_new());
+            ProxyListPtr proxies(px_proxy_factory_get_proxies(factory.data(), remote.toUtf8().constData()));
+            if (proxies && proxies[0] != nullptr)
+                proxy = proxies[0];
+            qCDebug(proofUtilsNetworkConfigurationLog) << "Proxy:" << proxy;
+#else
+            qCDebug(proofUtilsNetworkConfigurationLog) << "Proxy is not supported on this platform.";
+#endif
+        }
+    }
+
     QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
     qCDebug(proofUtilsNetworkConfigurationLog) << "Starting VPN";
-    process.start(QStringLiteral("sudo -S -k service openvpn restart"));
+    QStringList args{QStringLiteral("openvpn"), QStringLiteral("--config"), QFileInfo(*configFile).absoluteFilePath()};
+    if (!proxy.isEmpty()) {
+        QString scheme = proxy.scheme();
+        if (scheme == QLatin1String("socks") || scheme == QLatin1String("socks4") || scheme == QLatin1String("socks5"))
+            args << QStringLiteral("--socks-proxy") << proxy.host() << QString::number(proxy.port());
+        else if (scheme != QStringLiteral("direct"))
+            args << QStringLiteral("--http-proxy") << proxy.host() << QString::number(proxy.port());
+    }
+    qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN args:" << args;
+    process.start("sudo", args);
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be started:" << process.errorString();
@@ -976,7 +1091,7 @@ void NetworkConfigurationManagerPrivate::turnOffVpn(const QString &password)
     QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
     qCDebug(proofUtilsNetworkConfigurationLog) << "Stopping VPN";
-    process.start(QStringLiteral("sudo -S -k service openvpn stop"));
+    process.start(QStringLiteral("sudo pkill openvpn"));
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be stopped:" << process.errorString();
