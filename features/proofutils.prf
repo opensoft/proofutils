@@ -3,7 +3,9 @@ include(proofcore.prf)
 win32 {
     LIBS *= -lProofUtils$${PROOF_VERSION_MAJOR} -lqrencode
 } else {
-    LIBS *= -lProofUtils -lqrencode -lproxy
+    LIBS *= -lProofUtils -lqrencode
 }
+
+linux: LIBS *= -lproxy
 
 android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofUtils.so
