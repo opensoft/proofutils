@@ -6,6 +6,8 @@ win32 {
     LIBS *= -lProofUtils -lqrencode
 }
 
-linux: LIBS *= -lproxy
+linux {
+    !android: LIBS *= -lproxy
+}
 
 android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofUtils.so

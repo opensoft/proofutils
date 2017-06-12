@@ -12,7 +12,7 @@
 #include <QFile>
 #include <QDir>
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
  #include <proxy.h>
 #endif
 
@@ -34,14 +34,14 @@ static const QString DNS_NAMESERVERS = QStringLiteral("dns-nameservers");
 static const QString REGEXP_IP(QStringLiteral("(((?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))"));
 static const QString VPN_REMOTE_REGEXP(QStringLiteral("^remote(\\s+)(\\S+)(\\s+)(\\d+)"));
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 static const int REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT = 1;
 #else
 static const int REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT = 20;
 #endif
 
 namespace {
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 struct ProxyFactoryFree
 {
     static void cleanup(pxProxyFactory *factory)
@@ -1042,7 +1042,7 @@ void NetworkConfigurationManagerPrivate::turnOnVpn(const QString &password)
         }
         qCDebug(proofUtilsNetworkConfigurationLog) << "Remote:" << remote;
         if (!remote.isEmpty()) {
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
             ProxyFactoryPtr factory(px_proxy_factory_new());
             ProxyListPtr proxies(px_proxy_factory_get_proxies(factory.data(), remote.toUtf8().constData()));
             if (proxies && proxies[0] != nullptr)
