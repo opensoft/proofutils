@@ -851,27 +851,27 @@ ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
 {
     ProxySettings proxySettings;
 
-    SettingsGroup *networkProxyGroup = proofApp->settings()->group(QStringLiteral("network_proxy"), Settings::NotFoundPolicy::Add);
+    SettingsGroup *networkProxyGroup = proofApp->settings()->group(QStringLiteral("network_proxy"), Settings::NotFoundPolicy::AddGlobal);
     proxySettings.type = static_cast<NetworkConfigurationManager::ProxyType>(networkProxyGroup->value(QStringLiteral("type"),
                                                                                                       static_cast<int>(NetworkConfigurationManager::ProxyType::NoProxyType),
-                                                                                                      Settings::NotFoundPolicy::Add).toInt());
+                                                                                                      Settings::NotFoundPolicy::AddGlobal).toInt());
     switch (proxySettings.type) {
     case NetworkConfigurationManager::ProxyType::NoProxyType:
     case NetworkConfigurationManager::ProxyType::AutoDiscoveryProxyType:
         break;
     case NetworkConfigurationManager::ProxyType::HttpProxyType:
     case NetworkConfigurationManager::ProxyType::SocksProxyType:
-        proxySettings.url = networkProxyGroup->value(QStringLiteral("host"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
-        proxySettings.port = networkProxyGroup->value(QStringLiteral("port"), 8080, Settings::NotFoundPolicy::Add).toUInt();
-        proxySettings.userName = networkProxyGroup->value(QStringLiteral("username"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
-        proxySettings.password = networkProxyGroup->value(QStringLiteral("password"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
+        proxySettings.url = networkProxyGroup->value(QStringLiteral("host"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString();
+        proxySettings.port = networkProxyGroup->value(QStringLiteral("port"), 8080, Settings::NotFoundPolicy::AddGlobal).toUInt();
+        proxySettings.userName = networkProxyGroup->value(QStringLiteral("username"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString();
+        proxySettings.password = networkProxyGroup->value(QStringLiteral("password"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString();
         break;
     case NetworkConfigurationManager::ProxyType::AutoConfigurationProxyType:
-        proxySettings.url = networkProxyGroup->value(QStringLiteral("url"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString();
+        proxySettings.url = networkProxyGroup->value(QStringLiteral("url"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString();
         break;
     }
 
-    QStringList notTrimmedExcludes = networkProxyGroup->value(QStringLiteral("excludes"), QStringLiteral(""), Settings::NotFoundPolicy::Add).toString().split(QStringLiteral("|"));
+    QStringList notTrimmedExcludes = networkProxyGroup->value(QStringLiteral("excludes"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString().split(QStringLiteral("|"));
     proxyExcludes.clear();
     for (auto exclude : notTrimmedExcludes) {
         exclude = exclude.trimmed();
@@ -940,20 +940,20 @@ void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings 
     auto settings = proofApp->settings();
     settings->deleteGroup(groupName);
     SettingsGroup *networkProxyGroup = settings->group(groupName, Settings::NotFoundPolicy::Add);
-    networkProxyGroup->setValue(QStringLiteral("type"), static_cast<int>(proxySettings.type));
+    networkProxyGroup->setValue(QStringLiteral("type"), static_cast<int>(proxySettings.type), Proof::Settings::Storage::Global);
     switch (proxySettings.type) {
     case NetworkConfigurationManager::ProxyType::NoProxyType:
     case NetworkConfigurationManager::ProxyType::AutoDiscoveryProxyType:
         break;
     case NetworkConfigurationManager::ProxyType::HttpProxyType:
     case NetworkConfigurationManager::ProxyType::SocksProxyType:
-        networkProxyGroup->setValue(QStringLiteral("host"), proxySettings.url);
-        networkProxyGroup->setValue(QStringLiteral("port"), proxySettings.port);
-        networkProxyGroup->setValue(QStringLiteral("username"), proxySettings.userName);
-        networkProxyGroup->setValue(QStringLiteral("password"), proxySettings.password);
+        networkProxyGroup->setValue(QStringLiteral("host"), proxySettings.url, Proof::Settings::Storage::Global);
+        networkProxyGroup->setValue(QStringLiteral("port"), proxySettings.port, Proof::Settings::Storage::Global);
+        networkProxyGroup->setValue(QStringLiteral("username"), proxySettings.userName, Proof::Settings::Storage::Global);
+        networkProxyGroup->setValue(QStringLiteral("password"), proxySettings.password, Proof::Settings::Storage::Global);
         break;
     case NetworkConfigurationManager::ProxyType::AutoConfigurationProxyType:
-        networkProxyGroup->setValue(QStringLiteral("url"), proxySettings.url);
+        networkProxyGroup->setValue(QStringLiteral("url"), proxySettings.url, Proof::Settings::Storage::Global);
         break;
     }
     settings->sync();
