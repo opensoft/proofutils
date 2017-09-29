@@ -64,6 +64,7 @@ static const QHash<QString, WorkflowAction> WORKFLOW_ACTIONS = {
     {"shipping", WorkflowAction::ShippingAction},
     {"splitting", WorkflowAction::SplittingAction},
     {"staging", WorkflowAction::StagingAction},
+    {"stripping", WorkflowAction::StrippingAction},
     {"stuffing", WorkflowAction::StuffingAction},
     {"truck loading", WorkflowAction::TruckLoadingAction},
     {"uv coating", WorkflowAction::UvCoatingAction},

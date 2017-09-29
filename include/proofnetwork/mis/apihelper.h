@@ -65,6 +65,7 @@ enum class WorkflowAction {
     ShippingAction,
     SplittingAction,
     StagingAction,
+    StrippingAction,
     StuffingAction,
     TruckLoadingAction,
     UvCoatingAction,
