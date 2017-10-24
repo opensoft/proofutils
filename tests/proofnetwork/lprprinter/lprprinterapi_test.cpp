@@ -121,7 +121,7 @@ TEST_F(LprPrinterApiTest, failedPrintLabel)
     serverRunner->setServerAnswer(json);
 
     QSignalSpy spy(lprPrinterApi, &LprPrinterApi::labelPrinted);
-    QSignalSpy errorSpy(lprPrinterApi, &LprPrinterApi::errorOccurred);
+    QSignalSpy errorSpy(lprPrinterApi, &LprPrinterApi::apiErrorOccurred);
     const qulonglong operationId = lprPrinterApi->printLabel("something");
 
     ASSERT_TRUE(errorSpy.wait());
@@ -168,7 +168,7 @@ TEST_F(LprPrinterApiTest, failedPrintFile)
     serverRunner->setServerAnswer(json);
 
     QSignalSpy spy(lprPrinterApi, &LprPrinterApi::filePrinted);
-    QSignalSpy errorSpy(lprPrinterApi, &LprPrinterApi::errorOccurred);
+    QSignalSpy errorSpy(lprPrinterApi, &LprPrinterApi::apiErrorOccurred);
     const qulonglong operationId = lprPrinterApi->printFile(":/data/status.json");
 
     ASSERT_TRUE(errorSpy.wait());

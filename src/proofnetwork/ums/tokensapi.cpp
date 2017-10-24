@@ -174,11 +174,11 @@ void TokensApiPrivate::extractToken(qulonglong operationId, QNetworkReply *reply
     }
 
     if (!signatureVerified) {
-        emit q->errorOccurred(operationId, {RestApiError::Level::ClientError, 0,
+        emit q->apiErrorOccurred(operationId, {RestApiError::Level::ClientError, 0,
                                             NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidTokenSignature,
                                             QStringLiteral("Token signature verification failed")});
     } else if (token.isEmpty() || !umsUser || !umsUser->isDirty()) {
-        emit q->errorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
+        emit q->apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                             NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidReply,
                                             QStringLiteral("Failed to parse JSON from server reply")});
     } else {

@@ -58,7 +58,7 @@ qulonglong LprPrinterApi::printLabel(const QByteArray &label, const QString& pri
                 if (status.isReady)
                     emit labelPrinted(operationId);
                 else
-                    emit errorOccurred(operationId, {RestApiError::Level::ServerError, 0,
+                    emit apiErrorOccurred(operationId, {RestApiError::Level::ServerError, 0,
                                                      NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::ServerError,
                                                      status.reason});
             }
@@ -83,7 +83,7 @@ qulonglong LprPrinterApi::printFile(const QString& fileName, const QString& prin
                 if (status.isReady)
                     emit filePrinted(operationId);
                 else
-                    emit errorOccurred(operationId, {RestApiError::Level::ServerError, 0,
+                    emit apiErrorOccurred(operationId, {RestApiError::Level::ServerError, 0,
                                                      NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::ServerError,
                                                      status.reason});
             }
@@ -91,7 +91,7 @@ qulonglong LprPrinterApi::printFile(const QString& fileName, const QString& prin
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly)) {
             qCDebug(proofNetworkLprPrinterLog) << "File error:" << file.error() << file.errorString();
-            emit errorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
+            emit apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                              NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError,
                                              QStringLiteral("Can't open file")});
             return operationId;
@@ -99,7 +99,7 @@ qulonglong LprPrinterApi::printFile(const QString& fileName, const QString& prin
         QByteArray data = file.readAll();
         if (file.error() != QFileDevice::NoError) {
             qCDebug(proofNetworkLprPrinterLog) << "File error:" << file.error() << file.errorString();
-            emit errorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
+            emit apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                              NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError,
                                              QStringLiteral("Can't read file")});
             return operationId;
@@ -122,11 +122,11 @@ qulonglong LprPrinterApi::fetchPrintersList()
             QJsonParseError jsonError;
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
             if (jsonError.error != QJsonParseError::NoError) {
-                emit errorOccurred(operationId, RestApiError{RestApiError::Level::JsonParseError, jsonError.error,
+                emit apiErrorOccurred(operationId, RestApiError{RestApiError::Level::JsonParseError, jsonError.error,
                                                              NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
                                                              QStringLiteral("JSON error: %1").arg(jsonError.errorString())});
             } else if (!doc.isArray()) {
-                emit errorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
+                emit apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                                  NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
                                                  QStringLiteral("Array is not found in document")});
             } else {
@@ -152,11 +152,11 @@ bool LprPrinterApiPrivate::parsePrinterStatus(qulonglong operationId, QNetworkRe
     QJsonParseError jsonError;
     QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
     if (jsonError.error != QJsonParseError::NoError) {
-        emit q->errorOccurred(operationId, RestApiError{RestApiError::Level::JsonParseError, jsonError.error,
+        emit q->apiErrorOccurred(operationId, RestApiError{RestApiError::Level::JsonParseError, jsonError.error,
                                                         NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
                                                         QStringLiteral("JSON error: %1").arg(jsonError.errorString())});
     } else if (!doc.isObject()) {
-        emit q->errorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
+        emit q->apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                             NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
                                             QStringLiteral("Object is not found in document")});
     } else {
