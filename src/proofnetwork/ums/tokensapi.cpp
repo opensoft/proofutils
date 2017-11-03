@@ -204,13 +204,13 @@ bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
             signatureVerified = rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
 #else
             Q_UNUSED(signature)
-            qCDebug(proofNetworkUmsApiLog) << "rs256 algorithm" << algorithm << "is not supported. Token verification force successed!";
+            qCWarning(proofNetworkUmsApiLog) << "rs256 algorithm" << algorithm << "is not supported. Token verification forcily succeeded!";
             signatureVerified = true;
 #endif
         } else if (algorithm == QLatin1String("none")) {
             signatureVerified = true;
         } else {
-            qCDebug(proofNetworkUmsApiLog) << "JWT algorithm" << algorithm << "is not supported. Token verification failed";
+            qCWarning(proofNetworkUmsApiLog) << "JWT algorithm" << algorithm << "is not supported. Token verification failed";
         }
     }
 

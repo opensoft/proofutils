@@ -90,7 +90,7 @@ qulonglong LprPrinterApi::printFile(const QString& fileName, const QString& prin
         };
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly)) {
-            qCDebug(proofNetworkLprPrinterLog) << "File error:" << file.error() << file.errorString();
+            qCWarning(proofNetworkLprPrinterLog) << "Lpr-Printer: file error:" << file.error() << file.errorString();
             emit apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                              NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError,
                                              QStringLiteral("Can't open file")});
@@ -98,7 +98,7 @@ qulonglong LprPrinterApi::printFile(const QString& fileName, const QString& prin
         }
         QByteArray data = file.readAll();
         if (file.error() != QFileDevice::NoError) {
-            qCDebug(proofNetworkLprPrinterLog) << "File error:" << file.error() << file.errorString();
+            qCWarning(proofNetworkLprPrinterLog) << "Lpr-Printer: file error:" << file.error() << file.errorString();
             emit apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                              NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError,
                                              QStringLiteral("Can't read file")});
