@@ -28,7 +28,8 @@ enum Code {
     VpnCannotBeStopped = 9,
     VpnConfigurationNotFound = 10,
     VpnConfigurationCannotBeWritten = 11,
-    ProxyConfigurationCannotBeWritten = 12
+    ProxyConfigurationCannotBeWritten = 12,
+    LabelPrinterError = 13
 };
 }
 constexpr long UTILS_MODULE_CODE = 200;

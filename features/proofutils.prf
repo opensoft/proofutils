@@ -1,5 +1,8 @@
 include(proofcore.prf)
 
+include(proofnetworklprprinter.prf)
+!android:include(proofhardwarelprprinter.prf)
+
 win32 {
     LIBS *= -lProofUtils$${PROOF_VERSION_MAJOR} -lqrencode
 } else {
