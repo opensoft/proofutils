@@ -7,6 +7,23 @@
 namespace Proof {
 
 class LabelPrinterPrivate;
+
+struct LabelPrinterParams
+{
+    LabelPrinterParams() {}
+
+    LabelPrinterParams(const QString &printerHost, const QString &printerName, int printerPort = 8090,
+                       bool forceServiceUsage = false, bool strictHardwareCheck = true)
+        : printerHost(printerHost), printerName(printerName), printerPort(printerPort),
+          forceServiceUsage(forceServiceUsage), strictHardwareCheck(strictHardwareCheck) {}
+
+    QString printerHost;
+    QString printerName;
+    int printerPort = 0;
+    bool forceServiceUsage = false;
+    bool strictHardwareCheck = true;
+};
+
 class PROOF_UTILS_EXPORT LabelPrinter : public ProofObject
 {
     Q_OBJECT
@@ -14,6 +31,7 @@ class PROOF_UTILS_EXPORT LabelPrinter : public ProofObject
 public:
     explicit LabelPrinter(const QString &printerHost, const QString &printerName, int printerPort = 8090,
                           bool forceServiceUsage = false, bool strictHardwareCheck = true, QObject *parent = nullptr);
+    LabelPrinter(const LabelPrinterParams &params, QObject *parent = nullptr);
 
     bool printLabel(const QByteArray &label, bool ignorePrinterState = false);
     bool printerIsReady();

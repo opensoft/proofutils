@@ -51,6 +51,12 @@ LabelPrinter::LabelPrinter(const QString &printerHost, const QString &printerNam
     d->labelPrinterApi = new Proof::NetworkServices::LprPrinterApi(d->restClient, this);
 }
 
+LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
+    : LabelPrinter(params.printerHost, params.printerName, params.printerPort,
+                   params.forceServiceUsage, params.strictHardwareCheck, parent)
+{
+}
+
 bool LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState)
 {
     Q_D(LabelPrinter);
