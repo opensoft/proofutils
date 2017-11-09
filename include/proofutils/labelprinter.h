@@ -29,9 +29,7 @@ class PROOF_UTILS_EXPORT LabelPrinter : public ProofObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(LabelPrinter)
 public:
-    explicit LabelPrinter(const QString &printerHost, const QString &printerName, int printerPort = 8090,
-                          bool forceServiceUsage = false, bool strictHardwareCheck = true, QObject *parent = nullptr);
-    LabelPrinter(const LabelPrinterParams &params, QObject *parent = nullptr);
+    explicit LabelPrinter(const LabelPrinterParams &params, QObject *parent = nullptr);
 
     bool printLabel(const QByteArray &label, bool ignorePrinterState = false);
     bool printerIsReady();

@@ -25,15 +25,14 @@ class LabelPrinterPrivate : public ProofObjectPrivate
 
 using namespace Proof;
 
-LabelPrinter::LabelPrinter(const QString &printerHost, const QString &printerName, int printerPort,
-                           bool forceServiceUsage, bool strictHardwareCheck, QObject *parent)
+LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
     : ProofObject(*new LabelPrinterPrivate, parent)
 {
     Q_D(LabelPrinter);
-    d->printerName = printerName;
+    d->printerName = params.printerName;
 #ifndef Q_OS_ANDROID
-    if (!forceServiceUsage && !printerName.isEmpty()) {
-        d->hardwareLabelPrinter = new Proof::Hardware::LprPrinter(printerHost, printerName, strictHardwareCheck, this);
+    if (!params.forceServiceUsage && !params.printerName.isEmpty()) {
+        d->hardwareLabelPrinter = new Proof::Hardware::LprPrinter(params.printerHost, params.printerName, params.strictHardwareCheck, this);
         connect(d->hardwareLabelPrinter, &Proof::Hardware::LprPrinter::errorOccurred,
                 this, &Proof::LabelPrinter::errorOccurred);
         return;
@@ -46,15 +45,9 @@ LabelPrinter::LabelPrinter(const QString &printerHost, const QString &printerNam
     d->restClient = Proof::RestClientSP::create();
     d->restClient->setAuthType(Proof::RestAuthType::NoAuth);
     d->restClient->setScheme(QStringLiteral("http"));
-    d->restClient->setHost(printerHost.isEmpty() ? QStringLiteral("127.0.0.1") : printerHost);
-    d->restClient->setPort(printerPort);
+    d->restClient->setHost(params.printerHost.isEmpty() ? QStringLiteral("127.0.0.1") : params.printerHost);
+    d->restClient->setPort(params.printerPort);
     d->labelPrinterApi = new Proof::NetworkServices::LprPrinterApi(d->restClient, this);
-}
-
-LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
-    : LabelPrinter(params.printerHost, params.printerName, params.printerPort,
-                   params.forceServiceUsage, params.strictHardwareCheck, parent)
-{
 }
 
 bool LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState)
