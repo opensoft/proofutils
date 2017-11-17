@@ -12,11 +12,12 @@ struct LabelPrinterParams
 {
     LabelPrinterParams() {}
 
-    LabelPrinterParams(const QString &printerHost, const QString &printerName, int printerPort = 8090,
+    LabelPrinterParams(const QString &printerTitle, const QString &printerHost, const QString &printerName, int printerPort = 8090,
                        bool forceServiceUsage = false, bool strictHardwareCheck = true)
-        : printerHost(printerHost), printerName(printerName), printerPort(printerPort),
+        : printerTitle(printerTitle),  printerHost(printerHost), printerName(printerName), printerPort(printerPort),
           forceServiceUsage(forceServiceUsage), strictHardwareCheck(strictHardwareCheck) {}
 
+    QString printerTitle;
     QString printerHost;
     QString printerName;
     int printerPort = 0;
