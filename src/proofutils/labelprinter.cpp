@@ -37,9 +37,6 @@ LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
                 this, &Proof::LabelPrinter::errorOccurred);
         return;
     }
-#else
-    Q_UNUSED(forceServiceUsage)
-    Q_UNUSED(strictHardwareCheck)
 #endif
 
     d->restClient = Proof::RestClientSP::create();
