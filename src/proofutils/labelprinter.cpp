@@ -17,6 +17,21 @@ class LabelPrinterPrivate : public ProofObjectPrivate
 #endif
     Proof::NetworkServices::LprPrinterApi *labelPrinterApi = nullptr;
     Proof::RestClientSP restClient;
+//Think about moving this object back to one thread
+//bool LabelPrinter::event(QEvent *ev)
+//{
+//    Q_D(LabelPrinter);
+//    if (ev->type() == QEvent::ThreadChange) {
+//        QCoreApplication::postEvent(this, new QEvent(QEvent::User));
+//    } else if (ev->type() == (QEvent::User)) {
+//        if (d->restClient)
+//            call(d->restClient.data(), &QObject::moveToThread, Proof::Call::BlockEvents, thread());
+//    }
+//    return QObject::event(ev);
+//}
+// This approach works fine, except one race when it is possible to call something between these two events which will cause the deadlock.
+// If having extra thread for each label printer will affect us by any way sometime we need to return back to it and fix the race.
+    QThread *thread = nullptr;
 
     QString printerName;
 };
@@ -44,7 +59,23 @@ LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
     d->restClient->setScheme(QStringLiteral("http"));
     d->restClient->setHost(params.printerHost.isEmpty() ? QStringLiteral("127.0.0.1") : params.printerHost);
     d->restClient->setPort(params.printerPort);
-    d->labelPrinterApi = new Proof::NetworkServices::LprPrinterApi(d->restClient, this);
+    d->labelPrinterApi = new Proof::NetworkServices::LprPrinterApi(d->restClient);
+
+    d->thread = new QThread(this);
+    d->labelPrinterApi->moveToThread(d->thread);
+    d->restClient->moveToThread(d->thread);
+    d->thread->start();
+}
+
+LabelPrinter::~LabelPrinter()
+{
+    Q_D(LabelPrinter);
+    if (d->thread) {
+        d->thread->quit();
+        d->thread->wait(1000);
+    }
+    if (d->labelPrinterApi)
+        delete d->labelPrinterApi;
 }
 
 bool LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState)
@@ -96,16 +127,4 @@ bool LabelPrinter::printerIsReady()
             emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::LabelPrinterError, status.reason, false);
     }));
     return result;
-}
-
-bool LabelPrinter::event(QEvent *ev)
-{
-    Q_D(LabelPrinter);
-    if (ev->type() == QEvent::ThreadChange) {
-        QCoreApplication::postEvent(this, new QEvent(QEvent::User));
-    } else if (ev->type() == (QEvent::User)) {
-        if (d->restClient)
-            call(d->restClient.data(), &QObject::moveToThread, Proof::Call::BlockEvents, thread());
-    }
-    return QObject::event(ev);
 }

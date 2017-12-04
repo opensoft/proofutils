@@ -31,12 +31,10 @@ class PROOF_UTILS_EXPORT LabelPrinter : public ProofObject
     Q_DECLARE_PRIVATE(LabelPrinter)
 public:
     explicit LabelPrinter(const LabelPrinterParams &params, QObject *parent = nullptr);
+    ~LabelPrinter();
 
     bool printLabel(const QByteArray &label, bool ignorePrinterState = false);
     bool printerIsReady();
-
-protected:
-    bool event(QEvent *ev);
 
 signals:
     void errorOccurred(long moduleCode, long errorCode, const QString &errorMessage, bool userFriendly);
