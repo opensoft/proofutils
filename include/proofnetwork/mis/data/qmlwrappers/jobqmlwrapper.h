@@ -22,6 +22,7 @@ class PROOF_NETWORK_MIS_EXPORT JobQmlWrapper : public NetworkDataEntityQmlWrappe
     Q_PROPERTY(double width READ width NOTIFY widthChanged)
     Q_PROPERTY(double height READ height NOTIFY heightChanged)
     Q_PROPERTY(QString source READ source NOTIFY sourceChanged)
+    Q_PROPERTY(bool hasPreview READ hasPreview NOTIFY hasPreviewChanged)
     Q_DECLARE_PRIVATE(JobQmlWrapper)
 public:
     explicit JobQmlWrapper(const JobSP &job, QObject *parent = nullptr);
@@ -35,8 +36,9 @@ public:
     double width() const;
     double height() const;
     QString source() const;
+    bool hasPreview() const;
     Q_INVOKABLE Proof::Mis::WorkflowStatus workflowStatus(Proof::Mis::WorkflowAction action,
-                                                                     Proof::Mis::PaperSide paperSide = Proof::Mis::PaperSide::NotSetSide) const;
+                                                          Proof::Mis::PaperSide paperSide = Proof::Mis::PaperSide::NotSetSide) const;
 
 signals:
     void idChanged(const QString &id);
@@ -46,6 +48,7 @@ signals:
     void widthChanged(double width);
     void heightChanged(double height);
     void sourceChanged(const QString &source);
+    void hasPreviewChanged(bool hasPreview);
     void workflowChanged();
 
 protected:

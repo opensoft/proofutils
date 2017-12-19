@@ -22,6 +22,7 @@ class JobPrivate : NetworkDataEntityPrivate
     double width = 0.0;
     double height = 0.0;
     QString source;
+    bool hasPreview = false;
     QList<WorkflowElement> workflow;
 };
 
@@ -75,6 +76,12 @@ QString Job::source() const
 {
     Q_D(const Job);
     return d->source;
+}
+
+bool Job::hasPreview() const
+{
+    Q_D(const Job);
+    return d->hasPreview;
 }
 
 void JobPrivate::setId(const QString &arg)
@@ -137,6 +144,15 @@ void Job::setSource(const QString &source)
     if (d->source != source) {
         d->source = source;
         emit sourceChanged(source);
+    }
+}
+
+void Job::setHasPreview(bool hasPreview)
+{
+    Q_D(Job);
+    if (d->hasPreview != hasPreview) {
+        d->hasPreview = hasPreview;
+        emit hasPreviewChanged(hasPreview);
     }
 }
 
@@ -216,6 +232,7 @@ QJsonObject Job::toJson() const
     json.insert(QStringLiteral("width"), width());
     json.insert(QStringLiteral("height"), height());
     json.insert(QStringLiteral("source"), source());
+    json.insert(QStringLiteral("has_preview"), hasPreview());
 
     QJsonArray workflowArray;
 
@@ -252,6 +269,7 @@ JobSP Job::fromJson(const QJsonObject &json)
     job->setWidth(json.value(QStringLiteral("width")).toDouble());
     job->setHeight(json.value(QStringLiteral("height")).toDouble());
     job->setSource(json.value(QStringLiteral("source")).toString(QLatin1String("")));
+    job->setHasPreview(json.value(QStringLiteral("has_preview")).toBool());
 
     QList<WorkflowElement> workflow;
 
@@ -286,6 +304,7 @@ void JobPrivate::updateFrom(const Proof::NetworkDataEntitySP &other)
     q->setHeight(castedOther->height());
     q->setSource(castedOther->source());
     q->setWorkflow(castedOther->d_func()->workflow);
+    q->setHasPreview(castedOther->hasPreview());
 
     NetworkDataEntityPrivate::updateFrom(other);
 }

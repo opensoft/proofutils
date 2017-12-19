@@ -6,6 +6,7 @@
     "width": 2016,
     "height": 1350,
     "status": "valid",
+    "has_preview": true,
     "workflow": [
         "is ready for:cutting",
         "needs:boxing"

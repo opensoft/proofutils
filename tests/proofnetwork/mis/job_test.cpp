@@ -60,6 +60,7 @@ TEST_F(JobTest, fromJson)
     EXPECT_EQ(WorkflowStatus::IsReadyForStatus, jobUT->workflowStatus(WorkflowAction::CuttingAction));
     EXPECT_EQ(WorkflowStatus::NeedsStatus, jobUT->workflowStatus(WorkflowAction::BoxingAction));
     EXPECT_EQ(EntityStatus::ValidEntity, jobUT->status());
+    EXPECT_TRUE(jobUT->hasPreview());
 }
 
 TEST_F(JobTest, toJson)
@@ -73,6 +74,7 @@ TEST_F(JobTest, toJson)
     EXPECT_EQ(WorkflowStatus::IsReadyForStatus, job->workflowStatus(WorkflowAction::CuttingAction));
     EXPECT_EQ(WorkflowStatus::NeedsStatus, job->workflowStatus(WorkflowAction::BoxingAction));
     EXPECT_EQ(EntityStatus::ValidEntity, job->status());
+    EXPECT_TRUE(jobUT->hasPreview());
 }
 
 TEST_F(JobTest, customJob)
@@ -83,6 +85,7 @@ TEST_F(JobTest, customJob)
     job->setQuantity(100);
     job->setWidth(1024.0);
     job->setHeight(512.0);
+    job->setHasPreview(true);
     job->setWorkflowStatus(WorkflowAction::CuttingAction,
                              WorkflowStatus::IsReadyForStatus);
     job->setStatus(EntityStatus::NotReadyEntity);
@@ -93,6 +96,7 @@ TEST_F(JobTest, customJob)
     EXPECT_DOUBLE_EQ(512.0, job->height());
     EXPECT_EQ(WorkflowStatus::IsReadyForStatus, job->workflowStatus(WorkflowAction::CuttingAction));
     EXPECT_EQ(EntityStatus::NotReadyEntity, job->status());
+    EXPECT_TRUE(jobUT->hasPreview());
 }
 
 TEST_F(JobTest, updateFrom)
@@ -120,6 +124,7 @@ TEST_F(JobTest, updateFrom)
     EXPECT_EQ(jobUT2->height(), jobUT->height());
     EXPECT_EQ(jobUT2->source(), jobUT->source());
     EXPECT_EQ(jobUT2->status(), jobUT->status());
+    EXPECT_EQ(jobUT2->hasPreview(), jobUT->hasPreview());
     EXPECT_EQ(jobUT2->workflowStatus(WorkflowAction::CuttingAction),
               jobUT->workflowStatus(WorkflowAction::CuttingAction));
     EXPECT_EQ(jobUT2->workflowStatus(WorkflowAction::BoxingAction),

@@ -29,6 +29,7 @@ public:
     double width() const;
     double height() const;
     QString source() const;
+    bool hasPreview() const;
     void setWorkflowStatus(WorkflowAction action,
                            WorkflowStatus status,
                            PaperSide paperSide = PaperSide::NotSetSide);
@@ -41,6 +42,7 @@ public:
     void setWidth(double width);
     void setHeight(double height);
     void setSource(const QString &source);
+    void setHasPreview(bool hasPreview);
     void setWorkflow(const QList<WorkflowElement> &workflow);
 
     JobQmlWrapper *toQmlWrapper(QObject *parent = nullptr) const override;
@@ -61,6 +63,7 @@ signals:
     void widthChanged(double arg);
     void heightChanged(double arg);
     void sourceChanged(const QString &arg);
+    void hasPreviewChanged(bool arg);
     void workflowChanged();
 
 protected:
