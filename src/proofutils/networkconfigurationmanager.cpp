@@ -174,16 +174,18 @@ bool NetworkConfigurationManager::ipSettingsSupported() const
     return true;
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     return true;
-#endif
+#else
     return false;
+#endif
 }
 
 bool NetworkConfigurationManager::vpnSettingsSupported() const
 {
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     return true;
-#endif
+#else
     return false;
+#endif
 }
 
 void NetworkConfigurationManager::checkVpnCanBeControlled()
