@@ -16,6 +16,7 @@ public:
     ~MobileUtils();
 
     Q_INVOKABLE void callPhoneNumber(const QString &phoneNumber);
+    Q_INVOKABLE QString imei();
 
 signals:
     void errorOccurred(long moduleCode, long errorCode, const QString &errorMessage, bool userFriendly);

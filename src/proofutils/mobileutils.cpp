@@ -17,6 +17,7 @@ class WorkerThread : public QThread // clazy:exclude=ctor-missing-parent-argumen
 public:
     explicit WorkerThread(Proof::MobileUtilsPrivate *mobileUtils);
     void callPhoneNumber(const QString &phoneNumber);
+    QString imei();
 
 private:
     Proof::MobileUtilsPrivate *mobileUtils;
@@ -31,6 +32,7 @@ class MobileUtilsPrivate : public ProofObjectPrivate
     Q_DECLARE_PUBLIC(MobileUtils)
 public:
     void callPhoneNumber(const QString &phoneNumber);
+    QString imei();
 
     WorkerThread *thread = nullptr;
 };
@@ -57,6 +59,12 @@ void MobileUtils::callPhoneNumber(const QString &phoneNumber)
     d->callPhoneNumber(phoneNumber);
 }
 
+QString MobileUtils::imei()
+{
+    Q_D(MobileUtils);
+    return d->imei();
+}
+
 void MobileUtilsPrivate::callPhoneNumber(const QString &phoneNumber)
 {
     if (ProofObject::call(thread, &WorkerThread::callPhoneNumber, phoneNumber))
@@ -73,6 +81,23 @@ void MobileUtilsPrivate::callPhoneNumber(const QString &phoneNumber)
 #endif
 }
 
+QString MobileUtilsPrivate::imei()
+{
+    QString result;
+    if (ProofObject::call(thread, &WorkerThread::imei, Proof::Call::Block, result))
+        return result;
+
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    QAndroidJniEnvironment env;
+    QAndroidJniObject jImei = activity.callObjectMethod<jstring>("getImei");
+    result = jImei.toString();
+#else
+    qCDebug(proofUtilsMiscLog) << "IMEI not support on this platform!";
+#endif
+    return result;
+}
+
 } // namespace Proof
 
 WorkerThread::WorkerThread(Proof::MobileUtilsPrivate *mobileUtils)
@@ -84,6 +109,11 @@ WorkerThread::WorkerThread(Proof::MobileUtilsPrivate *mobileUtils)
 void WorkerThread::callPhoneNumber(const QString &phoneNumber)
 {
     mobileUtils->callPhoneNumber(phoneNumber);
+}
+
+QString WorkerThread::imei()
+{
+    return mobileUtils->imei();
 }
 
 #include "mobileutils.moc"
