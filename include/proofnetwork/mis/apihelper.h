@@ -31,6 +31,7 @@ enum class WorkflowAction {
     BlisterPackingAction,
     BoxingAction,
     ChipBoardingAction,
+    ClampingAction,
     ColorOptimizingAction,
     ComponentBoxingAction,
     ContainerPackingAction,
