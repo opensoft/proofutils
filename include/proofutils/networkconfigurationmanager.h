@@ -73,8 +73,6 @@ signals:
     void vpnTurnedOn();
     void vpnTurnedOff();
 
-    void errorOccurred(long moduleCode, long errorCode, const QString &errorMessage, bool userFriendly);
-
 private:
     void startTimerForCheckVpnState(VpnState vpnState);
 

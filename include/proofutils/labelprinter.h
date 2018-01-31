@@ -2,7 +2,8 @@
 #define PROOF_UTILS_LABELPRINTER_H
 
 #include "proofcore/proofobject.h"
-#include "proofutils_global.h"
+#include "proofcore/future.h"
+#include "proofutils/proofutils_global.h"
 
 namespace Proof {
 
@@ -33,11 +34,8 @@ public:
     explicit LabelPrinter(const LabelPrinterParams &params, QObject *parent = nullptr);
     ~LabelPrinter();
 
-    bool printLabel(const QByteArray &label, bool ignorePrinterState = false);
-    bool printerIsReady();
-
-signals:
-    void errorOccurred(long moduleCode, long errorCode, const QString &errorMessage, bool userFriendly);
+    FutureSP<bool> printLabel(const QByteArray &label, bool ignorePrinterState = false);
+    FutureSP<bool> printerIsReady();
 };
 
 } // namespace Proof

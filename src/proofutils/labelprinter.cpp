@@ -6,6 +6,7 @@
 # include "proofhardware/lprprinter/lprprinter.h"
 #endif
 #include "proofnetwork/lprprinter/lprprinterapi.h"
+#include "proofnetwork/apicall.h"
 
 namespace Proof {
 class LabelPrinterPrivate : public ProofObjectPrivate
@@ -17,20 +18,20 @@ class LabelPrinterPrivate : public ProofObjectPrivate
 #endif
     Proof::NetworkServices::LprPrinterApi *labelPrinterApi = nullptr;
     Proof::RestClientSP restClient;
-//Think about moving this object back to one thread
-//bool LabelPrinter::event(QEvent *ev)
-//{
-//    Q_D(LabelPrinter);
-//    if (ev->type() == QEvent::ThreadChange) {
-//        QCoreApplication::postEvent(this, new QEvent(QEvent::User));
-//    } else if (ev->type() == (QEvent::User)) {
-//        if (d->restClient)
-//            call(d->restClient.data(), &QObject::moveToThread, Proof::Call::BlockEvents, thread());
-//    }
-//    return QObject::event(ev);
-//}
-// This approach works fine, except one race when it is possible to call something between these two events which will cause the deadlock.
-// If having extra thread for each label printer will affect us by any way sometime we need to return back to it and fix the race.
+    //Think about moving this object back to one thread
+    //bool LabelPrinter::event(QEvent *ev)
+    //{
+    //    Q_D(LabelPrinter);
+    //    if (ev->type() == QEvent::ThreadChange) {
+    //        QCoreApplication::postEvent(this, new QEvent(QEvent::User));
+    //    } else if (ev->type() == (QEvent::User)) {
+    //        if (d->restClient)
+    //            call(d->restClient.data(), &QObject::moveToThread, Proof::Call::BlockEvents, thread());
+    //    }
+    //    return QObject::event(ev);
+    //}
+    // This approach works fine, except one race when it is possible to call something between these two events which will cause the deadlock.
+    // If having extra thread for each label printer will affect us by any way sometime we need to return back to it and fix the race.
     QThread *thread = nullptr;
 
     QString printerName;
@@ -78,53 +79,36 @@ LabelPrinter::~LabelPrinter()
         delete d->labelPrinterApi;
 }
 
-bool LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState)
+FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState)
 {
     Q_D(LabelPrinter);
-    bool result = false;
-
 #ifndef Q_OS_ANDROID
     if (d->hardwareLabelPrinter)
-        return d->hardwareLabelPrinter->printRawData(label, ignorePrinterState);
+        return Future<bool>::successful(d->hardwareLabelPrinter->printRawData(label, ignorePrinterState));
 #else
     Q_UNUSED(ignorePrinterState)
 #endif
-
-    auto taskChain = Proof::TaskChain::createChain();
-    taskChain->waitForTask(taskChain->addTask([this, taskChain, &result, label, d](){
-        auto apiResult = Proof::AbstractRestApi::chainedApiCallWithoutResult(taskChain, d->labelPrinterApi,
-                                                                             &Proof::NetworkServices::LprPrinterApi::printLabel,
-                                                                             &Proof::NetworkServices::LprPrinterApi::labelPrinted,
-                                                                             label, d->printerName);
-        result = (apiResult.level == Proof::RestApiError::Level::NoError);
-        if (apiResult.level != Proof::RestApiError::Level::NoError)
-            emit errorOccurred(apiResult.proofModuleCode, apiResult.proofErrorCode, apiResult.toString(), apiResult.userFriendly);
-    }));
-    return result;
+    return ApiCall<void>::exec(d->labelPrinterApi,
+                               &Proof::NetworkServices::LprPrinterApi::printLabel,
+                               &Proof::NetworkServices::LprPrinterApi::labelPrinted,
+                               label, d->printerName);
 }
 
-bool LabelPrinter::printerIsReady()
+FutureSP<bool> LabelPrinter::printerIsReady()
 {
     Q_D(LabelPrinter);
-    bool result = false;
-
 #ifndef Q_OS_ANDROID
     if (d->hardwareLabelPrinter)
-        return d->hardwareLabelPrinter->printerIsReady();
+        return Future<bool>::successful(d->hardwareLabelPrinter->printerIsReady());
 #endif
-
-    auto taskChain = Proof::TaskChain::createChain();
-    taskChain->waitForTask(taskChain->addTask([this, taskChain, &result, d](){
-        Proof::NetworkServices::LprPrinterStatus status;
-        auto apiResult = Proof::AbstractRestApi::chainedApiCall(taskChain, d->labelPrinterApi,
-                                                                &Proof::NetworkServices::LprPrinterApi::fetchStatus,
-                                                                &Proof::NetworkServices::LprPrinterApi::statusFetched,
-                                                                status, QString());
-        result = (apiResult.level == Proof::RestApiError::Level::NoError) && status.isReady;
-        if (apiResult.level != Proof::RestApiError::Level::NoError)
-            emit errorOccurred(apiResult.proofModuleCode, apiResult.proofErrorCode, apiResult.toString(), apiResult.userFriendly);
-        else if (!status.isReady)
-            emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::LabelPrinterError, status.reason, false);
-    }));
-    return result;
+    auto result = ApiCall<Proof::NetworkServices::LprPrinterStatus>::exec(d->labelPrinterApi,
+                                                                          &Proof::NetworkServices::LprPrinterApi::fetchStatus,
+                                                                          &Proof::NetworkServices::LprPrinterApi::statusFetched,
+                                                                          d->printerName);
+    return result->map([](const auto &status) -> bool {
+        if (status.isReady)
+            return true;
+        else
+            return WithFailure(status.reason, UTILS_MODULE_CODE, UtilsErrorCode::LabelPrinterError);
+    });
 }

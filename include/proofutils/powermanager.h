@@ -18,9 +18,6 @@ public:
     Q_INVOKABLE void restart(const QString &password = QLatin1String(QLatin1String("")));
     Q_INVOKABLE void powerOff(const QString &password = QLatin1String(QLatin1String("")));
     Q_INVOKABLE void restartApp();
-
-signals:
-    void errorOccurred(long moduleCode, long errorCode, const QString &errorMessage, bool userFriendly);
 };
 
 } // namespace Proof
