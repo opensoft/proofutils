@@ -118,7 +118,7 @@ qulonglong LprPrinterApi::fetchPrintersList()
     Q_D(LprPrinterApi);
     qulonglong operationId = 0;
     if (!call(this, &LprPrinterApi::fetchPrintersList, Proof::Call::BlockEvents, operationId)) {
-        RestAnswerHandler handler = [this, d](qulonglong operationId, QNetworkReply *reply) {
+        RestAnswerHandler handler = [this](qulonglong operationId, QNetworkReply *reply) {
             QJsonParseError jsonError;
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
             if (jsonError.error != QJsonParseError::NoError) {
