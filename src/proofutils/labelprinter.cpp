@@ -1,7 +1,6 @@
 #include "labelprinter.h"
 
 #include "proofcore/proofobject_p.h"
-#include "proofcore/taskchain.h"
 #ifndef Q_OS_ANDROID
 # include "proofhardware/lprprinter/lprprinter.h"
 #endif
