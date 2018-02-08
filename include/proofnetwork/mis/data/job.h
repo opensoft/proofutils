@@ -34,7 +34,7 @@ public:
                            WorkflowStatus status,
                            PaperSide paperSide = PaperSide::NotSetSide);
     WorkflowStatus workflowStatus(WorkflowAction action,
-                                             PaperSide paperSide = PaperSide::NotSetSide) const;
+                                  PaperSide paperSide = PaperSide::NotSetSide) const;
 
     void setStatus(EntityStatus status);
     void setName(const QString &name);
@@ -51,7 +51,7 @@ public:
 
     JobCacheKey cacheKey();
 
-    static JobSP create(const QString &id = QString(),  const QString &source = QString());
+    static JobSP create(const QString &id = QString(), const QString &source = QString());
 
     static JobSP fromJson(const QJsonObject &json);
 
