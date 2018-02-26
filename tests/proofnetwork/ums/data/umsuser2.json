@@ -8,11 +8,7 @@
   "exp": 1476782391,
   "jti": "b0311124-4650-41c6-b656-465a7ab3df36",
   "roles": [
-      {
-        "loc": "KY",
-        "srv": "UMS",
-        "name": "Manager"
-      }
+      "KY:UMS:Manager"
   ],
   "ver": "2.0",
   "email": "vadim.petrunin1@farheap.com"

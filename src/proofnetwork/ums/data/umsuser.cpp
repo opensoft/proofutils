@@ -108,7 +108,7 @@ UmsUserSP UmsUser::fromJson(const QJsonObject &userJson)
     QList<RoleSP> roles;
     QJsonArray rolesArray = userJson.value(QStringLiteral("roles")).toArray();
     for (const auto &roleValue : rolesArray) {
-        RoleSP role = Role::fromJson(roleValue.toObject());
+        RoleSP role = Role::fromString(roleValue.toString());
         if (!role) {
             qCCritical(proofNetworkUmsDataLog) << "Role not created.";
             return UmsUserSP();

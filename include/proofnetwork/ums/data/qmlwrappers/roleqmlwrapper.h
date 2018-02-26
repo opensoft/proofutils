@@ -11,7 +11,7 @@ class RoleQmlWrapperPrivate;
 class PROOF_NETWORK_UMS_EXPORT RoleQmlWrapper : public NetworkDataEntityQmlWrapper
 {
     Q_OBJECT
-    Q_PROPERTY(QString locale READ locale NOTIFY localeChanged)
+    Q_PROPERTY(QString location READ location NOTIFY locationChanged)
     Q_PROPERTY(QString service READ service NOTIFY serviceChanged)
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_DECLARE_PRIVATE(RoleQmlWrapper)
@@ -19,12 +19,12 @@ public:
     RoleQmlWrapper(const RoleSP &role, QObject *parent = nullptr);
     PROOF_NDE_WRAPPER_TOOLS(Role)
 
-    QString locale() const;
+    QString location() const;
     QString service() const;
     QString name() const;
 
 signals:
-    void localeChanged(const QString &locale);
+    void locationChanged(const QString &location);
     void serviceChanged(const QString &service);
     void nameChanged(const QString &name);
 

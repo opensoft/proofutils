@@ -79,15 +79,25 @@ TEST_F(UmsUserTest, fromJson)
     auto qmlRolesProperty = qmlWrapperUT->roles();
     EXPECT_EQ(3, qmlRolesProperty.count(&qmlRolesProperty));
 
-    RoleSP role = umsUserUT->roles().first();
-    auto qmlRole = role->toQmlWrapper(qmlWrapperUT);
-    ASSERT_TRUE(role);
-    EXPECT_EQ("KY", role->locale());
-    EXPECT_EQ("KY", qmlRole->locale());
-    EXPECT_EQ("UMS", role->service());
-    EXPECT_EQ("UMS", qmlRole->service());
-    EXPECT_EQ("Admin", role->name());
-    EXPECT_EQ("Admin", qmlRole->name());
+    RoleSP roleUms = umsUserUT->roles().first();
+    auto qmlRoleUms = roleUms->toQmlWrapper(qmlWrapperUT);
+    ASSERT_TRUE(roleUms);
+    EXPECT_EQ("KY", roleUms->location());
+    EXPECT_EQ("KY", qmlRoleUms->location());
+    EXPECT_EQ("UMS", roleUms->service());
+    EXPECT_EQ("UMS", qmlRoleUms->service());
+    EXPECT_EQ("Admin", roleUms->name());
+    EXPECT_EQ("Admin", qmlRoleUms->name());
+
+    RoleSP roleSh = umsUserUT->roles().last();
+    auto qmlRoleSh = roleSh->toQmlWrapper(qmlWrapperUT);
+    ASSERT_TRUE(roleSh);
+    EXPECT_EQ("", roleSh->location());
+    EXPECT_EQ("", qmlRoleSh->location());
+    EXPECT_EQ("SH3", roleSh->service());
+    EXPECT_EQ("SH3", qmlRoleSh->service());
+    EXPECT_EQ("Admin", roleSh->name());
+    EXPECT_EQ("Admin", qmlRoleSh->name());
 }
 
 TEST_F(UmsUserTest, updateFrom)
@@ -122,7 +132,7 @@ TEST_F(UmsUserTest, updateFrom)
     ASSERT_TRUE(role);
     RoleSP role2 = umsUserUT2->roles().first();
     ASSERT_TRUE(role2);
-    EXPECT_EQ(role2->locale(), role->locale());
+    EXPECT_EQ(role2->location(), role->location());
     EXPECT_EQ(role2->service(), role->service());
     EXPECT_EQ(role2->name(), role->name());
 }

@@ -13,11 +13,11 @@ class RolePrivate : public NetworkDataEntityPrivate
 
     void updateFrom(const Proof::NetworkDataEntitySP &other) override;
 
-    void setLocale(const QString &arg);
+    void setLocation(const QString &arg);
     void setService(const QString &arg);
     void setName(const QString &arg);
 
-    QString locale;
+    QString location;
     QString service;
     QString name;
 };
@@ -37,10 +37,10 @@ Role::~Role()
 {
 }
 
-QString Role::locale() const
+QString Role::location() const
 {
     Q_D(const Role);
-    return d->locale;
+    return d->location;
 }
 
 QString Role::service() const
@@ -73,40 +73,40 @@ RoleSP Role::create()
     return result;
 }
 
-/*!
-* Create instance from JSON
-*/
-RoleSP Role::fromJson(const QJsonObject &roleJson)
+RoleSP Role::fromString(const QString &roleString)
 {
-    if (!roleJson.contains(QLatin1String("name")))
-        return RoleSP();
-
     RoleSP role = create();
     RolePrivate * const d = role->d_func();
     role->setFetched(true);
-    d->setLocale(roleJson.value(QStringLiteral("loc")).toString(QLatin1String("")));
-    d->setService(roleJson.value(QStringLiteral("srv")).toString(QLatin1String("")));
-    d->setName(roleJson.value(QStringLiteral("name")).toString(QLatin1String("")));
 
+    QStringList roleStringList = roleString.split(":");
+    if (roleStringList.count() == 3)
+        d->setLocation(roleStringList.takeFirst());
+
+    if (roleStringList.count() != 2)
+        return RoleSP();
+
+    d->setService(roleStringList.at(0));
+    d->setName(roleStringList.at(1));
     return role;
 }
 
 void RolePrivate::updateFrom(const Proof::NetworkDataEntitySP &other)
 {
     RoleSP castedOther = qSharedPointerCast<Role>(other);
-    setLocale(castedOther->locale());
+    setLocation(castedOther->location());
     setService(castedOther->service());
     setName(castedOther->name());
 
     NetworkDataEntityPrivate::updateFrom(other);
 }
 
-void RolePrivate::setLocale(const QString &arg)
+void RolePrivate::setLocation(const QString &arg)
 {
     Q_Q(Role);
-    if (locale != arg) {
-        locale = arg;
-        emit q->localeChanged(arg);
+    if (location != arg) {
+        location = arg;
+        emit q->locationChanged(arg);
     }
 }
 

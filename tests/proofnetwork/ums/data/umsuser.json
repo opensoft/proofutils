@@ -8,21 +8,9 @@
   "exp": 1476782390,
   "jti": "b0311124-4650-41c6-b656-465a7ab3df35",
   "roles": [
-    {
-      "loc": "KY",
-      "srv": "UMS",
-      "name": "Admin"
-    },
-    {
-      "loc": "dev",
-      "srv": "DSB",
-      "name": "Admin"
-    },
-    {
-      "loc": "qa02",
-      "srv": "DSB",
-      "name": "Admin"
-    }
+    "KY:UMS:Admin",
+    "dev:DSB:Admin",
+    "SH3:Admin"
   ],
   "ver": "1.0",
   "email": "vadim.petrunin@farheap.com"

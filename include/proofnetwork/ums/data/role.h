@@ -18,17 +18,17 @@ class PROOF_NETWORK_UMS_EXPORT Role : public NetworkDataEntity // clazy:exclude=
 public:
     ~Role();
 
-    QString locale() const;
+    QString location() const;
     QString service() const;
     QString name() const;
 
     RoleQmlWrapper *toQmlWrapper(QObject *parent = nullptr) const override;
 
     static RoleSP create();
-    static RoleSP fromJson(const QJsonObject &roleJson);
+    static RoleSP fromString(const QString &roleString);
 
 signals:
-    void localeChanged(const QString &arg);
+    void locationChanged(const QString &arg);
     void serviceChanged(const QString &arg);
     void nameChanged(const QString &arg);
 

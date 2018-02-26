@@ -23,7 +23,7 @@ RoleQmlWrapper::RoleQmlWrapper(const RoleSP &role, QObject *parent)
 
 PROOF_NDE_WRAPPER_TOOLS_IMPL(Role)
 
-PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Role, QString, locale)
+PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Role, QString, location)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Role, QString, service)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Role, QString, name)
 
@@ -33,8 +33,8 @@ void RoleQmlWrapper::setupEntity(const QSharedPointer<Proof::NetworkDataEntity> 
     RoleSP role = d->entity<Role>();
     Q_ASSERT(role);
 
-    connect(role.data(), &Role::localeChanged,
-            this, &RoleQmlWrapper::localeChanged);
+    connect(role.data(), &Role::locationChanged,
+            this, &RoleQmlWrapper::locationChanged);
     connect(role.data(), &Role::serviceChanged,
             this, &RoleQmlWrapper::serviceChanged);
     connect(role.data(), &Role::nameChanged,
@@ -42,8 +42,8 @@ void RoleQmlWrapper::setupEntity(const QSharedPointer<Proof::NetworkDataEntity> 
 
     auto castedOld = qSharedPointerCast<Role>(old);
     if (castedOld) {
-        if (role->locale() != castedOld->locale())
-            emit localeChanged(role->locale());
+        if (role->location() != castedOld->location())
+            emit locationChanged(role->location());
         if (role->service() != castedOld->service())
             emit serviceChanged(role->service());
         if (role->name() != castedOld->name())

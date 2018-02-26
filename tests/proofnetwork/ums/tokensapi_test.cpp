@@ -70,7 +70,7 @@ TEST_F(TokensApiTest, fetchToken)
     Proof::Ums::UmsUserSP umsUser = qvariant_cast<Proof::Ums::UmsUserSP>(arguments.at(2));
     EXPECT_EQ(opId, retOpId);
     EXPECT_TRUE(umsUser->isFetched());
-    EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", umsUser->id());
+    EXPECT_EQ("0e513a63-035b-49e6-94ee-b452e20da844", umsUser->id());
 }
 
 TEST_F(TokensApiTest, fetchTokenByBarcode)
@@ -95,7 +95,7 @@ TEST_F(TokensApiTest, fetchTokenByBarcode)
     Proof::Ums::UmsUserSP umsUser = qvariant_cast<Proof::Ums::UmsUserSP>(arguments.at(2));
     EXPECT_EQ(opId, retOpId);
     EXPECT_TRUE(umsUser->isFetched());
-    EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", umsUser->id());
+    EXPECT_EQ("0e513a63-035b-49e6-94ee-b452e20da844", umsUser->id());
 }
 
 TEST_F(TokensApiTest, fetchTokenByLogin)
@@ -120,7 +120,7 @@ TEST_F(TokensApiTest, fetchTokenByLogin)
     Proof::Ums::UmsUserSP umsUser = qvariant_cast<Proof::Ums::UmsUserSP>(arguments.at(2));
     EXPECT_EQ(opId, retOpId);
     EXPECT_TRUE(umsUser->isFetched());
-    EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", umsUser->id());
+    EXPECT_EQ("0e513a63-035b-49e6-94ee-b452e20da844", umsUser->id());
 }
 
 TEST_F(TokensApiTest, refreshToken)
@@ -145,7 +145,7 @@ TEST_F(TokensApiTest, refreshToken)
     Proof::Ums::UmsUserSP umsUser = qvariant_cast<Proof::Ums::UmsUserSP>(arguments.at(2));
     EXPECT_EQ(opId, retOpId);
     EXPECT_TRUE(umsUser->isFetched());
-    EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", umsUser->id());
+    EXPECT_EQ("0e513a63-035b-49e6-94ee-b452e20da844", umsUser->id());
 }
 
 TEST_F(TokensApiTest, fetchPublicKey)
