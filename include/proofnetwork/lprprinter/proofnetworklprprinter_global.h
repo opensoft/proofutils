@@ -13,7 +13,7 @@ Q_DECLARE_LOGGING_CATEGORY(proofNetworkLprPrinterLog)
 
 namespace Proof {
 namespace NetworkErrorCode {
-enum FieryCode {
+enum LprPrinterCode {
     FileError = Code::MinCustomError
 };
 }
