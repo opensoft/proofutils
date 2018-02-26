@@ -50,25 +50,44 @@ protected:
     UmsUserQmlWrapper *qmlWrapperUT;
 };
 
+TEST_F(UmsUserTest, qmlWrapperProperties)
+{
+    QStringList invalidProperties = findWrongChangedSignalsInQmlWrapper(qmlWrapperUT);
+    EXPECT_EQ(0, invalidProperties.count()) << invalidProperties.join("\n").toLatin1().constData();
+}
+
 TEST_F(UmsUserTest, fromJson)
 {
     EXPECT_TRUE(umsUserUT->isFetched());
 
     EXPECT_EQ("Vadim Petrunin", umsUserUT->userName());
+    EXPECT_EQ("Vadim Petrunin", qmlWrapperUT->userName());
     EXPECT_EQ("Vadim Petrunin", umsUserUT->fullName());
+    EXPECT_EQ("Vadim Petrunin", qmlWrapperUT->fullName());
     EXPECT_EQ("vadim.petrunin@farheap.com", umsUserUT->email());
+    EXPECT_EQ("vadim.petrunin@farheap.com", qmlWrapperUT->email());
 
     EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", umsUserUT->id());
+    EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", qmlWrapperUT->id());
     EXPECT_EQ("1.0", umsUserUT->version());
+    EXPECT_EQ("1.0", qmlWrapperUT->version());
     EXPECT_EQ((uint)1476782390, umsUserUT->expiresAt().toTime_t());
+    EXPECT_EQ((uint)1476782390, qmlWrapperUT->expiresAt().toTime_t());
     EXPECT_EQ((uint)1476695990, umsUserUT->validFrom().toTime_t());
+    EXPECT_EQ((uint)1476695990, qmlWrapperUT->validFrom().toTime_t());
     EXPECT_EQ(3, umsUserUT->roles().count());
+    auto qmlRolesProperty = qmlWrapperUT->roles();
+    EXPECT_EQ(3, qmlRolesProperty.count(&qmlRolesProperty));
 
     RoleSP role = umsUserUT->roles().first();
+    auto qmlRole = role->toQmlWrapper(qmlWrapperUT);
     ASSERT_TRUE(role);
     EXPECT_EQ("KY", role->locale());
+    EXPECT_EQ("KY", qmlRole->locale());
     EXPECT_EQ("UMS", role->service());
+    EXPECT_EQ("UMS", qmlRole->service());
     EXPECT_EQ("Admin", role->name());
+    EXPECT_EQ("Admin", qmlRole->name());
 }
 
 TEST_F(UmsUserTest, updateFrom)

@@ -48,19 +48,34 @@ protected:
     JobQmlWrapper *qmlWrapperUT;
 };
 
+TEST_F(JobTest, qmlWrapperProperties)
+{
+    QStringList invalidProperties = findWrongChangedSignalsInQmlWrapper(qmlWrapperUT);
+    EXPECT_EQ(0, invalidProperties.count()) << invalidProperties.join("\n").toLatin1().constData();
+}
+
 TEST_F(JobTest, fromJson)
 {
     EXPECT_TRUE(jobUT->isFetched());
 
     EXPECT_EQ("42", jobUT->id());
+    EXPECT_EQ("42", qmlWrapperUT->id());
     EXPECT_EQ("MT-42", jobUT->name());
+    EXPECT_EQ("MT-42", qmlWrapperUT->name());
     EXPECT_EQ("metrix", jobUT->source());
+    EXPECT_EQ("metrix", qmlWrapperUT->source());
     EXPECT_DOUBLE_EQ(2016.0, jobUT->width());
+    EXPECT_DOUBLE_EQ(2016.0, qmlWrapperUT->width());
     EXPECT_DOUBLE_EQ(1350.0, jobUT->height());
+    EXPECT_DOUBLE_EQ(1350.0, qmlWrapperUT->height());
     EXPECT_EQ(WorkflowStatus::IsReadyForStatus, jobUT->workflowStatus(WorkflowAction::CuttingAction));
+    EXPECT_EQ(WorkflowStatus::IsReadyForStatus, qmlWrapperUT->workflowStatus(WorkflowAction::CuttingAction));
     EXPECT_EQ(WorkflowStatus::NeedsStatus, jobUT->workflowStatus(WorkflowAction::BoxingAction));
+    EXPECT_EQ(WorkflowStatus::NeedsStatus, qmlWrapperUT->workflowStatus(WorkflowAction::BoxingAction));
     EXPECT_EQ(EntityStatus::ValidEntity, jobUT->status());
+    EXPECT_EQ(EntityStatus::ValidEntity, qmlWrapperUT->status());
     EXPECT_TRUE(jobUT->hasPreview());
+    EXPECT_TRUE(qmlWrapperUT->hasPreview());
 }
 
 TEST_F(JobTest, toJson)
