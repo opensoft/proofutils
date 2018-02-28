@@ -4,13 +4,9 @@ include(proofnetworklprprinter.prf)
 !android:include(proofhardwarelprprinter.prf)
 
 win32 {
-    LIBS *= -lProofUtils$${PROOF_VERSION_MAJOR} -lqrencode
+    LIBS *= -lProofUtils$${PROOF_VERSION_MAJOR}
 } else {
-    LIBS *= -lProofUtils -lqrencode
-}
-
-linux {
-    !android: LIBS *= -lproxy
+    LIBS *= -lProofUtils
 }
 
 android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofUtils.so
