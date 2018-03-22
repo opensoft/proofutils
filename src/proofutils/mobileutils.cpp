@@ -18,6 +18,7 @@ public:
     explicit WorkerThread(Proof::MobileUtilsPrivate *mobileUtils);
     void callPhoneNumber(const QString &phoneNumber);
     QString imei();
+    QString controlCenterFirebaseToken();
 
 private:
     Proof::MobileUtilsPrivate *mobileUtils;
@@ -33,6 +34,7 @@ class MobileUtilsPrivate : public ProofObjectPrivate
 public:
     void callPhoneNumber(const QString &phoneNumber);
     QString imei();
+    QString controlCenterFirebaseToken();
 
     WorkerThread *thread = nullptr;
 };
@@ -65,6 +67,12 @@ QString MobileUtils::imei()
     return d->imei();
 }
 
+QString MobileUtils::controlCenterFirebaseToken()
+{
+    Q_D(MobileUtils);
+    return d->controlCenterFirebaseToken();
+}
+
 void MobileUtilsPrivate::callPhoneNumber(const QString &phoneNumber)
 {
     if (ProofObject::call(thread, &WorkerThread::callPhoneNumber, phoneNumber))
@@ -93,7 +101,24 @@ QString MobileUtilsPrivate::imei()
     QAndroidJniObject jImei = activity.callObjectMethod<jstring>("getImei");
     result = jImei.toString();
 #else
-    qCDebug(proofUtilsMiscLog) << "IMEI not support on this platform!";
+    qCDebug(proofUtilsMiscLog) << "IMEI is not supported on this platform!";
+#endif
+    return result;
+}
+
+QString MobileUtilsPrivate::controlCenterFirebaseToken()
+{
+    QString result;
+    if (ProofObject::call(thread, &WorkerThread::controlCenterFirebaseToken, Proof::Call::Block, result))
+        return result;
+
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    QAndroidJniEnvironment env;
+    QAndroidJniObject jToken = activity.callObjectMethod<jstring>("getControlCenterFirebaseToken");
+    result = jToken.toString();
+#else
+    qCDebug(proofUtilsMiscLog) << "Control center is not supported on this platform!";
 #endif
     return result;
 }
@@ -114,6 +139,11 @@ void WorkerThread::callPhoneNumber(const QString &phoneNumber)
 QString WorkerThread::imei()
 {
     return mobileUtils->imei();
+}
+
+QString WorkerThread::controlCenterFirebaseToken()
+{
+    return mobileUtils->controlCenterFirebaseToken();
 }
 
 #include "mobileutils.moc"

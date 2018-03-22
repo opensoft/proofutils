@@ -17,6 +17,7 @@ public:
 
     Q_INVOKABLE void callPhoneNumber(const QString &phoneNumber);
     Q_INVOKABLE QString imei();
+    Q_INVOKABLE QString controlCenterFirebaseToken();
 };
 
 } // namespace Proof
