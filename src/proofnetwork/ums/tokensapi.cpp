@@ -1,7 +1,7 @@
 #include "tokensapi.h"
 #include "proofnetwork/abstractrestapi_p.h"
 
-#include "proofnetwork/ums/data/umsuser.h"
+#include "proofnetwork/ums/data/umstokeninfo.h"
 
 #include <QNetworkReply>
 #include <QJsonDocument>
@@ -166,23 +166,23 @@ void TokensApiPrivate::extractToken(qulonglong operationId, QNetworkReply *reply
     QString token = QJsonDocument::fromJson(reply->readAll()).object().value(QStringLiteral("access_token")).toString();
     QByteArrayList tokenList = token.toUtf8().split('.');
 
-    Proof::Ums::UmsUserSP umsUser;
+    Proof::Ums::UmsTokenInfoSP tokenInfo;
     bool signatureVerified = verifyToken(tokenList);
     if (signatureVerified && tokenList.count() == 3) {
         QJsonObject payload = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList[1])).object();
-        umsUser = Proof::Ums::UmsUser::fromJson(payload);
+        tokenInfo = Proof::Ums::UmsTokenInfo::fromJson(payload, token);
     }
 
     if (!signatureVerified) {
         emit q->apiErrorOccurred(operationId, {RestApiError::Level::ClientError, 0,
                                             NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidTokenSignature,
                                             QStringLiteral("Token signature verification failed")});
-    } else if (token.isEmpty() || !umsUser || !umsUser->isDirty()) {
+    } else if (token.isEmpty() || !tokenInfo || !tokenInfo->isDirty()) {
         emit q->apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
                                             NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidReply,
                                             QStringLiteral("Failed to parse JSON from server reply")});
     } else {
-        emit q->tokenFetched(operationId, token, umsUser);
+        emit q->tokenFetched(operationId, tokenInfo);
     }
 }
 

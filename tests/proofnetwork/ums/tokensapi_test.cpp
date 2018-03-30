@@ -3,6 +3,7 @@
 #include "gtest/test_global.h"
 
 #include "proofnetwork/ums/tokensapi.h"
+#include "proofnetwork/ums/data/umstokeninfo.h"
 #include "proofnetwork/ums/data/umsuser.h"
 
 #include <QFile>
@@ -61,16 +62,16 @@ TEST_F(TokensApiTest, fetchToken)
     ASSERT_TRUE(spy.wait());
     EXPECT_EQ(1, spy.count());
     QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(3, arguments.count());
+    ASSERT_EQ(2, arguments.count());
 
     qulonglong retOpId = arguments.at(0).toULongLong();
-    QString token = qvariant_cast<QString>(arguments.at(1));
-    EXPECT_EQ(token, QString(tokenFromFile));
-
-    Proof::Ums::UmsUserSP umsUser = qvariant_cast<Proof::Ums::UmsUserSP>(arguments.at(2));
     EXPECT_EQ(opId, retOpId);
-    EXPECT_TRUE(umsUser->isFetched());
-    EXPECT_EQ("0e513a63-035b-49e6-94ee-b452e20da844", umsUser->id());
+
+    Proof::Ums::UmsTokenInfoSP tokenInfo = qvariant_cast<Proof::Ums::UmsTokenInfoSP>(arguments.at(1));
+    EXPECT_TRUE(tokenInfo->isFetched());
+    EXPECT_TRUE(tokenInfo->user()->isFetched());
+    EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
+    EXPECT_EQ(QString(tokenFromFile), tokenInfo->token());
 }
 
 TEST_F(TokensApiTest, fetchTokenByBarcode)
@@ -86,16 +87,16 @@ TEST_F(TokensApiTest, fetchTokenByBarcode)
     ASSERT_TRUE(spy.wait());
     EXPECT_EQ(1, spy.count());
     QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(3, arguments.count());
+    ASSERT_EQ(2, arguments.count());
 
     qulonglong retOpId = arguments.at(0).toULongLong();
-    QString token = qvariant_cast<QString>(arguments.at(1));
-    EXPECT_EQ(token, QString(tokenFromFile));
-
-    Proof::Ums::UmsUserSP umsUser = qvariant_cast<Proof::Ums::UmsUserSP>(arguments.at(2));
     EXPECT_EQ(opId, retOpId);
-    EXPECT_TRUE(umsUser->isFetched());
-    EXPECT_EQ("0e513a63-035b-49e6-94ee-b452e20da844", umsUser->id());
+
+    Proof::Ums::UmsTokenInfoSP tokenInfo = qvariant_cast<Proof::Ums::UmsTokenInfoSP>(arguments.at(1));
+    EXPECT_TRUE(tokenInfo->isFetched());
+    EXPECT_TRUE(tokenInfo->user()->isFetched());
+    EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
+    EXPECT_EQ(QString(tokenFromFile), tokenInfo->token());
 }
 
 TEST_F(TokensApiTest, fetchTokenByLogin)
@@ -111,16 +112,16 @@ TEST_F(TokensApiTest, fetchTokenByLogin)
     ASSERT_TRUE(spy.wait());
     EXPECT_EQ(1, spy.count());
     QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(3, arguments.count());
+    ASSERT_EQ(2, arguments.count());
 
     qulonglong retOpId = arguments.at(0).toULongLong();
-    QString token = qvariant_cast<QString>(arguments.at(1));
-    EXPECT_EQ(token, QString(tokenFromFile));
-
-    Proof::Ums::UmsUserSP umsUser = qvariant_cast<Proof::Ums::UmsUserSP>(arguments.at(2));
     EXPECT_EQ(opId, retOpId);
-    EXPECT_TRUE(umsUser->isFetched());
-    EXPECT_EQ("0e513a63-035b-49e6-94ee-b452e20da844", umsUser->id());
+
+    Proof::Ums::UmsTokenInfoSP tokenInfo = qvariant_cast<Proof::Ums::UmsTokenInfoSP>(arguments.at(1));
+    EXPECT_TRUE(tokenInfo->isFetched());
+    EXPECT_TRUE(tokenInfo->user()->isFetched());
+    EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
+    EXPECT_EQ(QString(tokenFromFile), tokenInfo->token());
 }
 
 TEST_F(TokensApiTest, refreshToken)
@@ -136,16 +137,16 @@ TEST_F(TokensApiTest, refreshToken)
     ASSERT_TRUE(spy.wait());
     EXPECT_EQ(1, spy.count());
     QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(3, arguments.count());
+    ASSERT_EQ(2, arguments.count());
 
     qulonglong retOpId = arguments.at(0).toULongLong();
-    QString token = qvariant_cast<QString>(arguments.at(1));
-    EXPECT_EQ(token, QString(tokenFromFile));
-
-    Proof::Ums::UmsUserSP umsUser = qvariant_cast<Proof::Ums::UmsUserSP>(arguments.at(2));
     EXPECT_EQ(opId, retOpId);
-    EXPECT_TRUE(umsUser->isFetched());
-    EXPECT_EQ("0e513a63-035b-49e6-94ee-b452e20da844", umsUser->id());
+
+    Proof::Ums::UmsTokenInfoSP tokenInfo = qvariant_cast<Proof::Ums::UmsTokenInfoSP>(arguments.at(1));
+    EXPECT_TRUE(tokenInfo->isFetched());
+    EXPECT_TRUE(tokenInfo->user()->isFetched());
+    EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
+    EXPECT_EQ(QString(tokenFromFile), tokenInfo->token());
 }
 
 TEST_F(TokensApiTest, fetchPublicKey)

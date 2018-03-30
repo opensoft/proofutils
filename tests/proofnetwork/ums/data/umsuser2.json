@@ -3,13 +3,18 @@
   "aud": "https://profit-usrmgr1-stg.tech-corps.com/",
   "sub": "5fa11623-470d-44f4-94ba-58e7eddb0dee",
   "name": "Vadim Petrunin1",
+  "unique_name": "vadim.petrunin1",
   "iat": 1476695991,
   "nbf": 1476695991,
   "exp": 1476782391,
   "jti": "b0311124-4650-41c6-b656-465a7ab3df36",
+  "appname": "UMS",
   "roles": [
       "KY:UMS:Manager"
   ],
   "ver": "2.0",
-  "email": "vadim.petrunin1@farheap.com"
+  "email": "vadim.petrunin1@farheap.com",
+  "tid": "86991c4a-4908-4dfd-ace6-dc7b49d8de3b",
+  "tenant": "Farheap",
+  "services": null
 }

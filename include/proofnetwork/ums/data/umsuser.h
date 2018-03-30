@@ -6,6 +6,8 @@
 #include "proofnetwork/ums/proofnetworkums_types.h"
 #include "proofnetwork/ums/proofnetworkums_global.h"
 
+#include "proofcore/objectscache.h"
+
 #include <QJsonObject>
 #include <QList>
 
@@ -20,27 +22,23 @@ class PROOF_NETWORK_UMS_EXPORT UmsUser : public User // clazy:exclude=ctor-missi
 public:
     ~UmsUser();
 
-    QString id() const;
-    QString version() const;
-    QDateTime expiresAt() const;
-    QDateTime validFrom() const;
-    QList<RoleSP> roles() const;
+    QStringList roles() const;
 
     UmsUserQmlWrapper *toQmlWrapper(QObject *parent = nullptr) const override;
 
     static UmsUserSP create(const QString &userName = QString());
-    static UmsUserSP fromJson(const QJsonObject &userJson);
 
 signals:
-    void idChanged(const QString &arg);
-    void versionChanged(const QString &arg);
-    void expiresAtChanged(const QDateTime &arg);
-    void validFromChanged(const QDateTime &arg);
-    void rolesChanged();
+    void rolesChanged(const QStringList &arg);
 
 protected:
     explicit UmsUser(const QString &userName = QString());
+
+private:
+    friend class UmsTokenInfo;
 };
+
+PROOF_NETWORK_UMS_EXPORT ObjectsCache<QString, UmsUser> &umsUsersCache();
 
 }
 }

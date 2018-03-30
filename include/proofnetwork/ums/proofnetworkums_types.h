@@ -9,13 +9,13 @@
 namespace Proof {
 namespace Ums {
 
-class Role;
-using RoleSP = QSharedPointer<Role>;
-using RoleWP = QWeakPointer<Role>;
-
 class UmsUser;
 using UmsUserSP = QSharedPointer<UmsUser>;
 using UmsUserWP = QWeakPointer<UmsUser>;
+
+class UmsTokenInfo;
+using UmsTokenInfoSP = QSharedPointer<UmsTokenInfo>;
+using UmsTokenInfoWP = QWeakPointer<UmsTokenInfo>;
 
 }
 }

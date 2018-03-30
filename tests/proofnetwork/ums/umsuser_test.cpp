@@ -3,7 +3,7 @@
 #include "gtest/test_global.h"
 
 #include "proofnetwork/ums/data/umsuser.h"
-#include "proofnetwork/ums/data/role.h"
+#include "proofnetwork/ums/data/umstokeninfo.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -28,13 +28,13 @@ protected:
         jsonDoc2 = QJsonDocument::fromJson(dataFromFile(":/data/umsuser2.json"));
         ASSERT_FALSE(jsonDoc2.isEmpty());
 
-        umsUserUT = UmsUser::fromJson(jsonDoc.object());
-        ASSERT_TRUE(umsUserUT);
+        tokenInfoUT = UmsTokenInfo::fromJson(jsonDoc.object(), "token1");
+        ASSERT_TRUE(tokenInfoUT);
 
-        umsUserUT2 = UmsUser::fromJson(jsonDoc2.object());
-        ASSERT_TRUE(umsUserUT2);
+        tokenInfoUT2 = UmsTokenInfo::fromJson(jsonDoc2.object(), "token2");
+        ASSERT_TRUE(tokenInfoUT2);
 
-        qmlWrapperUT = umsUserUT->toQmlWrapper();
+        qmlWrapperUT = tokenInfoUT->toQmlWrapper();
     }
 
     void TearDown() override
@@ -45,9 +45,9 @@ protected:
 protected:
     QJsonDocument jsonDoc;
     QJsonDocument jsonDoc2;
-    UmsUserSP umsUserUT;
-    UmsUserSP umsUserUT2;
-    UmsUserQmlWrapper *qmlWrapperUT;
+    UmsTokenInfoSP tokenInfoUT;
+    UmsTokenInfoSP tokenInfoUT2;
+    UmsTokenInfoQmlWrapper *qmlWrapperUT;
 };
 
 TEST_F(UmsUserTest, qmlWrapperProperties)
@@ -58,54 +58,32 @@ TEST_F(UmsUserTest, qmlWrapperProperties)
 
 TEST_F(UmsUserTest, fromJson)
 {
-    EXPECT_TRUE(umsUserUT->isFetched());
+    EXPECT_TRUE(tokenInfoUT->isFetched());
 
-    EXPECT_EQ("Vadim Petrunin", umsUserUT->userName());
-    EXPECT_EQ("Vadim Petrunin", qmlWrapperUT->userName());
-    EXPECT_EQ("Vadim Petrunin", umsUserUT->fullName());
-    EXPECT_EQ("Vadim Petrunin", qmlWrapperUT->fullName());
-    EXPECT_EQ("vadim.petrunin@farheap.com", umsUserUT->email());
-    EXPECT_EQ("vadim.petrunin@farheap.com", qmlWrapperUT->email());
+    EXPECT_EQ("vadim.petrunin", tokenInfoUT->user()->userName());
+    EXPECT_EQ("vadim.petrunin", qmlWrapperUT->user()->userName());
+    EXPECT_EQ("Vadim Petrunin", tokenInfoUT->user()->fullName());
+    EXPECT_EQ("Vadim Petrunin", qmlWrapperUT->user()->fullName());
+    EXPECT_EQ("vadim.petrunin@farheap.com", tokenInfoUT->user()->email());
+    EXPECT_EQ("vadim.petrunin@farheap.com", qmlWrapperUT->user()->email());
 
-    EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", umsUserUT->id());
-    EXPECT_EQ("5fa11623-470d-44f4-94ba-58e7eddb0ded", qmlWrapperUT->id());
-    EXPECT_EQ("1.0", umsUserUT->version());
+    EXPECT_EQ("1.0", tokenInfoUT->version());
     EXPECT_EQ("1.0", qmlWrapperUT->version());
-    EXPECT_EQ((uint)1476782390, umsUserUT->expiresAt().toTime_t());
+    EXPECT_EQ((uint)1476782390, tokenInfoUT->expiresAt().toTime_t());
     EXPECT_EQ((uint)1476782390, qmlWrapperUT->expiresAt().toTime_t());
-    EXPECT_EQ((uint)1476695990, umsUserUT->validFrom().toTime_t());
+    EXPECT_EQ((uint)1476695990, tokenInfoUT->validFrom().toTime_t());
     EXPECT_EQ((uint)1476695990, qmlWrapperUT->validFrom().toTime_t());
-    EXPECT_EQ(3, umsUserUT->roles().count());
-    auto qmlRolesProperty = qmlWrapperUT->roles();
-    EXPECT_EQ(3, qmlRolesProperty.count(&qmlRolesProperty));
-
-    RoleSP roleUms = umsUserUT->roles().first();
-    auto qmlRoleUms = roleUms->toQmlWrapper(qmlWrapperUT);
-    ASSERT_TRUE(roleUms);
-    EXPECT_EQ("KY", roleUms->location());
-    EXPECT_EQ("KY", qmlRoleUms->location());
-    EXPECT_EQ("UMS", roleUms->service());
-    EXPECT_EQ("UMS", qmlRoleUms->service());
-    EXPECT_EQ("Admin", roleUms->name());
-    EXPECT_EQ("Admin", qmlRoleUms->name());
-
-    RoleSP roleSh = umsUserUT->roles().last();
-    auto qmlRoleSh = roleSh->toQmlWrapper(qmlWrapperUT);
-    ASSERT_TRUE(roleSh);
-    EXPECT_EQ("", roleSh->location());
-    EXPECT_EQ("", qmlRoleSh->location());
-    EXPECT_EQ("SH3", roleSh->service());
-    EXPECT_EQ("SH3", qmlRoleSh->service());
-    EXPECT_EQ("Admin", roleSh->name());
-    EXPECT_EQ("Admin", qmlRoleSh->name());
+    auto roles = QStringList{"dev:DSB:Admin", "KY:UMS:Admin", "SH3:Admin"};
+    EXPECT_EQ(roles, tokenInfoUT->user()->roles());
+    EXPECT_EQ(roles, qmlWrapperUT->user()->roles());
 }
 
 TEST_F(UmsUserTest, updateFrom)
 {
-    QList<QSignalSpy *> spies = spiesForObject(umsUserUT.data());
+    QList<QSignalSpy *> spies = spiesForObject(tokenInfoUT.data());
     QList<QSignalSpy *> qmlspies = spiesForObject(qmlWrapperUT);
 
-    umsUserUT->updateFrom(umsUserUT2);
+    tokenInfoUT->updateFrom(tokenInfoUT2);
 
     for (QSignalSpy *spy: spies)
         EXPECT_EQ(1, spy->count()) << spy->signal().constData();
@@ -118,22 +96,13 @@ TEST_F(UmsUserTest, updateFrom)
     qDeleteAll(qmlspies);
     qmlspies.clear();
 
-    EXPECT_EQ(umsUserUT2->userName(), umsUserUT->userName());
-    EXPECT_EQ(umsUserUT2->fullName(), umsUserUT->fullName());
-    EXPECT_EQ(umsUserUT2->email(), umsUserUT->email());
+    EXPECT_EQ(tokenInfoUT2->user()->userName(), tokenInfoUT->user()->userName());
+    EXPECT_EQ(tokenInfoUT2->user()->fullName(), tokenInfoUT->user()->fullName());
+    EXPECT_EQ(tokenInfoUT2->user()->email(), tokenInfoUT->user()->email());
 
-    EXPECT_EQ(umsUserUT2->id(), umsUserUT->id());
-    EXPECT_EQ(umsUserUT2->version(), umsUserUT->version());
-    EXPECT_EQ(umsUserUT2->expiresAt(), umsUserUT->expiresAt());
-    EXPECT_EQ(umsUserUT2->validFrom(), umsUserUT->validFrom());
-    EXPECT_EQ(umsUserUT2->roles().count(), umsUserUT->roles().count());
-
-    RoleSP role = umsUserUT->roles().first();
-    ASSERT_TRUE(role);
-    RoleSP role2 = umsUserUT2->roles().first();
-    ASSERT_TRUE(role2);
-    EXPECT_EQ(role2->location(), role->location());
-    EXPECT_EQ(role2->service(), role->service());
-    EXPECT_EQ(role2->name(), role->name());
+    EXPECT_EQ(tokenInfoUT2->version(), tokenInfoUT->version());
+    EXPECT_EQ(tokenInfoUT2->expiresAt(), tokenInfoUT->expiresAt());
+    EXPECT_EQ(tokenInfoUT2->validFrom(), tokenInfoUT->validFrom());
+    EXPECT_EQ(tokenInfoUT2->user()->roles(), tokenInfoUT->user()->roles());
 }
 

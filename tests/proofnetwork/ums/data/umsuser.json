@@ -3,15 +3,20 @@
   "aud": "https://profit-usrmgr-stg.tech-corps.com/",
   "sub": "5fa11623-470d-44f4-94ba-58e7eddb0ded",
   "name": "Vadim Petrunin",
+  "unique_name": "vadim.petrunin",
   "iat": 1476695990,
   "nbf": 1476695990,
   "exp": 1476782390,
   "jti": "b0311124-4650-41c6-b656-465a7ab3df35",
+  "appname": "SH3",
   "roles": [
     "KY:UMS:Admin",
     "dev:DSB:Admin",
     "SH3:Admin"
   ],
   "ver": "1.0",
-  "email": "vadim.petrunin@farheap.com"
+  "email": "vadim.petrunin@farheap.com",
+  "tid": "86991c4a-4908-4dfd-ace6-dc7b49d8de3b",
+  "tenant": "Farheap",
+  "services": null
 }
