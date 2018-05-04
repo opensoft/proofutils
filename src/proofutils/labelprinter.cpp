@@ -78,9 +78,9 @@ LabelPrinter::~LabelPrinter()
         delete d->labelPrinterApi;
 }
 
-FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState)
+FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState) const
 {
-    Q_D(LabelPrinter);
+    Q_D(const LabelPrinter);
 #ifndef Q_OS_ANDROID
     if (d->hardwareLabelPrinter)
         return Future<bool>::successful(d->hardwareLabelPrinter->printRawData(label, ignorePrinterState));
@@ -93,9 +93,9 @@ FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrin
                                label, d->printerName);
 }
 
-FutureSP<bool> LabelPrinter::printerIsReady()
+FutureSP<bool> LabelPrinter::printerIsReady() const
 {
-    Q_D(LabelPrinter);
+    Q_D(const LabelPrinter);
 #ifndef Q_OS_ANDROID
     if (d->hardwareLabelPrinter)
         return Future<bool>::successful(d->hardwareLabelPrinter->printerIsReady());

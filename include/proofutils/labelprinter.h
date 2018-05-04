@@ -34,8 +34,8 @@ public:
     explicit LabelPrinter(const LabelPrinterParams &params, QObject *parent = nullptr);
     ~LabelPrinter();
 
-    FutureSP<bool> printLabel(const QByteArray &label, bool ignorePrinterState = false);
-    FutureSP<bool> printerIsReady();
+    FutureSP<bool> printLabel(const QByteArray &label, bool ignorePrinterState = false) const;
+    FutureSP<bool> printerIsReady() const;
 };
 
 } // namespace Proof

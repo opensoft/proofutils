@@ -20,8 +20,6 @@ public:
 
     QValidator::State validate(QString &input, int &pos) const override;
     bool maskValidationMode() const;
-
-public slots:
     void setMaskValidationMode(bool maskValidationMode);
 
 signals:
