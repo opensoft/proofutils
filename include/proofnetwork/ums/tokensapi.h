@@ -1,7 +1,7 @@
 #ifndef PROOF_UMS_TOKENSAPI_H
 #define PROOF_UMS_TOKENSAPI_H
 
-#include "proofnetwork/abstractrestapi.h"
+#include "proofnetwork/baserestapi.h"
 #include "proofnetwork/ums/proofnetworkums_types.h"
 #include "proofnetwork/ums/proofnetworkums_global.h"
 
@@ -13,7 +13,7 @@ namespace Proof {
 namespace Ums {
 
 class TokensApiPrivate;
-class PROOF_NETWORK_UMS_EXPORT TokensApi : public AbstractRestApi
+class PROOF_NETWORK_UMS_EXPORT TokensApi : public BaseRestApi
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(TokensApi)
@@ -25,13 +25,14 @@ public:
     void setRsaKey(const QCA::RSAPublicKey &key);
 #endif
 
-    qulonglong fetchToken();
-    qulonglong fetchTokenByBarcode(const QString &barcode);
-    qulonglong fetchTokenByLogin(const QString &login, const QString &password);
-    qulonglong refreshToken(const QString &oldToken);
+    CancelableFuture<UmsTokenInfoSP> fetchToken();
+    CancelableFuture<UmsTokenInfoSP> fetchTokenByBarcode(const QString &barcode);
+    CancelableFuture<UmsTokenInfoSP> fetchTokenByLogin(const QString &login, const QString &password);
+    CancelableFuture<UmsTokenInfoSP> refreshToken(const QString &oldToken);
 
-    qulonglong fetchPublicKey();
-    qulonglong fetchCertificate();
+    CancelableFuture<QString> fetchPublicKey();
+    CancelableFuture<QString> fetchCertificate();
+//TODO: remove signals after full switch to new network
 signals:
     void tokenFetched(qulonglong operationId, const Proof::Ums::UmsTokenInfoSP &tokenInfo);
     void publicKeyFetched(qulonglong operationId, const QString &publicKey);

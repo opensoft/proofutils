@@ -63,7 +63,6 @@ LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
 
     d->thread = new QThread(this);
     d->labelPrinterApi->moveToThread(d->thread);
-    d->restClient->moveToThread(d->thread);
     d->thread->start();
 }
 

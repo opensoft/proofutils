@@ -22,6 +22,7 @@ using Proof::PromiseSP;
 using Proof::PromiseWP;
 using Proof::Failure;
 using Proof::WithFailure;
+using Proof::CancelableFuture;
 
 namespace tasks = Proof::tasks;
 

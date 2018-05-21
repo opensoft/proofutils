@@ -1,5 +1,5 @@
 #include "tokensapi.h"
-#include "proofnetwork/abstractrestapi_p.h"
+#include "proofnetwork/baserestapi_p.h"
 
 #include "proofnetwork/ums/data/umstokeninfo.h"
 
@@ -14,10 +14,10 @@
 namespace Proof {
 namespace Ums {
 
-class TokensApiPrivate : public AbstractRestApiPrivate
+class TokensApiPrivate : public BaseRestApiPrivate
 {
     Q_DECLARE_PUBLIC(TokensApi)
-    void extractToken(qulonglong operationId, QNetworkReply *reply);
+    std::function<UmsTokenInfoSP (const QByteArray &)> tokenUnmarshaller();
     bool verifyToken(const QByteArrayList &tokenList);
 
 #ifndef QCA_DISABLED
@@ -34,7 +34,7 @@ using namespace Proof;
 using namespace Proof::Ums;
 
 TokensApi::TokensApi(const QString &clientId, const QString &clientSecret, const RestClientSP &restClient, QObject *parent)
-    : AbstractRestApi(restClient, *new TokensApiPrivate, parent)
+    : BaseRestApi(restClient, *new TokensApiPrivate, parent)
 {
     Q_D(TokensApi);
     d->clientId = clientId;
@@ -55,135 +55,90 @@ void TokensApi::setRsaKey(const QCA::RSAPublicKey &key)
 }
 #endif
 
-qulonglong TokensApi::fetchToken()
+CancelableFuture<UmsTokenInfoSP> TokensApi::fetchToken()
 {
     Q_D(TokensApi);
-    qulonglong operationId = 0;
-    if (!call(this, &TokensApi::fetchToken, Proof::Call::BlockEvents, operationId)) {
-        QUrlQuery urlQuery;
-        urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("client_credentials"));
-        urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
-        urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
-
-        RestAnswerHandler handler = [d](qulonglong operationId, QNetworkReply *reply) {
-            d->extractToken(operationId, reply);
-        };
-        d->post(operationId, std::move(handler), QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
-    }
-    return operationId;
+    QUrlQuery urlQuery;
+    urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("client_credentials"));
+    urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
+    urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
+    return d->unmarshalReply(d->post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
+                             d->tokenUnmarshaller());
 }
 
-qulonglong TokensApi::fetchTokenByBarcode(const QString &barcode)
+CancelableFuture<UmsTokenInfoSP> TokensApi::fetchTokenByBarcode(const QString &barcode)
 {
     Q_D(TokensApi);
-    qulonglong operationId = 0;
-    if (!call(this, &TokensApi::fetchTokenByBarcode, Proof::Call::BlockEvents, operationId, barcode)) {
-        QUrlQuery urlQuery;
-        urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("client_credentials"));
-        urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
-        urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
-        urlQuery.addQueryItem(QStringLiteral("barcode"), barcode);
-
-        RestAnswerHandler handler = [d](qulonglong operationId, QNetworkReply *reply) {
-            d->extractToken(operationId, reply);
-        };
-        d->post(operationId, std::move(handler), QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
-    }
-    return operationId;
+    QUrlQuery urlQuery;
+    urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("client_credentials"));
+    urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
+    urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
+    urlQuery.addQueryItem(QStringLiteral("barcode"), barcode);
+    return d->unmarshalReply(d->post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
+                             d->tokenUnmarshaller());
 }
 
-qulonglong TokensApi::fetchTokenByLogin(const QString &login, const QString &password)
+CancelableFuture<UmsTokenInfoSP> TokensApi::fetchTokenByLogin(const QString &login, const QString &password)
 {
     Q_D(TokensApi);
-    qulonglong operationId = 0;
-    if (!call(this, &TokensApi::fetchTokenByLogin, Proof::Call::BlockEvents, operationId, login, password)) {
-        QUrlQuery urlQuery;
-        urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("password"));
-        urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
-        urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
-        urlQuery.addQueryItem(QStringLiteral("username"), login);
-        urlQuery.addQueryItem(QStringLiteral("password"), password);
-
-        RestAnswerHandler handler = [d](qulonglong operationId, QNetworkReply *reply) {
-            d->extractToken(operationId, reply);
-        };
-        d->post(operationId, std::move(handler), QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
-    }
-    return operationId;
+    QUrlQuery urlQuery;
+    urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("password"));
+    urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
+    urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
+    urlQuery.addQueryItem(QStringLiteral("username"), login);
+    urlQuery.addQueryItem(QStringLiteral("password"), password);
+    return d->unmarshalReply(d->post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
+                             d->tokenUnmarshaller());
 }
 
-qulonglong TokensApi::refreshToken(const QString &oldToken)
+CancelableFuture<UmsTokenInfoSP> TokensApi::refreshToken(const QString &oldToken)
 {
     Q_D(TokensApi);
-    qulonglong operationId = 0;
-    if (!call(this, &TokensApi::refreshToken, Proof::Call::BlockEvents, operationId, oldToken)) {
-        QUrlQuery urlQuery;
-        urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("refresh_token"));
-        urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
-        urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
-        urlQuery.addQueryItem(QStringLiteral("refresh_token"), oldToken);
-
-        RestAnswerHandler handler = [d](qulonglong operationId, QNetworkReply *reply) {
-            d->extractToken(operationId, reply);
-        };
-        d->post(operationId, std::move(handler), QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1());
-    }
-    return operationId;
+    QUrlQuery urlQuery;
+    urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("refresh_token"));
+    urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
+    urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
+    urlQuery.addQueryItem(QStringLiteral("refresh_token"), oldToken);
+    return d->unmarshalReply(d->post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
+                             d->tokenUnmarshaller());
 }
 
-qulonglong TokensApi::fetchPublicKey()
+CancelableFuture<QString> TokensApi::fetchPublicKey()
 {
     Q_D(TokensApi);
-    qulonglong operationId = 0;
-    if (!call(this, &TokensApi::fetchPublicKey, Proof::Call::BlockEvents, operationId)) {
-
-        RestAnswerHandler handler = [this](qulonglong operationId, QNetworkReply *reply) {
-            emit publicKeyFetched(operationId, reply->readAll());
-        };
-        d->get(operationId, std::move(handler), QStringLiteral("/Token/GetPublicKey"));
-    }
-    return operationId;
+    return d->unmarshalReply(d->get(QStringLiteral("/Token/GetPublicKey")),
+                             [](const QByteArray &data){return QString(data);});
 }
 
-qulonglong TokensApi::fetchCertificate()
+CancelableFuture<QString> TokensApi::fetchCertificate()
 {
     Q_D(TokensApi);
-    qulonglong operationId = 0;
-    if (!call(this, &TokensApi::fetchCertificate, Proof::Call::BlockEvents, operationId)) {
-
-        RestAnswerHandler handler = [this](qulonglong operationId, QNetworkReply *reply) {
-            emit certificateFetched(operationId, reply->readAll());
-        };
-        d->get(operationId, std::move(handler), QStringLiteral("/Token/GetCertificate"));
-    }
-    return operationId;
+    return d->unmarshalReply(d->get(QStringLiteral("/Token/GetCertificate")),
+                             [](const QByteArray &data){return QString(data);});
 }
 
-void TokensApiPrivate::extractToken(qulonglong operationId, QNetworkReply *reply)
+std::function<UmsTokenInfoSP(const QByteArray &)> TokensApiPrivate::tokenUnmarshaller()
 {
-    Q_Q(TokensApi);
+    return [this](const QByteArray &data) -> UmsTokenInfoSP {
+        QString token = QJsonDocument::fromJson(data).object().value(QStringLiteral("access_token")).toString();
+        QByteArrayList tokenList = token.toUtf8().split('.');
 
-    QString token = QJsonDocument::fromJson(reply->readAll()).object().value(QStringLiteral("access_token")).toString();
-    QByteArrayList tokenList = token.toUtf8().split('.');
+        Proof::Ums::UmsTokenInfoSP tokenInfo;
+        bool signatureVerified = verifyToken(tokenList);
+        if (signatureVerified && tokenList.count() == 3) {
+            QJsonObject payload = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList[1])).object();
+            tokenInfo = Proof::Ums::UmsTokenInfo::fromJson(payload, token);
+        }
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo;
-    bool signatureVerified = verifyToken(tokenList);
-    if (signatureVerified && tokenList.count() == 3) {
-        QJsonObject payload = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList[1])).object();
-        tokenInfo = Proof::Ums::UmsTokenInfo::fromJson(payload, token);
-    }
-
-    if (!signatureVerified) {
-        emit q->apiErrorOccurred(operationId, {RestApiError::Level::ClientError, 0,
-                                            NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidTokenSignature,
-                                            QStringLiteral("Token signature verification failed")});
-    } else if (token.isEmpty() || !tokenInfo || !tokenInfo->isDirty()) {
-        emit q->apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
-                                            NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidReply,
-                                            QStringLiteral("Failed to parse JSON from server reply")});
-    } else {
-        emit q->tokenFetched(operationId, tokenInfo);
-    }
+        if (!signatureVerified) {
+            return WithFailure(QStringLiteral("Token signature verification failed"),
+                               NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidTokenSignature);
+        } else if (token.isEmpty() || !tokenInfo || !tokenInfo->isDirty()) {
+            return WithFailure(QStringLiteral("Failed to parse JSON from server reply"),
+                               NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidReply);
+        }
+        return tokenInfo;
+    };
 }
 
 bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)

@@ -57,17 +57,7 @@ TEST_F(TokensApiTest, fetchToken)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    QSignalSpy spy(tokensApiUT, &Proof::Ums::TokensApi::tokenFetched);
-    qulonglong opId = tokensApiUT->fetchToken();
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    qulonglong retOpId = arguments.at(0).toULongLong();
-    EXPECT_EQ(opId, retOpId);
-
-    Proof::Ums::UmsTokenInfoSP tokenInfo = qvariant_cast<Proof::Ums::UmsTokenInfoSP>(arguments.at(1));
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchToken()->result();
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
@@ -82,17 +72,7 @@ TEST_F(TokensApiTest, fetchTokenByBarcode)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    QSignalSpy spy(tokensApiUT, &Proof::Ums::TokensApi::tokenFetched);
-    qulonglong opId = tokensApiUT->fetchTokenByBarcode("");
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    qulonglong retOpId = arguments.at(0).toULongLong();
-    EXPECT_EQ(opId, retOpId);
-
-    Proof::Ums::UmsTokenInfoSP tokenInfo = qvariant_cast<Proof::Ums::UmsTokenInfoSP>(arguments.at(1));
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByBarcode("")->result();
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
@@ -107,17 +87,7 @@ TEST_F(TokensApiTest, fetchTokenByLogin)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    QSignalSpy spy(tokensApiUT, &Proof::Ums::TokensApi::tokenFetched);
-    qulonglong opId = tokensApiUT->fetchTokenByLogin("", "");
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    qulonglong retOpId = arguments.at(0).toULongLong();
-    EXPECT_EQ(opId, retOpId);
-
-    Proof::Ums::UmsTokenInfoSP tokenInfo = qvariant_cast<Proof::Ums::UmsTokenInfoSP>(arguments.at(1));
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByLogin("", "")->result();
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
@@ -132,17 +102,7 @@ TEST_F(TokensApiTest, refreshToken)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    QSignalSpy spy(tokensApiUT, &Proof::Ums::TokensApi::tokenFetched);
-    qulonglong opId = tokensApiUT->refreshToken("");
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    qulonglong retOpId = arguments.at(0).toULongLong();
-    EXPECT_EQ(opId, retOpId);
-
-    Proof::Ums::UmsTokenInfoSP tokenInfo = qvariant_cast<Proof::Ums::UmsTokenInfoSP>(arguments.at(1));
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->refreshToken("")->result();
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
@@ -154,16 +114,7 @@ TEST_F(TokensApiTest, fetchPublicKey)
     ASSERT_TRUE(serverRunner->serverIsRunning());
     serverRunner->setServerAnswer("12345");
 
-    QSignalSpy spy(tokensApiUT, &Proof::Ums::TokensApi::publicKeyFetched);
-    qulonglong opId = tokensApiUT->fetchPublicKey();
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    qulonglong retOpId = arguments.at(0).toULongLong();
-    EXPECT_EQ(opId, retOpId);
-    QString answer = qvariant_cast<QString>(arguments.at(1));
+    QString answer = tokensApiUT->fetchPublicKey()->result();
     EXPECT_EQ("12345", answer);
 }
 
@@ -172,15 +123,6 @@ TEST_F(TokensApiTest, fetchCertificate)
     ASSERT_TRUE(serverRunner->serverIsRunning());
     serverRunner->setServerAnswer("12345");
 
-    QSignalSpy spy(tokensApiUT, &Proof::Ums::TokensApi::certificateFetched);
-    qulonglong opId = tokensApiUT->fetchCertificate();
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    qulonglong retOpId = arguments.at(0).toULongLong();
-    EXPECT_EQ(opId, retOpId);
-    QString answer = qvariant_cast<QString>(arguments.at(1));
+    QString answer = tokensApiUT->fetchCertificate()->result();
     EXPECT_EQ("12345", answer);
 }
