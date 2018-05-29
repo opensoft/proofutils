@@ -5,8 +5,6 @@
 #include "proofnetwork/proofservicerestapi_p.h"
 #include "proofnetwork/lprprinter/errormessages_p.h"
 
-#include <QSet>
-#include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -21,151 +19,126 @@ class LprPrinterApiPrivate : public ProofServiceRestApiPrivate
 
     LprPrinterApiPrivate() : ProofServiceRestApiPrivate(lprPrinterServiceErrors()) {}
 
-    bool parsePrinterStatus(qulonglong operationId, QNetworkReply *reply, LprPrinterStatus &result);
+    auto printerStatusUnmarshaller()
+    {
+        return [](const QByteArray &data) -> LprPrinterStatus {
+            QJsonParseError jsonError;
+            QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+            if (jsonError.error != QJsonParseError::NoError) {
+                return WithFailure(QStringLiteral("JSON error: %1").arg(jsonError.errorString()),
+                                   NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
+                                   Failure::NoHint, jsonError.error);
+            }
+            if (!doc.isObject()) {
+                return WithFailure(QStringLiteral("Object is not found in document"),
+                                   NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply);
+            }
+            QJsonObject object = doc.object();
+            return LprPrinterStatus{object.value("is_ready").toBool(), object.value("reason").toString()};
+        };
+    }
+
+    auto discardingPrinterStatusUnmarshaller()
+    {
+        return [](const QByteArray &data) -> bool {
+            QJsonParseError jsonError;
+            QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+            if (jsonError.error != QJsonParseError::NoError) {
+                return WithFailure(QStringLiteral("JSON error: %1").arg(jsonError.errorString()),
+                                   NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
+                                   Failure::NoHint, jsonError.error);
+            }
+            if (!doc.isObject()) {
+                return WithFailure(QStringLiteral("Object is not found in document"),
+                                   NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply);
+            }
+            QJsonObject object = doc.object();
+            if (!object.value("is_ready").toBool()) {
+                return WithFailure(object.value("reason").toString(),
+                                   NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::ServerError);
+            }
+            return true;
+        };
+    }
 };
+}
+}
+
+using namespace Proof;
+using namespace Proof::NetworkServices;
 
 LprPrinterApi::LprPrinterApi(const RestClientSP &restClient, QObject *parent)
     : ProofServiceRestApi(restClient, *new LprPrinterApiPrivate, parent)
 {
 }
 
-qulonglong LprPrinterApi::fetchStatus(const QString& printer)
+CancelableFuture<LprPrinterStatus> LprPrinterApi::fetchStatus(const QString& printer)
 {
     Q_D(LprPrinterApi);
-    qulonglong operationId = 0;
-    if (!call(this, &LprPrinterApi::fetchStatus, Proof::Call::BlockEvents, operationId, printer)) {
-        RestAnswerHandler handler = [this, d](qulonglong operationId, QNetworkReply *reply) {
-            LprPrinterStatus status;
-            if (d->parsePrinterStatus(operationId, reply, status))
-                emit statusFetched(operationId, status);
-        };
-        QUrlQuery query;
-        if (!printer.isEmpty())
-            query.addQueryItem(QStringLiteral("printer"), printer);
-        d->get(operationId, std::move(handler), QStringLiteral("/lpr/status"), query);
-    }
-    return operationId;
+    QUrlQuery query;
+    if (!printer.isEmpty())
+        query.addQueryItem(QStringLiteral("printer"), printer);
+    return d->unmarshalReply(d->get(QStringLiteral("/lpr/status"), query), d->printerStatusUnmarshaller());
 }
 
-qulonglong LprPrinterApi::printLabel(const QByteArray &label, const QString& printer)
+CancelableFuture<bool> LprPrinterApi::printLabel(const QByteArray &label, const QString& printer)
 {
     Q_D(LprPrinterApi);
-    qulonglong operationId = 0;
-    if (!call(this, &LprPrinterApi::printLabel, Proof::Call::BlockEvents, operationId, label, printer)) {
-        RestAnswerHandler handler = [this, d](qulonglong operationId, QNetworkReply *reply) {
-            LprPrinterStatus status;
-            if (d->parsePrinterStatus(operationId, reply, status)) {
-                if (status.isReady)
-                    emit labelPrinted(operationId);
-                else
-                    emit apiErrorOccurred(operationId, {RestApiError::Level::ServerError, 0,
-                                                     NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::ServerError,
-                                                     status.reason});
-            }
-        };
-        QUrlQuery query;
-        if (!printer.isEmpty())
-            query.addQueryItem(QStringLiteral("printer"), printer);
-        d->post(operationId, std::move(handler), QStringLiteral("/lpr/print-raw"), query,
-                QStringLiteral("{\"data\": \"%1\"}").arg(label.toBase64().constData()).toLatin1());
-    }
-    return operationId;
+    QUrlQuery query;
+    if (!printer.isEmpty())
+        query.addQueryItem(QStringLiteral("printer"), printer);
+    return d->unmarshalReply(d->post(QStringLiteral("/lpr/print-raw"), query,
+                                     QStringLiteral("{\"data\": \"%1\"}").arg(label.toBase64().constData()).toLatin1()),
+                             d->discardingPrinterStatusUnmarshaller());
 }
 
-qulonglong LprPrinterApi::printFile(const QString& fileName, const QString& printer, unsigned int copies)
+CancelableFuture<bool> LprPrinterApi::printFile(const QString& fileName, const QString& printer, unsigned int copies)
 {
     Q_D(LprPrinterApi);
-    qulonglong operationId = 0;
-    if (!call(this, &LprPrinterApi::printFile, Proof::Call::BlockEvents, operationId, fileName, printer, copies)) {
-        RestAnswerHandler handler = [this, d](qulonglong operationId, QNetworkReply *reply) {
-            LprPrinterStatus status;
-            if (d->parsePrinterStatus(operationId, reply, status)) {
-                if (status.isReady)
-                    emit filePrinted(operationId);
-                else
-                    emit apiErrorOccurred(operationId, {RestApiError::Level::ServerError, 0,
-                                                     NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::ServerError,
-                                                     status.reason});
-            }
-        };
-        QFile file(fileName);
-        if (!file.open(QIODevice::ReadOnly)) {
-            qCWarning(proofNetworkLprPrinterLog) << "Lpr-Printer: file error:" << file.error() << file.errorString();
-            emit apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
-                                             NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError,
-                                             QStringLiteral("Can't open file")});
-            return operationId;
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCWarning(proofNetworkLprPrinterLog) << "Lpr-Printer: file error:" << file.error() << file.errorString();
+        return d->invalidArgumentsFailure<bool>(Failure(QStringLiteral("Can't open file"),
+                                                        NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError));
+    }
+    QByteArray data = file.readAll();
+    if (file.error() != QFileDevice::NoError) {
+        qCWarning(proofNetworkLprPrinterLog) << "Lpr-Printer: file error:" << file.error() << file.errorString();
+        return d->invalidArgumentsFailure<bool>(Failure(QStringLiteral("Can't read file"),
+                                                        NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError));
+    }
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("copies"), QString::number(copies));
+    if (!printer.isEmpty())
+        query.addQueryItem(QStringLiteral("printer"), printer);
+    return d->unmarshalReply(d->post(QStringLiteral("/lpr/print"), query, data),
+                             d->discardingPrinterStatusUnmarshaller());
+}
+
+CancelableFuture<QList<LprPrinterInfo>> LprPrinterApi::fetchPrintersList()
+{
+    Q_D(LprPrinterApi);
+    auto unmarshaller = [](const QByteArray &data) -> QList<LprPrinterInfo> {
+        QJsonParseError jsonError;
+        QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+        if (jsonError.error != QJsonParseError::NoError) {
+            return WithFailure(QStringLiteral("JSON error: %1").arg(jsonError.errorString()),
+                               NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
+                               Failure::NoHint, jsonError.error);
         }
-        QByteArray data = file.readAll();
-        if (file.error() != QFileDevice::NoError) {
-            qCWarning(proofNetworkLprPrinterLog) << "Lpr-Printer: file error:" << file.error() << file.errorString();
-            emit apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
-                                             NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError,
-                                             QStringLiteral("Can't read file")});
-            return operationId;
+        if (!doc.isArray()) {
+            return WithFailure(QStringLiteral("Array is not found in document"),
+                               NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply);
         }
-        QUrlQuery query;
-        query.addQueryItem(QStringLiteral("copies"), QString::number(copies));
-        if (!printer.isEmpty())
-            query.addQueryItem(QStringLiteral("printer"), printer);
-        d->post(operationId, std::move(handler), QStringLiteral("/lpr/print"), query, data);
-    }
-    return operationId;
+        QList<LprPrinterInfo> printers;
+        const QJsonArray array = doc.array();
+        for (const QJsonValue &value : array) {
+            QJsonObject object = value.toObject();
+            QString printer = object.value(QStringLiteral("printer")).toString();
+            if (!printer.isEmpty())
+                printers << LprPrinterInfo{printer, object.value("accepts_raw").toBool(), object.value("accepts_files").toBool()};
+        }
+        return printers;
+    };
+    return d->unmarshalReply(d->get(QStringLiteral("/lpr/list")), unmarshaller);
 }
-
-qulonglong LprPrinterApi::fetchPrintersList()
-{
-    Q_D(LprPrinterApi);
-    qulonglong operationId = 0;
-    if (!call(this, &LprPrinterApi::fetchPrintersList, Proof::Call::BlockEvents, operationId)) {
-        RestAnswerHandler handler = [this](qulonglong operationId, QNetworkReply *reply) {
-            QJsonParseError jsonError;
-            QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
-            if (jsonError.error != QJsonParseError::NoError) {
-                emit apiErrorOccurred(operationId, RestApiError{RestApiError::Level::JsonParseError, jsonError.error,
-                                                             NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
-                                                             QStringLiteral("JSON error: %1").arg(jsonError.errorString())});
-            } else if (!doc.isArray()) {
-                emit apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
-                                                 NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
-                                                 QStringLiteral("Array is not found in document")});
-            } else {
-                QList<LprPrinterInfo> printers;
-                QJsonArray array = doc.array();
-                for (const QJsonValue &value : array) {
-                    QJsonObject object = value.toObject();
-                    QString printer = object.value(QStringLiteral("printer")).toString();
-                    if (!printer.isEmpty())
-                        printers << LprPrinterInfo{printer, object.value("accepts_raw").toBool(), object.value("accepts_files").toBool()};
-                }
-                emit printersListFetched(operationId, printers);
-            }
-        };
-        d->get(operationId, std::move(handler), QStringLiteral("/lpr/list"));
-    }
-    return operationId;
-}
-
-bool LprPrinterApiPrivate::parsePrinterStatus(qulonglong operationId, QNetworkReply *reply, LprPrinterStatus &result)
-{
-    Q_Q(LprPrinterApi);
-    QJsonParseError jsonError;
-    QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
-    if (jsonError.error != QJsonParseError::NoError) {
-        emit q->apiErrorOccurred(operationId, RestApiError{RestApiError::Level::JsonParseError, jsonError.error,
-                                                        NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
-                                                        QStringLiteral("JSON error: %1").arg(jsonError.errorString())});
-    } else if (!doc.isObject()) {
-        emit q->apiErrorOccurred(operationId, {RestApiError::Level::JsonDataError, 0,
-                                            NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply,
-                                            QStringLiteral("Object is not found in document")});
-    } else {
-        QJsonObject object = doc.object();
-        result = LprPrinterStatus{object.value("is_ready").toBool(), object.value("reason").toString()};
-        return true;
-    }
-    return false;
-}
-
-} // namespace NetworkServices
-} // namespace Proof

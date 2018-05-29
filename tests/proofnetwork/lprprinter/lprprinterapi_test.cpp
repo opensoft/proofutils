@@ -4,10 +4,6 @@
 
 #include "proofnetwork/lprprinter/lprprinterapi.h"
 
-#include <QSignalSpy>
-#include <QJsonDocument>
-#include <QImage>
-
 using namespace Proof::NetworkServices;
 using testing::Test;
 
@@ -52,18 +48,7 @@ TEST_F(LprPrinterApiTest, fetchStatus)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::statusFetched);
-    const qulonglong operationId = lprPrinterApi->fetchStatus();
-
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    EXPECT_EQ(operationId, arguments[0].toULongLong());
-
-    auto result = qvariant_cast<Proof::NetworkServices::LprPrinterStatus>(arguments[1]);
+    auto result = lprPrinterApi->fetchStatus()->result();
     EXPECT_TRUE(result.isReady);
     EXPECT_EQ("", result.reason);
 }
@@ -76,18 +61,7 @@ TEST_F(LprPrinterApiTest, fetchBadStatus)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::statusFetched);
-    const qulonglong operationId = lprPrinterApi->fetchStatus();
-
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    EXPECT_EQ(operationId, arguments[0].toULongLong());
-
-    auto result = qvariant_cast<Proof::NetworkServices::LprPrinterStatus>(arguments[1]);
+    auto result = lprPrinterApi->fetchStatus()->result();
     EXPECT_FALSE(result.isReady);
     EXPECT_EQ("Some error occurred", result.reason);
 }
@@ -100,16 +74,10 @@ TEST_F(LprPrinterApiTest, printLabel)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::labelPrinted);
-    const qulonglong operationId = lprPrinterApi->printLabel("something");
-
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(1, arguments.count());
-
-    EXPECT_EQ(operationId, arguments[0].toULongLong());
+    auto result = lprPrinterApi->printLabel("something");
+    result->wait();
+    ASSERT_TRUE(result->succeeded());
+    EXPECT_TRUE(result->result());
 }
 
 TEST_F(LprPrinterApiTest, failedPrintLabel)
@@ -120,23 +88,10 @@ TEST_F(LprPrinterApiTest, failedPrintLabel)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::labelPrinted);
-    QSignalSpy errorSpy(lprPrinterApi, &LprPrinterApi::apiErrorOccurred);
-    const qulonglong operationId = lprPrinterApi->printLabel("something");
-
-    ASSERT_TRUE(errorSpy.wait());
-    ASSERT_FALSE(spy.wait(100));
-    EXPECT_EQ(1, errorSpy.count());
-    EXPECT_EQ(0, spy.count());
-
-    QList<QVariant> arguments = errorSpy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    EXPECT_EQ(operationId, arguments[0].toULongLong());
-
-    auto result = qvariant_cast<Proof::RestApiError>(arguments[1]);
-    EXPECT_EQ(Proof::RestApiError::Level::ServerError, result.level);
-    EXPECT_EQ("Some error occurred", result.message);
+    auto result = lprPrinterApi->printLabel("something");
+    result->wait();
+    ASSERT_TRUE(result->failed());
+    EXPECT_EQ("Some error occurred", result->failureReason().message);
 }
 
 TEST_F(LprPrinterApiTest, printFile)
@@ -147,16 +102,10 @@ TEST_F(LprPrinterApiTest, printFile)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::filePrinted);
-    const qulonglong operationId = lprPrinterApi->printFile(":/data/status.json");
-
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(1, arguments.count());
-
-    EXPECT_EQ(operationId, arguments[0].toULongLong());
+    auto result = lprPrinterApi->printFile(":/data/status.json");
+    result->wait();
+    ASSERT_TRUE(result->succeeded());
+    EXPECT_TRUE(result->result());
 }
 
 TEST_F(LprPrinterApiTest, failedPrintFile)
@@ -167,23 +116,10 @@ TEST_F(LprPrinterApiTest, failedPrintFile)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::filePrinted);
-    QSignalSpy errorSpy(lprPrinterApi, &LprPrinterApi::apiErrorOccurred);
-    const qulonglong operationId = lprPrinterApi->printFile(":/data/status.json");
-
-    ASSERT_TRUE(errorSpy.wait());
-    ASSERT_FALSE(spy.wait(100));
-    EXPECT_EQ(1, errorSpy.count());
-    EXPECT_EQ(0, spy.count());
-
-    QList<QVariant> arguments = errorSpy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    EXPECT_EQ(operationId, arguments[0].toULongLong());
-
-    auto result = qvariant_cast<Proof::RestApiError>(arguments[1]);
-    EXPECT_EQ(Proof::RestApiError::Level::ServerError, result.level);
-    EXPECT_EQ("Some error occurred", result.message);
+    auto result = lprPrinterApi->printFile(":/data/status.json");
+    result->wait();
+    ASSERT_TRUE(result->failed());
+    EXPECT_EQ("Some error occurred", result->failureReason().message);
 }
 
 TEST_F(LprPrinterApiTest, fetchPrintersList)
@@ -194,18 +130,7 @@ TEST_F(LprPrinterApiTest, fetchPrintersList)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    QSignalSpy spy(lprPrinterApi, &LprPrinterApi::printersListFetched);
-    const qulonglong operationId = lprPrinterApi->fetchPrintersList();
-
-    ASSERT_TRUE(spy.wait());
-    EXPECT_EQ(1, spy.count());
-
-    QList<QVariant> arguments = spy.takeFirst();
-    ASSERT_EQ(2, arguments.count());
-
-    EXPECT_EQ(operationId, arguments[0].toULongLong());
-
-    const QList<Proof::NetworkServices::LprPrinterInfo> printers = qvariant_cast<QList<Proof::NetworkServices::LprPrinterInfo>>(arguments[1]);
+    const QList<Proof::NetworkServices::LprPrinterInfo> printers = lprPrinterApi->fetchPrintersList()->result();
     ASSERT_EQ(2, printers.count());
 
     EXPECT_EQ("Zebra", printers[0].printer);

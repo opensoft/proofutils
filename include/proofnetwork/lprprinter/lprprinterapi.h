@@ -32,16 +32,10 @@ class PROOF_NETWORK_LPRPRINTER_EXPORT LprPrinterApi : public ProofServiceRestApi
 public:
     explicit LprPrinterApi(const RestClientSP &restClient, QObject *parent = nullptr);
 
-    qulonglong fetchStatus(const QString &printer = QString());
-    qulonglong printLabel(const QByteArray &label, const QString &printer = QString());
-    qulonglong printFile(const QString &fileName, const QString &printer = QString(), unsigned int copies = 1);
-    qulonglong fetchPrintersList();
-
-signals:
-    void statusFetched(qulonglong operationId, const Proof::NetworkServices::LprPrinterStatus &status);
-    void labelPrinted(qulonglong operationId);
-    void filePrinted(qulonglong operationId);
-    void printersListFetched(qulonglong operationId, const QList<Proof::NetworkServices::LprPrinterInfo> &printers);
+    CancelableFuture<LprPrinterStatus> fetchStatus(const QString &printer = QString());
+    CancelableFuture<bool> printLabel(const QByteArray &label, const QString &printer = QString());
+    CancelableFuture<bool> printFile(const QString &fileName, const QString &printer = QString(), unsigned int copies = 1);
+    CancelableFuture<QList<LprPrinterInfo>> fetchPrintersList();
 };
 
 }

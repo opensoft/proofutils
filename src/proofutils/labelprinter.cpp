@@ -86,10 +86,7 @@ FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrin
 #else
     Q_UNUSED(ignorePrinterState)
 #endif
-    return ApiCall<void>::exec(d->labelPrinterApi,
-                               &Proof::NetworkServices::LprPrinterApi::printLabel,
-                               &Proof::NetworkServices::LprPrinterApi::labelPrinted,
-                               label, d->printerName);
+    return d->labelPrinterApi->printLabel(label, d->printerName);
 }
 
 FutureSP<bool> LabelPrinter::printerIsReady() const
@@ -99,11 +96,7 @@ FutureSP<bool> LabelPrinter::printerIsReady() const
     if (d->hardwareLabelPrinter)
         return Future<bool>::successful(d->hardwareLabelPrinter->printerIsReady());
 #endif
-    auto result = ApiCall<Proof::NetworkServices::LprPrinterStatus>::exec(d->labelPrinterApi,
-                                                                          &Proof::NetworkServices::LprPrinterApi::fetchStatus,
-                                                                          &Proof::NetworkServices::LprPrinterApi::statusFetched,
-                                                                          d->printerName);
-    return result->map([](const auto &status) -> bool {
+    return d->labelPrinterApi->fetchStatus(d->printerName)->map([](const auto &status) -> bool {
         if (status.isReady)
             return true;
         else
