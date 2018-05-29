@@ -163,9 +163,9 @@ void UmsTokenInfoPrivate::setValidFrom(const QDateTime &arg)
 UmsUserSP UmsTokenInfoPrivate::updateUser(const QString &arg)
 {
     Q_Q(UmsTokenInfo);
-    return updateEntityField<UmsTokenInfo, UmsUser, QString>(user, arg,
-                                                             umsUsersCache(), &UmsUser::userName,
-                                                             q, &UmsTokenInfo::userChanged);
+    return updateEntityField(user, arg,
+                             umsUsersCache(), &UmsUser::userName,
+                             q, &UmsTokenInfo::userChanged);
 }
 
 void UmsTokenInfoPrivate::setToken(const QString &arg)
