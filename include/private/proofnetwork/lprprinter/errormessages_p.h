@@ -12,4 +12,3 @@ QSharedPointer<ErrorMessagesRegistry> lprPrinterServiceErrors();
 } // namespace Proof
 
 #endif // ERRORMESSAGES_P_H
-

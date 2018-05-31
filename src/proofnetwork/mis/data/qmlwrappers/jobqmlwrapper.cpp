@@ -1,8 +1,8 @@
 #include "jobqmlwrapper.h"
 
+#include "proofnetwork/jdf/data/qmlwrappers/bundleitemqmlwrapper.h"
 #include "proofnetwork/mis/data/job.h"
 #include "proofnetwork/qmlwrappers/networkdataentityqmlwrapper_p.h"
-#include "proofnetwork/jdf/data/qmlwrappers/bundleitemqmlwrapper.h"
 
 namespace Proof {
 namespace Mis {
@@ -10,7 +10,6 @@ namespace Mis {
 class JobQmlWrapperPrivate : public NetworkDataEntityQmlWrapperPrivate
 {
     Q_DECLARE_PUBLIC(JobQmlWrapper)
-
 };
 
 JobQmlWrapper::JobQmlWrapper(const JobSP &job, QObject *parent)
@@ -20,8 +19,7 @@ JobQmlWrapper::JobQmlWrapper(const JobSP &job, QObject *parent)
 }
 
 JobQmlWrapper::~JobQmlWrapper()
-{
-}
+{}
 
 PROOF_NDE_WRAPPER_TOOLS_IMPL(Job)
 
@@ -78,9 +76,7 @@ void JobQmlWrapper::setupEntity(const QSharedPointer<NetworkDataEntity> &old)
             emit hasPreviewChanged(job->hasPreview());
     }
     emit workflowChanged();
-
 }
 
-}
-}
-
+} // namespace Mis
+} // namespace Proof

@@ -2,6 +2,7 @@
 #define PROOF_NETWORKCONFIGURATIONMANAGER_H
 
 #include "proofutils_global.h"
+
 #include "proofcore/proofobject.h"
 
 namespace Proof {
@@ -16,14 +17,16 @@ class PROOF_UTILS_EXPORT NetworkConfigurationManager : public ProofObject
     Q_PROPERTY(bool ipSettingsSupported READ ipSettingsSupported CONSTANT)
     Q_PROPERTY(bool vpnSettingsSupported READ vpnSettingsSupported CONSTANT)
 
-    enum class VpnState {
+    enum class VpnState
+    {
         Starting = 0,
         Stopping = 1,
         Other = 2
     };
 
 public:
-    enum class ProxyType {
+    enum class ProxyType
+    {
         NoProxyType,
         HttpProxyType,
         SocksProxyType,
@@ -42,14 +45,18 @@ public:
     Q_INVOKABLE QVariantMap addresses() const;
     Q_INVOKABLE void fetchNetworkInterfaces();
     Q_INVOKABLE void fetchNetworkConfiguration(const QString &networkAdapterDescription);
-    Q_INVOKABLE void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
-                                               const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
+    Q_INVOKABLE void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled,
+                                               const QString &ipv4Address, const QString &subnetMask,
+                                               const QString &gateway, const QString &preferredDns,
+                                               const QString &alternateDns, const QString &password);
     Q_INVOKABLE QList<int> proxyTypes() const;
     Q_INVOKABLE void fetchProxySettings();
-    Q_INVOKABLE void writeProxySettings(ProxyType proxyType, const QString &host, quint16 port, const QString &userName, const QString &password);
+    Q_INVOKABLE void writeProxySettings(ProxyType proxyType, const QString &host, quint16 port, const QString &userName,
+                                        const QString &password);
     Q_INVOKABLE bool vpnEnabled();
     Q_INVOKABLE void fetchVpnConfiguration();
-    Q_INVOKABLE void writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password);
+    Q_INVOKABLE void writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration,
+                                           const QString &password);
     Q_INVOKABLE void turnOnVpn(const QString &password);
     Q_INVOKABLE void turnOffVpn(const QString &password);
     Q_INVOKABLE void skipSwitchingVpnCheck();
@@ -65,7 +72,8 @@ signals:
                                      const QString &gateway, const QString &preferredDns, const QString &alternateDns);
     void networkConfigurationWritten();
 
-    void proxySettingsFetched(Proof::NetworkConfigurationManager::ProxyType type, const QString &url, quint16 port, const QString &userName, const QString &password);
+    void proxySettingsFetched(Proof::NetworkConfigurationManager::ProxyType type, const QString &url, quint16 port,
+                              const QString &userName, const QString &password);
     void proxySettingsWritten();
 
     void vpnConfigurationFetched(const QString &absoluteFilePath, const QString &configuration);

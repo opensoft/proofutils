@@ -1,13 +1,14 @@
 #ifndef PROOF_MIS_JOB_H
 #define PROOF_MIS_JOB_H
 
-#include "proofnetwork/networkdataentity.h"
 #include "proofcore/objectscache.h"
-#include "proofnetwork/mis/proofnetworkmis_types.h"
-#include "proofnetwork/mis/proofnetworkmis_global.h"
+
 #include "proofnetwork/mis/apihelper.h"
 #include "proofnetwork/mis/data/qmlwrappers/jobqmlwrapper.h"
 #include "proofnetwork/mis/data/workflowelement.h"
+#include "proofnetwork/mis/proofnetworkmis_global.h"
+#include "proofnetwork/mis/proofnetworkmis_types.h"
+#include "proofnetwork/networkdataentity.h"
 
 #include <QJsonObject>
 
@@ -30,11 +31,8 @@ public:
     double height() const;
     QString source() const;
     bool hasPreview() const;
-    void setWorkflowStatus(WorkflowAction action,
-                           WorkflowStatus status,
-                           PaperSide paperSide = PaperSide::NotSetSide);
-    WorkflowStatus workflowStatus(WorkflowAction action,
-                                  PaperSide paperSide = PaperSide::NotSetSide) const;
+    void setWorkflowStatus(WorkflowAction action, WorkflowStatus status, PaperSide paperSide = PaperSide::NotSetSide);
+    WorkflowStatus workflowStatus(WorkflowAction action, PaperSide paperSide = PaperSide::NotSetSide) const;
 
     void setStatus(EntityStatus status);
     void setName(const QString &name);
@@ -68,12 +66,11 @@ signals:
 
 protected:
     explicit Job(const QString &id, const QString &source);
-
 };
 
 PROOF_NETWORK_MIS_EXPORT ObjectsCache<JobCacheKey, Job> &jobsCache();
 
-}
-}
+} // namespace Mis
+} // namespace Proof
 
 #endif // PROOF_MIS_JOB_H

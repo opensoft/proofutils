@@ -29,6 +29,6 @@ private:
     QScopedPointer<IpAddressValidatorPrivate> d_ptr;
 };
 
-}
+} // namespace Proof
 
 #endif // IPADDRESSVALIDATOR_H

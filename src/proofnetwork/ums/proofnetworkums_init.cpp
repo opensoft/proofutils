@@ -1,8 +1,7 @@
-#include "data/umsuser.h"
-
-#include "data/umsuser.h"
 #include "data/umstokeninfo.h"
+#include "data/umsuser.h"
 #include "proofnetworkums_global.h"
+
 #include "proofcore/proofglobal.h"
 
 #include <QtQml/QQmlListProperty>
@@ -12,7 +11,7 @@ Q_LOGGING_CATEGORY(proofNetworkUmsDataLog, "proof.network.ums.data")
 
 PROOF_LIBRARY_INITIALIZER(libraryInit)
 {
-    //clang-format off
+    // clang-format off
     qRegisterMetaType<Proof::Ums::UmsUserSP>("Proof::Ums::UmsUserSP");
     qRegisterMetaType<Proof::Ums::UmsUserWP>("Proof::Ums::UmsUserWP");
     qRegisterMetaType<Proof::Ums::UmsTokenInfoSP>("Proof::Ums::UmsTokenInfoSP");
@@ -20,5 +19,5 @@ PROOF_LIBRARY_INITIALIZER(libraryInit)
 
     qRegisterMetaType<Proof::Ums::UmsUserQmlWrapper *>("Proof::Ums::UmsUserQmlWrapper *");
     qRegisterMetaType<Proof::Ums::UmsTokenInfoQmlWrapper *>("Proof::Ums::UmsTokenInfoQmlWrapper *");
-    //clang-format on
+    // clang-format on
 }

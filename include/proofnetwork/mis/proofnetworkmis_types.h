@@ -13,7 +13,7 @@ class Job;
 using JobSP = QSharedPointer<Job>;
 using JobWP = QWeakPointer<Job>;
 
-}
-}
+} // namespace Mis
+} // namespace Proof
 
 #endif // PROOFNETWORKMIS_TYPES_H

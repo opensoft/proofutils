@@ -2,11 +2,11 @@
 #define PROOF_UMS_UMSTOKENINFOQMLWRAPPER_H
 
 #include "proofnetwork/ums/data/qmlwrappers/umsuserqmlwrapper.h"
-#include "proofnetwork/ums/proofnetworkums_types.h"
 #include "proofnetwork/ums/proofnetworkums_global.h"
+#include "proofnetwork/ums/proofnetworkums_types.h"
 
-#include <QtQml/QQmlListProperty>
 #include <QDateTime>
+#include <QtQml/QQmlListProperty>
 
 namespace Proof {
 namespace Ums {
@@ -39,9 +39,10 @@ signals:
     void userChanged(Proof::Ums::UmsUserQmlWrapper *user);
 
 protected:
-    void setupEntity(const QSharedPointer<Proof::NetworkDataEntity> &old = QSharedPointer<Proof::NetworkDataEntity>()) override;
+    void
+    setupEntity(const QSharedPointer<Proof::NetworkDataEntity> &old = QSharedPointer<Proof::NetworkDataEntity>()) override;
 };
 
-}
-}
+} // namespace Ums
+} // namespace Proof
 #endif // PROOF_UMS_UMSTOKENINFOQMLWRAPPER_H

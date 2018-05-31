@@ -1,22 +1,20 @@
 // clazy:skip
 
-#include "gtest/test_global.h"
-
 #include "proofnetwork/mis/data/job.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSignalSpy>
 
+#include "gtest/test_global.h"
+
 using namespace Proof::Mis;
 using testing::Test;
 
-class JobTest: public Test
+class JobTest : public Test
 {
 public:
-    JobTest()
-    {
-    }
+    JobTest() {}
 
 protected:
     void SetUp() override
@@ -35,10 +33,7 @@ protected:
         qmlWrapperUT = jobUT->toQmlWrapper();
     }
 
-    void TearDown() override
-    {
-        delete qmlWrapperUT;
-    }
+    void TearDown() override { delete qmlWrapperUT; }
 
 protected:
     QJsonDocument jsonDoc;
@@ -101,8 +96,7 @@ TEST_F(JobTest, customJob)
     job->setWidth(1024.0);
     job->setHeight(512.0);
     job->setHasPreview(true);
-    job->setWorkflowStatus(WorkflowAction::CuttingAction,
-                             WorkflowStatus::IsReadyForStatus);
+    job->setWorkflowStatus(WorkflowAction::CuttingAction, WorkflowStatus::IsReadyForStatus);
     job->setStatus(EntityStatus::NotReadyEntity);
     EXPECT_EQ("123", job->id());
     EXPECT_EQ("I-123", job->name());
@@ -121,10 +115,10 @@ TEST_F(JobTest, updateFrom)
 
     jobUT->updateFrom(jobUT2);
 
-    for (QSignalSpy *spy: qmlspies)
+    for (QSignalSpy *spy : qmlspies)
         EXPECT_EQ(1, spy->count()) << spy->signal().constData();
 
-    for (QSignalSpy *spy: spies)
+    for (QSignalSpy *spy : spies)
         EXPECT_EQ(1, spy->count()) << spy->signal().constData();
 
     qDeleteAll(spies);
@@ -142,8 +136,7 @@ TEST_F(JobTest, updateFrom)
     EXPECT_EQ(jobUT2->hasPreview(), jobUT->hasPreview());
     EXPECT_EQ(jobUT2->workflowStatus(WorkflowAction::CuttingAction),
               jobUT->workflowStatus(WorkflowAction::CuttingAction));
-    EXPECT_EQ(jobUT2->workflowStatus(WorkflowAction::BoxingAction),
-              jobUT->workflowStatus(WorkflowAction::BoxingAction));
+    EXPECT_EQ(jobUT2->workflowStatus(WorkflowAction::BoxingAction), jobUT->workflowStatus(WorkflowAction::BoxingAction));
 }
 
 TEST_F(JobTest, setWorkflowStatus)
@@ -154,4 +147,3 @@ TEST_F(JobTest, setWorkflowStatus)
     jobUT->setWorkflowStatus(WorkflowAction::CuttingAction, workflowStatusUpdate);
     EXPECT_EQ(jobUT->workflowStatus(WorkflowAction::CuttingAction), workflowStatusUpdate);
 }
-

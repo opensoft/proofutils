@@ -2,9 +2,9 @@
 #define PROOF_UMS_UMSTOKENINFO_H
 
 #include "proofnetwork/networkdataentity.h"
-#include "proofnetwork/ums/proofnetworkums_types.h"
-#include "proofnetwork/ums/proofnetworkums_global.h"
 #include "proofnetwork/ums/data/qmlwrappers/umstokeninfoqmlwrapper.h"
+#include "proofnetwork/ums/proofnetworkums_global.h"
+#include "proofnetwork/ums/proofnetworkums_types.h"
 
 namespace Proof {
 namespace Ums {

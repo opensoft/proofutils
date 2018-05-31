@@ -2,11 +2,12 @@
 #define PROOF_NETWORKSERVICES_LPRPRINTERAPI_H
 
 #include "proofnetworklprprinter_global.h"
-#include "proofnetwork/proofservicerestapi.h"
-#include "proofnetwork/jdf/proofnetworkjdf_types.h"
 
-#include <QString>
+#include "proofnetwork/jdf/proofnetworkjdf_types.h"
+#include "proofnetwork/proofservicerestapi.h"
+
 #include <QByteArray>
+#include <QString>
 
 namespace Proof {
 namespace NetworkServices {
@@ -34,12 +35,13 @@ public:
 
     CancelableFuture<LprPrinterStatus> fetchStatus(const QString &printer = QString());
     CancelableFuture<bool> printLabel(const QByteArray &label, const QString &printer = QString());
-    CancelableFuture<bool> printFile(const QString &fileName, const QString &printer = QString(), unsigned int copies = 1);
+    CancelableFuture<bool> printFile(const QString &fileName, const QString &printer = QString(),
+                                     unsigned int copies = 1);
     CancelableFuture<QList<LprPrinterInfo>> fetchPrintersList();
 };
 
-}
-}
+} // namespace NetworkServices
+} // namespace Proof
 
 Q_DECLARE_METATYPE(Proof::NetworkServices::LprPrinterStatus)
 Q_DECLARE_METATYPE(Proof::NetworkServices::LprPrinterInfo)

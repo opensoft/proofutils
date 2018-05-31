@@ -1,4 +1,5 @@
 #include "umsuser.h"
+
 #include "umsuser_p.h"
 
 namespace Proof {
@@ -8,20 +9,17 @@ ObjectsCache<QString, UmsUser> &umsUsersCache()
     return WeakObjectsCache<QString, UmsUser>::instance();
 }
 
-}
-}
+} // namespace Ums
+} // namespace Proof
 
 using namespace Proof;
 using namespace Proof::Ums;
 
-UmsUser::UmsUser(const QString &userName)
-    : User(*new UmsUserPrivate(userName))
-{
-}
+UmsUser::UmsUser(const QString &userName) : User(*new UmsUserPrivate(userName))
+{}
 
 UmsUser::~UmsUser()
-{
-}
+{}
 
 QStringList UmsUser::roles() const
 {
@@ -55,11 +53,10 @@ void UmsUserPrivate::updateFrom(const NetworkDataEntitySP &other)
 void UmsUserPrivate::setRoles(QStringList newList)
 {
     Q_Q(UmsUser);
-    std::sort(newList.begin(), newList.end(), [](const auto &l, const auto &r){return QString::compare(l, r, Qt::CaseInsensitive) < 0;});
+    std::sort(newList.begin(), newList.end(),
+              [](const auto &l, const auto &r) { return QString::compare(l, r, Qt::CaseInsensitive) < 0; });
     if (roles == newList)
         return;
     roles = newList;
     emit q->rolesChanged(roles);
 }
-
-

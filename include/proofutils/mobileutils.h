@@ -2,6 +2,7 @@
 #define PROOF_MOBILEUTILS_H
 
 #include "proofutils_global.h"
+
 #include "proofcore/proofobject.h"
 
 namespace Proof {

@@ -2,6 +2,7 @@
 #define PROOF_UMS_UMSUSER_P_H
 
 #include "umsuser.h"
+
 #include "proofnetwork/user_p.h"
 
 namespace Proof {
@@ -18,7 +19,7 @@ class UmsUserPrivate : public UserPrivate
 
     QStringList roles;
 };
-}
-}
+} // namespace Ums
+} // namespace Proof
 
 #endif // PROOF_UMS_UMSUSER_P_H

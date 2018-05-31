@@ -1,8 +1,9 @@
 #ifndef PROOF_UTILS_LABELPRINTER_H
 #define PROOF_UTILS_LABELPRINTER_H
 
-#include "proofcore/proofobject.h"
 #include "proofcore/future.h"
+#include "proofcore/proofobject.h"
+
 #include "proofutils/proofutils_global.h"
 
 namespace Proof {
@@ -13,10 +14,11 @@ struct LabelPrinterParams
 {
     LabelPrinterParams() {}
 
-    LabelPrinterParams(const QString &printerTitle, const QString &printerHost, const QString &printerName, int printerPort = 8090,
-                       bool forceServiceUsage = false, bool strictHardwareCheck = true)
-        : printerTitle(printerTitle),  printerHost(printerHost), printerName(printerName), printerPort(printerPort),
-          forceServiceUsage(forceServiceUsage), strictHardwareCheck(strictHardwareCheck) {}
+    LabelPrinterParams(const QString &printerTitle, const QString &printerHost, const QString &printerName,
+                       int printerPort = 8090, bool forceServiceUsage = false, bool strictHardwareCheck = true)
+        : printerTitle(printerTitle), printerHost(printerHost), printerName(printerName), printerPort(printerPort),
+          forceServiceUsage(forceServiceUsage), strictHardwareCheck(strictHardwareCheck)
+    {}
 
     QString printerTitle;
     QString printerHost;

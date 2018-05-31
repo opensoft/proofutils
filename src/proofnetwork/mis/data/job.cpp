@@ -168,9 +168,7 @@ void Job::setWorkflow(const QList<WorkflowElement> &arg)
     }
 }
 
-void Job::setWorkflowStatus(WorkflowAction action,
-                            WorkflowStatus status,
-                            PaperSide paperSide)
+void Job::setWorkflowStatus(WorkflowAction action, WorkflowStatus status, PaperSide paperSide)
 {
     Q_D(Job);
     bool found = false;
@@ -189,7 +187,7 @@ WorkflowStatus Job::workflowStatus(WorkflowAction action, PaperSide paperSide) c
 {
     Q_D(const Job);
     WorkflowStatus fallbackStatus = WorkflowStatus::UnknownStatus;
-    for(const auto &element : qAsConst(d->workflow)) {
+    for (const auto &element : qAsConst(d->workflow)) {
         if (element.action() != action)
             continue;
         if (element.paperSide() == paperSide) {
@@ -197,11 +195,14 @@ WorkflowStatus Job::workflowStatus(WorkflowAction action, PaperSide paperSide) c
         } else if (paperSide == PaperSide::NotSetSide) {
             if (fallbackStatus == WorkflowStatus::UnknownStatus)
                 fallbackStatus = element.status();
-            else if ((element.status() == WorkflowStatus::SuspendedStatus || fallbackStatus == WorkflowStatus::SuspendedStatus))
+            else if ((element.status() == WorkflowStatus::SuspendedStatus
+                      || fallbackStatus == WorkflowStatus::SuspendedStatus))
                 fallbackStatus = WorkflowStatus::SuspendedStatus;
-            else if ((element.status() == WorkflowStatus::InProgressStatus || fallbackStatus == WorkflowStatus::InProgressStatus))
+            else if ((element.status() == WorkflowStatus::InProgressStatus
+                      || fallbackStatus == WorkflowStatus::InProgressStatus))
                 fallbackStatus = WorkflowStatus::InProgressStatus;
-            else if ((element.status() == WorkflowStatus::IsReadyForStatus || fallbackStatus == WorkflowStatus::IsReadyForStatus))
+            else if ((element.status() == WorkflowStatus::IsReadyForStatus
+                      || fallbackStatus == WorkflowStatus::IsReadyForStatus))
                 fallbackStatus = WorkflowStatus::IsReadyForStatus;
             else if ((element.status() == WorkflowStatus::NeedsStatus || fallbackStatus == WorkflowStatus::NeedsStatus))
                 fallbackStatus = WorkflowStatus::NeedsStatus;
@@ -236,7 +237,7 @@ QJsonObject Job::toJson() const
 
     QJsonArray workflowArray;
 
-    for(const auto &workflowElement : qAsConst(d->workflow))
+    for (const auto &workflowElement : qAsConst(d->workflow))
         workflowArray << workflowElement.toString();
 
     json.insert(QStringLiteral("workflow"), workflowArray);
@@ -282,8 +283,7 @@ JobSP Job::fromJson(const QJsonObject &json)
     return job;
 }
 
-Job::Job(const QString &id, const QString &source)
-    : NetworkDataEntity(*new JobPrivate)
+Job::Job(const QString &id, const QString &source) : NetworkDataEntity(*new JobPrivate)
 {
     Q_D(Job);
     d->setId(id);
@@ -308,4 +308,3 @@ void JobPrivate::updateFrom(const Proof::NetworkDataEntitySP &other)
 
     NetworkDataEntityPrivate::updateFrom(other);
 }
-

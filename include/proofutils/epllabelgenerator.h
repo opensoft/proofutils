@@ -12,7 +12,6 @@ class PROOF_UTILS_EXPORT EplLabelGenerator
 {
     Q_DECLARE_PRIVATE(EplLabelGenerator)
 public:
-
     enum class BarcodeType
     {
         Code39,
@@ -62,8 +61,7 @@ public:
 
     void startLabel(int width = 795, int height = 1250, int speed = 4, int density = 10, int gapLength = 24);
 
-    QRect addText(const QString &text, int x, int y, int fontSize = 4,
-                  int horizontalScale = 1, int verticalScale = 1,
+    QRect addText(const QString &text, int x, int y, int fontSize = 4, int horizontalScale = 1, int verticalScale = 1,
                   int rotation = 0, bool inverseColors = false);
 
     QSize textSize(const QString &text, int fontSize = 4, int horizontalScale = 1, int verticalScale = 1) const;

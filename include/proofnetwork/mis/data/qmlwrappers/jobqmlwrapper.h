@@ -1,10 +1,10 @@
 #ifndef PROOF_MIS_JOBQMLWRAPPER_H
 #define PROOF_MIS_JOBQMLWRAPPER_H
 
-#include "proofnetwork/qmlwrappers/networkdataentityqmlwrapper.h"
-#include "proofnetwork/mis/proofnetworkmis_types.h"
-#include "proofnetwork/mis/proofnetworkmis_global.h"
 #include "proofnetwork/mis/apihelper.h"
+#include "proofnetwork/mis/proofnetworkmis_global.h"
+#include "proofnetwork/mis/proofnetworkmis_types.h"
+#include "proofnetwork/qmlwrappers/networkdataentityqmlwrapper.h"
 
 namespace Proof {
 namespace Mis {
@@ -37,8 +37,9 @@ public:
     double height() const;
     QString source() const;
     bool hasPreview() const;
-    Q_INVOKABLE Proof::Mis::WorkflowStatus workflowStatus(Proof::Mis::WorkflowAction action,
-                                                          Proof::Mis::PaperSide paperSide = Proof::Mis::PaperSide::NotSetSide) const;
+    Q_INVOKABLE Proof::Mis::WorkflowStatus
+    workflowStatus(Proof::Mis::WorkflowAction action,
+                   Proof::Mis::PaperSide paperSide = Proof::Mis::PaperSide::NotSetSide) const;
 
 signals:
     void idChanged(const QString &id);
@@ -53,10 +54,9 @@ signals:
 
 protected:
     void setupEntity(const QSharedPointer<NetworkDataEntity> &old = QSharedPointer<NetworkDataEntity>()) override;
-
 };
 
-}
-}
+} // namespace Mis
+} // namespace Proof
 
 #endif // PROOF_MIS_JOBQMLWRAPPER_H

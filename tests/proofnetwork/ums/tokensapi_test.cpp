@@ -1,24 +1,22 @@
 // clazy:skip
 
-#include "gtest/test_global.h"
-
-#include "proofnetwork/ums/tokensapi.h"
 #include "proofnetwork/ums/data/umstokeninfo.h"
 #include "proofnetwork/ums/data/umsuser.h"
+#include "proofnetwork/ums/tokensapi.h"
 
 #include <QFile>
-#include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QSignalSpy>
+
+#include "gtest/test_global.h"
 
 using testing::Test;
 
-class TokensApiTest: public Test
+class TokensApiTest : public Test
 {
 public:
-    TokensApiTest()
-    {
-    }
+    TokensApiTest() {}
 
 protected:
     void SetUp() override

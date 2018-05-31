@@ -5,8 +5,8 @@
 #include <QProcess>
 
 #ifdef Q_OS_ANDROID
-# include <QtAndroid>
-# include <QtAndroidExtras/QAndroidJniEnvironment>
+#    include <QtAndroid>
+#    include <QtAndroidExtras/QAndroidJniEnvironment>
 #endif
 
 namespace {
@@ -24,7 +24,7 @@ private:
     Proof::MobileUtilsPrivate *mobileUtils;
 };
 
-}
+} // namespace
 
 namespace Proof {
 
@@ -39,8 +39,7 @@ public:
     WorkerThread *thread = nullptr;
 };
 
-MobileUtils::MobileUtils(QObject *parent)
-    : ProofObject(*new MobileUtilsPrivate, parent)
+MobileUtils::MobileUtils(QObject *parent) : ProofObject(*new MobileUtilsPrivate, parent)
 {
     Q_D(MobileUtils);
     d->thread = new WorkerThread(d);
@@ -125,8 +124,7 @@ QString MobileUtilsPrivate::controlCenterFirebaseToken()
 
 } // namespace Proof
 
-WorkerThread::WorkerThread(Proof::MobileUtilsPrivate *mobileUtils)
-    : QThread(), mobileUtils(mobileUtils)
+WorkerThread::WorkerThread(Proof::MobileUtilsPrivate *mobileUtils) : QThread(), mobileUtils(mobileUtils)
 {
     moveToThread(this);
 }

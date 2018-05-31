@@ -10,8 +10,8 @@ class UmsUserQmlWrapperPrivate : public UserQmlWrapperPrivate
     Q_DECLARE_PUBLIC(UmsUserQmlWrapper)
 };
 
-}
-}
+} // namespace Ums
+} // namespace Proof
 
 using namespace Proof;
 using namespace Proof::Ums;
@@ -34,8 +34,7 @@ void UmsUserQmlWrapper::setupEntity(const QSharedPointer<Proof::NetworkDataEntit
     UmsUserSP user = d->entity<UmsUser>();
     Q_ASSERT(user);
 
-    connect(user.data(), &UmsUser::rolesChanged,
-            this, &UmsUserQmlWrapper::rolesChanged);
+    connect(user.data(), &UmsUser::rolesChanged, this, &UmsUserQmlWrapper::rolesChanged);
 
     auto castedOld = qSharedPointerCast<UmsUser>(old);
     if (castedOld) {

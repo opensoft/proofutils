@@ -2,20 +2,23 @@
 #define MISAPIHELPER_H
 
 #include "proofcore/proofobject.h"
+
 #include "proofnetwork/mis/proofnetworkmis_global.h"
 
 namespace Proof {
 namespace Mis {
-PROOF_NETWORK_MIS_EXPORT Q_NAMESPACE
+PROOF_NETWORK_MIS_EXPORT Q_NAMESPACE;
 
-enum class EntityStatus {
+enum class EntityStatus
+{
     NotReadyEntity,
     ValidEntity,
     DeletedEntity,
     InvalidEntity
 };
 
-enum class WorkflowStatus {
+enum class WorkflowStatus
+{
     NeedsStatus,
     IsReadyForStatus,
     InProgressStatus,
@@ -25,7 +28,8 @@ enum class WorkflowStatus {
     UnknownStatus
 };
 
-enum class WorkflowAction {
+enum class WorkflowAction
+{
     BindingAction,
     BinningAction,
     BlisterPackingAction,
@@ -74,7 +78,8 @@ enum class WorkflowAction {
     UnknownAction
 };
 
-enum class TransitionEvent {
+enum class TransitionEvent
+{
     StartEvent,
     StopEvent,
     AbortEvent,
@@ -86,7 +91,8 @@ enum class TransitionEvent {
     UnknownEvent
 };
 
-enum class PaperSide {
+enum class PaperSide
+{
     NotSetSide,
     FrontSide,
     BackSide
@@ -118,7 +124,7 @@ PROOF_NETWORK_MIS_EXPORT uint qHash(TransitionEvent arg, uint seed = 0);
 PROOF_NETWORK_MIS_EXPORT uint qHash(WorkflowStatus arg, uint seed = 0);
 PROOF_NETWORK_MIS_EXPORT uint qHash(PaperSide arg, uint seed = 0);
 
-}
-}
+} // namespace Mis
+} // namespace Proof
 
 #endif // MISAPIHELPER_H

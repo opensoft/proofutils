@@ -15,21 +15,17 @@ class IpAddressValidatorPrivate
 
     bool checkBinary(quint8 byte) const;
 };
-}
+} // namespace Proof
 
 using namespace Proof;
 
-IpAddressValidator::IpAddressValidator(QObject *parent) :
-    QValidator (parent),
-    d_ptr(new IpAddressValidatorPrivate)
+IpAddressValidator::IpAddressValidator(QObject *parent) : QValidator(parent), d_ptr(new IpAddressValidatorPrivate)
 {
     d_ptr->q_ptr = this;
 }
 
 IpAddressValidator::~IpAddressValidator()
-{
-
-}
+{}
 
 QValidator::State IpAddressValidator::validate(QString &input, int &pos) const
 {

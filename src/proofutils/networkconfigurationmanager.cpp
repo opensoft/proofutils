@@ -5,15 +5,15 @@
 #include "proofcore/settings.h"
 #include "proofcore/settingsgroup.h"
 
+#include <QDir>
+#include <QFile>
+#include <QNetworkInterface>
 #include <QNetworkProxy>
 #include <QNetworkProxyFactory>
-#include <QNetworkInterface>
 #include <QProcess>
-#include <QFile>
-#include <QDir>
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
- #include <proxy.h>
+#    include <proxy.h>
 #endif
 
 static const QString NETWORK_SETTINGS_FILE = QStringLiteral("/etc/network/interfaces");
@@ -31,7 +31,8 @@ static const QString NETMASK = QStringLiteral("netmask");
 static const QString GATEWAY = QStringLiteral("gateway");
 static const QString DNS_NAMESERVERS = QStringLiteral("dns-nameservers");
 
-static const QString REGEXP_IP(QStringLiteral("(((?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))"));
+static const QString REGEXP_IP(
+    QStringLiteral("(((?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))"));
 static const QString VPN_REMOTE_REGEXP(QStringLiteral("^remote(\\s+)(\\S+)(\\s+)(\\d+)"));
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
@@ -44,10 +45,7 @@ namespace {
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 struct ProxyFactoryFree
 {
-    static void cleanup(pxProxyFactory *factory)
-    {
-        px_proxy_factory_free(factory);
-    }
+    static void cleanup(pxProxyFactory *factory) { px_proxy_factory_free(factory); }
 };
 
 struct ProxyListFree
@@ -63,7 +61,8 @@ struct ProxyListFree
 using ProxyFactoryPtr = QScopedPointer<pxProxyFactory, ProxyFactoryFree>;
 using ProxyListPtr = QScopedArrayPointer<char *, ProxyListFree>;
 #endif
-struct ProxySettings {
+struct ProxySettings
+{
     QString url;
     QString userName;
     QString password;
@@ -80,8 +79,9 @@ public:
     void checkVpnCanBeControlled();
     void checkPassword(const QString &password);
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
-    void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
-                                   const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
+    void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled,
+                                   const QString &ipv4Address, const QString &subnetMask, const QString &gateway,
+                                   const QString &preferredDns, const QString &alternateDns, const QString &password);
     void fetchVpnConfiguration();
     void writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password);
     void turnOnVpn(const QString &password);
@@ -91,7 +91,7 @@ private:
     Proof::NetworkConfigurationManagerPrivate *networkConfigurationManager = nullptr;
 };
 
-}
+} // namespace
 
 namespace Proof {
 
@@ -108,7 +108,8 @@ private:
     QStringList m_excludes;
 };
 
-struct NetworkConfiguration {
+struct NetworkConfiguration
+{
     QString description;
     QString index;
     bool dhcpEnabled = false;
@@ -127,8 +128,9 @@ public:
     void checkPassword(const QString &password);
     void fetchNetworkInterfaces();
     void fetchNetworkConfiguration(const QString &networkAdapterDescription);
-    void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
-                                   const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password);
+    void writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled,
+                                   const QString &ipv4Address, const QString &subnetMask, const QString &gateway,
+                                   const QString &preferredDns, const QString &alternateDns, const QString &password);
     void fetchProxySettings();
     void writeProxySettings(const ProxySettings &proxySettings);
     void initProxySettings();
@@ -239,18 +241,21 @@ void NetworkConfigurationManager::fetchNetworkConfiguration(const QString &netwo
     d->fetchNetworkConfiguration(networkAdapterDescription);
 }
 
-void NetworkConfigurationManager::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
-                                                            const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password)
+void NetworkConfigurationManager::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled,
+                                                            const QString &ipv4Address, const QString &subnetMask,
+                                                            const QString &gateway, const QString &preferredDns,
+                                                            const QString &alternateDns, const QString &password)
 {
     Q_D(NetworkConfigurationManager);
-    d->writeNetworkConfiguration(networkAdapterDescription, dhcpEnabled, ipv4Address,
-                                 subnetMask, gateway, preferredDns, alternateDns, password);
+    d->writeNetworkConfiguration(networkAdapterDescription, dhcpEnabled, ipv4Address, subnetMask, gateway, preferredDns,
+                                 alternateDns, password);
 }
 
 QList<int> NetworkConfigurationManager::proxyTypes() const
 {
-    return {static_cast<int>(ProxyType::NoProxyType), static_cast<int>(ProxyType::HttpProxyType), static_cast<int>(ProxyType::SocksProxyType),
-            static_cast<int>(ProxyType::AutoConfigurationProxyType), static_cast<int>(ProxyType::AutoDiscoveryProxyType)};
+    return {static_cast<int>(ProxyType::NoProxyType), static_cast<int>(ProxyType::HttpProxyType),
+            static_cast<int>(ProxyType::SocksProxyType), static_cast<int>(ProxyType::AutoConfigurationProxyType),
+            static_cast<int>(ProxyType::AutoDiscoveryProxyType)};
 }
 
 void NetworkConfigurationManager::fetchProxySettings()
@@ -259,7 +264,8 @@ void NetworkConfigurationManager::fetchProxySettings()
     d->fetchProxySettings();
 }
 
-void NetworkConfigurationManager::writeProxySettings(ProxyType proxyType, const QString &host, quint16 port, const QString &userName, const QString &password)
+void NetworkConfigurationManager::writeProxySettings(ProxyType proxyType, const QString &host, quint16 port,
+                                                     const QString &userName, const QString &password)
 {
     Q_D(NetworkConfigurationManager);
     ProxySettings proxySettings;
@@ -287,7 +293,8 @@ void NetworkConfigurationManager::fetchVpnConfiguration()
     d->fetchVpnConfiguration();
 }
 
-void NetworkConfigurationManager::writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password)
+void NetworkConfigurationManager::writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration,
+                                                        const QString &password)
 {
     Q_D(NetworkConfigurationManager);
     d->writeVpnConfiguration(absoluteFilePath, configuration, password);
@@ -330,10 +337,12 @@ void NetworkConfigurationManager::timerEvent(QTimerEvent *event)
             if (m_currentTimeCheckVpn >= VPN_CHECK_WAITING_TIMEOUT) {
                 switch (m_vpnState) {
                 case VpnState::Starting:
-                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, QObject::tr("VPN can't be started"), true);
+                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted,
+                                       QObject::tr("VPN can't be started"), true);
                     break;
                 case VpnState::Stopping:
-                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, QObject::tr("VPN can't be stopped"), true);
+                    emit errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped,
+                                       QObject::tr("VPN can't be stopped"), true);
                     break;
                 default:
                     break;
@@ -398,7 +407,8 @@ void NetworkConfigurationManagerPrivate::checkPassword(const QString &password)
     if (checker.error() == QProcess::UnknownError)
         emit q->passwordChecked(enterPassword(checker, password));
     else
-        qCDebug(proofUtilsNetworkConfigurationLog) << "Process couldn't be started" << checker.error() << checker.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog)
+            << "Process couldn't be started" << checker.error() << checker.errorString();
 #else
     Q_UNUSED(password)
     qCDebug(proofUtilsNetworkConfigurationLog) << "Password check is not supported for this platform";
@@ -416,19 +426,22 @@ void NetworkConfigurationManagerPrivate::fetchNetworkInterfaces()
 #ifdef Q_OS_WIN
     QProcess readInfoProcess;
     readInfoProcess.setReadChannel(QProcess::StandardOutput);
-    readInfoProcess.start("PowerShell", {"-command", "Get-WmiObject win32_NetworkAdapter | %{ if ($_.PhysicalAdapter) {$_.MACAddress} }"});
+    readInfoProcess.start("PowerShell",
+                          {"-command",
+                           "Get-WmiObject win32_NetworkAdapter | %{ if ($_.PhysicalAdapter) {$_.MACAddress} }"});
     readInfoProcess.waitForStarted();
     QStringList macAddresses;
     bool powerShellError = readInfoProcess.error() != QProcess::UnknownError;
     if (powerShellError) {
-        qCDebug(proofUtilsNetworkConfigurationLog) <<  "PowerShell can't be started:" << readInfoProcess.errorString();
+        qCDebug(proofUtilsNetworkConfigurationLog) << "PowerShell can't be started:" << readInfoProcess.errorString();
     } else {
         readInfoProcess.waitForFinished();
-        macAddresses = QString(readInfoProcess.readAll()).split("\r\n" , QString::SkipEmptyParts);
+        macAddresses = QString(readInfoProcess.readAll()).split("\r\n", QString::SkipEmptyParts);
     }
 
     for (const auto &interface : QNetworkInterface::allInterfaces()) {
-        if (macAddresses.contains(interface.hardwareAddress()) || (powerShellError && !interface.flags().testFlag(QNetworkInterface::IsLoopBack)))
+        if (macAddresses.contains(interface.hardwareAddress())
+            || (powerShellError && !interface.flags().testFlag(QNetworkInterface::IsLoopBack)))
             result.append(interface.humanReadableName());
     }
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
@@ -443,11 +456,13 @@ void NetworkConfigurationManagerPrivate::fetchNetworkInterfaces()
             }
         }
     } else {
-        qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
+        qCWarning(proofUtilsNetworkConfigurationLog)
+            << NETWORK_SETTINGS_FILE << "can't be opened:" << settingsFile.errorString();
     }
 
     for (const auto &interface : QNetworkInterface::allInterfaces()) {
-        if (interface.flags().testFlag(QNetworkInterface::IsLoopBack) || interface.flags().testFlag(QNetworkInterface::IsPointToPoint))
+        if (interface.flags().testFlag(QNetworkInterface::IsLoopBack)
+            || interface.flags().testFlag(QNetworkInterface::IsPointToPoint))
             result.removeAll(interface.humanReadableName());
         else if (!result.contains(interface.humanReadableName()))
             result.append(interface.humanReadableName());
@@ -464,11 +479,13 @@ void NetworkConfigurationManagerPrivate::fetchNetworkConfiguration(const QString
 
     Q_Q(NetworkConfigurationManager);
     NetworkConfiguration networkConfiguration = fetchNetworkConfigurationPrivate(networkAdapterDescription);
-    emit q->networkConfigurationFetched(networkConfiguration.dhcpEnabled, networkConfiguration.ipv4Address, networkConfiguration.subnetMask,
-                                        networkConfiguration.gateway, networkConfiguration.preferredDns, networkConfiguration.alternateDns);
+    emit q->networkConfigurationFetched(networkConfiguration.dhcpEnabled, networkConfiguration.ipv4Address,
+                                        networkConfiguration.subnetMask, networkConfiguration.gateway,
+                                        networkConfiguration.preferredDns, networkConfiguration.alternateDns);
 }
 
-NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurationPrivate(const QString &networkAdapterDescription)
+NetworkConfiguration
+NetworkConfigurationManagerPrivate::fetchNetworkConfigurationPrivate(const QString &networkAdapterDescription)
 {
     Q_Q(NetworkConfigurationManager);
 
@@ -486,16 +503,22 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
     QProcess readInfoProcess;
     readInfoProcess.setReadChannel(QProcess::StandardOutput);
     QString splitSimbol = "\";\"";
-    readInfoProcess.start("PowerShell", {"-command", QString("$WMI = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter {InterfaceIndex LIKE '%1'};"
-                                         "$WMI.DHCPEnabled; %2; $WMI.IPAddress; %2; $WMI.IPSubnet; %2; $WMI.DefaultIPGateway; %2; $WMI.DNSServerSearchOrder;").arg(networkConfiguration.index).arg(splitSimbol)});
+    readInfoProcess.start("PowerShell",
+                          {"-command", QString("$WMI = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter "
+                                               "{InterfaceIndex LIKE '%1'};"
+                                               "$WMI.DHCPEnabled; %2; $WMI.IPAddress; %2; $WMI.IPSubnet; %2; "
+                                               "$WMI.DefaultIPGateway; %2; $WMI.DNSServerSearchOrder;")
+                                           .arg(networkConfiguration.index)
+                                           .arg(splitSimbol)});
     readInfoProcess.waitForStarted();
     if (readInfoProcess.error() != QProcess::UnknownError) {
-        qCDebug(proofUtilsNetworkConfigurationLog) <<  "PowerShell can't be started:" << readInfoProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't read network configuration"), true);
+        qCDebug(proofUtilsNetworkConfigurationLog) << "PowerShell can't be started:" << readInfoProcess.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't read network configuration"), true);
         return NetworkConfiguration();
     }
     readInfoProcess.waitForFinished();
-    QStringList adaptersInfo = QString(readInfoProcess.readAll()).split(splitSimbol.remove("\"") , QString::SkipEmptyParts);
+    QStringList adaptersInfo = QString(readInfoProcess.readAll()).split(splitSimbol.remove("\""), QString::SkipEmptyParts);
     for (int i = 0; i < adaptersInfo.count(); ++i) {
         if (i == 0) {
             networkConfiguration.dhcpEnabled = adaptersInfo.at(i).toLower().contains("true");
@@ -528,8 +551,10 @@ NetworkConfiguration NetworkConfigurationManagerPrivate::fetchNetworkConfigurati
 #else
     QFile settingsFile(NETWORK_SETTINGS_FILE);
     if (!settingsFile.open(QIODevice::ReadOnly)) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't read network configuration"), true);
+        qCDebug(proofUtilsNetworkConfigurationLog)
+            << NETWORK_SETTINGS_FILE << "can't be opened:" << settingsFile.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't read network configuration"), true);
         return NetworkConfiguration();
     }
     bool isParsingInterface = false;
@@ -573,7 +598,8 @@ bool NetworkConfigurationManagerPrivate::enterPassword(QProcess &process, const 
 
     if (!process.waitForReadyRead()) {
         if (process.state() == QProcess::NotRunning)
-            qCDebug(proofUtilsNetworkConfigurationLog) << "No answer from command and process finished. Exitcode =" << process.exitCode();
+            qCDebug(proofUtilsNetworkConfigurationLog)
+                << "No answer from command and process finished. Exitcode =" << process.exitCode();
         else
             qCDebug(proofUtilsNetworkConfigurationLog) << "No answer from command. Returning";
         return process.state() == QProcess::NotRunning && process.exitCode() == 0;
@@ -613,22 +639,27 @@ QSharedPointer<QFile> NetworkConfigurationManagerPrivate::vpnConfigurationFile()
         auto file = QSharedPointer<QFile>::create(fileInfoList.first().absoluteFilePath());
         if (!file->open(QIODevice::ReadOnly)) {
             qCDebug(proofUtilsNetworkConfigurationLog) << file->fileName() << "can't be opened";
-            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, QObject::tr("VPN configuration can't be opened"), true);
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound,
+                                  QObject::tr("VPN configuration can't be opened"), true);
             return QSharedPointer<QFile>();
         }
         return file;
     } else {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound, QObject::tr("VPN configuration not found"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationNotFound,
+                              QObject::tr("VPN configuration not found"), true);
         return QSharedPointer<QFile>();
     }
 }
 
-void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
-                                                                   const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password)
+void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString &networkAdapterDescription,
+                                                                   bool dhcpEnabled, const QString &ipv4Address,
+                                                                   const QString &subnetMask, const QString &gateway,
+                                                                   const QString &preferredDns,
+                                                                   const QString &alternateDns, const QString &password)
 {
     Q_Q(NetworkConfigurationManager);
-    if (ProofObject::call(thread, &WorkerThread::writeNetworkConfiguration, networkAdapterDescription, dhcpEnabled, ipv4Address, subnetMask,
-                          gateway, preferredDns, alternateDns, password))
+    if (ProofObject::call(thread, &WorkerThread::writeNetworkConfiguration, networkAdapterDescription, dhcpEnabled,
+                          ipv4Address, subnetMask, gateway, preferredDns, alternateDns, password))
         return;
 
     QString adapterIndex;
@@ -648,9 +679,14 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     query.append(" -FilePath PowerShell");
     query.append(" -WindowStyle hidden");
     QString argumentList;
-    argumentList.append(QString(" $WMI = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter {InterfaceIndex LIKE '%1'};").arg(adapterIndex));
-    argumentList.append(dhcpEnabled ? " $WMI.EnableDHCP();" : QString(" $WMI.EnableStatic(\"{%1}\", \"{%2}\");").arg(ipv4Address).arg(subnetMask));
-    argumentList.append(QString("$WMI.SetGateways(%1);").arg(gateway.isEmpty() || dhcpEnabled  ? "" : QString("\"{%1}\"").arg(gateway)));
+    argumentList.append(
+        QString(" $WMI = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter {InterfaceIndex LIKE '%1'};")
+            .arg(adapterIndex));
+    argumentList.append(dhcpEnabled
+                            ? " $WMI.EnableDHCP();"
+                            : QString(" $WMI.EnableStatic(\"{%1}\", \"{%2}\");").arg(ipv4Address).arg(subnetMask));
+    argumentList.append(
+        QString("$WMI.SetGateways(%1);").arg(gateway.isEmpty() || dhcpEnabled ? "" : QString("\"{%1}\"").arg(gateway)));
     QString dnsServers;
     if (!dhcpEnabled) {
         for (const auto &dnsServer : {preferredDns, alternateDns}) {
@@ -671,7 +707,8 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     writeInfoProcess.waitForStarted();
     if (writeInfoProcess.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "PowerShell can't be started:" << writeInfoProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't write network configuration"), true);
 
         return;
     }
@@ -684,8 +721,10 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     networkingProcess.start("sudo -S -k /sbin/ifdown " + networkAdapterDescription);
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << "service networking can't be stopped:" << networkingProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
+        qCDebug(proofUtilsNetworkConfigurationLog)
+            << "service networking can't be stopped:" << networkingProcess.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't write network configuration"), true);
         return;
     }
 
@@ -694,8 +733,10 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
 
     QFile settingsFile(NETWORK_SETTINGS_FILE);
     if (!settingsFile.open(QIODevice::ReadOnly)) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFile.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
+        qCDebug(proofUtilsNetworkConfigurationLog)
+            << NETWORK_SETTINGS_FILE << "can't be opened:" << settingsFile.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't write network configuration"), true);
         return;
     }
 
@@ -715,9 +756,7 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
 
         if (settingsFile.atEnd() && !currentInterfaceFound && !interfaceUpdated) {
             newInterfaces.append(line);
-            line = QStringLiteral("iface %1 inet %2\n")
-                    .arg(networkAdapterDescription,
-                         dhcpEnabled ? DYNAMIC_IP : STATIC_IP);
+            line = QStringLiteral("iface %1 inet %2\n").arg(networkAdapterDescription, dhcpEnabled ? DYNAMIC_IP : STATIC_IP);
             currentInterfaceFound = true;
         }
 
@@ -733,13 +772,15 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
                 if (!gateway.isEmpty())
                     line.append(GATEWAY + " " + gateway + "\n");
                 if (!preferredDns.isEmpty() || !alternateDns.isEmpty())
-                    line.append(DNS_NAMESERVERS + " " + QStringList({preferredDns, alternateDns}).join(QStringLiteral(" ")) + "\n");
+                    line.append(DNS_NAMESERVERS + " "
+                                + QStringList({preferredDns, alternateDns}).join(QStringLiteral(" ")) + "\n");
             }
             newInterfaces.append(line);
             interfaceUpdated = true;
         } else if (trimmedLine.startsWith(QLatin1String("iface")) || trimmedLine.startsWith(QLatin1String("auto"))
                    || trimmedLine.startsWith(QLatin1String("mapping")) || trimmedLine.startsWith(QLatin1String("source"))
-                   || trimmedLine.startsWith(QLatin1String("no-auto-down")) || trimmedLine.startsWith(QLatin1String("no-scripts"))
+                   || trimmedLine.startsWith(QLatin1String("no-auto-down"))
+                   || trimmedLine.startsWith(QLatin1String("no-scripts"))
                    || trimmedLine.startsWith(QLatin1String("allow-")) || trimmedLine.isEmpty()) {
             hideIpsForCurrentInterface = false;
         }
@@ -755,8 +796,10 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
 
     QFile settingsFileTmp(NETWORK_SETTINGS_FILE_TMP);
     if (!settingsFileTmp.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        qCWarning(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE <<  "can't be opened:" << settingsFileTmp.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
+        qCWarning(proofUtilsNetworkConfigurationLog)
+            << NETWORK_SETTINGS_FILE << "can't be opened:" << settingsFileTmp.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't write network configuration"), true);
         return;
     }
     settingsFileTmp.write(newInterfaces);
@@ -766,13 +809,16 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     networkingProcess.start("sudo -S -k /bin/cp \"" + NETWORK_SETTINGS_FILE_TMP + "\" \"" + NETWORK_SETTINGS_FILE + "\"");
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << NETWORK_SETTINGS_FILE + " can't be rewritten:" << networkingProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
+        qCDebug(proofUtilsNetworkConfigurationLog)
+            << NETWORK_SETTINGS_FILE + " can't be rewritten:" << networkingProcess.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't write network configuration"), true);
         return;
     }
 
     if (!enterPassword(networkingProcess, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't write network configuration"), true);
         settingsFileTmp.remove();
         return;
     }
@@ -782,13 +828,16 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     networkingProcess.start("sudo -S -k /sbin/ifup " + networkAdapterDescription);
     networkingProcess.waitForStarted();
     if (networkingProcess.error() != QProcess::UnknownError) {
-        qCDebug(proofUtilsNetworkConfigurationLog) << "service networking can't be started:" << networkingProcess.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
+        qCDebug(proofUtilsNetworkConfigurationLog)
+            << "service networking can't be started:" << networkingProcess.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't write network configuration"), true);
         return;
     }
 
     if (!enterPassword(networkingProcess, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't write network configuration"), true);
         return;
     }
 #endif
@@ -798,16 +847,19 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     bool dhcpMatch = false;
     bool ipSettingsMatch = false;
     bool preferredDnsMatch = false;
-    bool alternateDnsMatch= false;
+    bool alternateDnsMatch = false;
     bool ipAndDnsSettingsMatch = false;
     NetworkConfiguration networkConfiguration;
     for (int i = 0; i < REQUEST_NETWORK_CONFIGURATION_RETRIES_COUNT; ++i) {
         networkConfiguration = fetchNetworkConfigurationPrivate(networkAdapterDescription);
         indexMatch = networkConfiguration.index == adapterIndex;
         dhcpMatch = networkConfiguration.dhcpEnabled == dhcpEnabled;
-        ipSettingsMatch = networkConfiguration.ipv4Address == ipv4Address && networkConfiguration.subnetMask == subnetMask && networkConfiguration.gateway == gateway;
-        preferredDnsMatch = networkConfiguration.preferredDns == preferredDns || networkConfiguration.preferredDns == alternateDns;
-        alternateDnsMatch = networkConfiguration.alternateDns == alternateDns || networkConfiguration.alternateDns == preferredDns;
+        ipSettingsMatch = networkConfiguration.ipv4Address == ipv4Address
+                          && networkConfiguration.subnetMask == subnetMask && networkConfiguration.gateway == gateway;
+        preferredDnsMatch = networkConfiguration.preferredDns == preferredDns
+                            || networkConfiguration.preferredDns == alternateDns;
+        alternateDnsMatch = networkConfiguration.alternateDns == alternateDns
+                            || networkConfiguration.alternateDns == preferredDns;
         ipAndDnsSettingsMatch = ipSettingsMatch && preferredDnsMatch && alternateDnsMatch;
 
         successMatch = indexMatch && dhcpMatch && (dhcpEnabled || ipAndDnsSettingsMatch);
@@ -821,59 +873,93 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
         emit q->networkConfigurationWritten();
     } else {
         if (!indexMatch)
-            qCDebug(proofUtilsNetworkConfigurationLog) << "index -" << "Actual:" << networkConfiguration.index << "Expected:" << adapterIndex;
+            qCDebug(proofUtilsNetworkConfigurationLog)
+                << "index -"
+                << "Actual:" << networkConfiguration.index << "Expected:" << adapterIndex;
         if (!dhcpMatch)
-            qCDebug(proofUtilsNetworkConfigurationLog) << "dhcp -" << "Actual:" << networkConfiguration.dhcpEnabled << "Expected:" << dhcpEnabled;
+            qCDebug(proofUtilsNetworkConfigurationLog)
+                << "dhcp -"
+                << "Actual:" << networkConfiguration.dhcpEnabled << "Expected:" << dhcpEnabled;
         if (!dhcpEnabled) {
-            if(!ipSettingsMatch) {
+            if (!ipSettingsMatch) {
                 if (networkConfiguration.ipv4Address != ipv4Address)
-                    qCDebug(proofUtilsNetworkConfigurationLog) << "ipv4Address -" << "Actual:" << networkConfiguration.ipv4Address << "Expected:" << ipv4Address;
+                    qCDebug(proofUtilsNetworkConfigurationLog)
+                        << "ipv4Address -"
+                        << "Actual:" << networkConfiguration.ipv4Address << "Expected:" << ipv4Address;
                 if (networkConfiguration.subnetMask != subnetMask)
-                    qCDebug(proofUtilsNetworkConfigurationLog) << "subnetMask -" << "Actual:" << networkConfiguration.subnetMask << "Expected:" << subnetMask;
+                    qCDebug(proofUtilsNetworkConfigurationLog)
+                        << "subnetMask -"
+                        << "Actual:" << networkConfiguration.subnetMask << "Expected:" << subnetMask;
                 if (networkConfiguration.gateway != gateway)
-                    qCDebug(proofUtilsNetworkConfigurationLog) << "gateway -" << "Actual:" << networkConfiguration.gateway << "Expected:" << gateway;
+                    qCDebug(proofUtilsNetworkConfigurationLog)
+                        << "gateway -"
+                        << "Actual:" << networkConfiguration.gateway << "Expected:" << gateway;
             }
             if (!preferredDnsMatch)
-                qCDebug(proofUtilsNetworkConfigurationLog) << "preferredDns -" << "Actual:" << networkConfiguration.preferredDns << "Expected:" << preferredDns;
+                qCDebug(proofUtilsNetworkConfigurationLog)
+                    << "preferredDns -"
+                    << "Actual:" << networkConfiguration.preferredDns << "Expected:" << preferredDns;
             if (!alternateDnsMatch)
-                qCDebug(proofUtilsNetworkConfigurationLog) << "alternateDns -" << "Actual:" << networkConfiguration.alternateDns << "Expected:" << alternateDns;
+                qCDebug(proofUtilsNetworkConfigurationLog)
+                    << "alternateDns -"
+                    << "Actual:" << networkConfiguration.alternateDns << "Expected:" << alternateDns;
         }
 
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten, QObject::tr("Can't write network configuration"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NetworkConfigurationCannotBeWritten,
+                              QObject::tr("Can't write network configuration"), true);
     }
 }
 
 void NetworkConfigurationManagerPrivate::fetchProxySettings()
 {
     Q_Q(NetworkConfigurationManager);
-    emit q->proxySettingsFetched(lastProxySettings.type, lastProxySettings.url, lastProxySettings.port, lastProxySettings.userName, lastProxySettings.password);
+    emit q->proxySettingsFetched(lastProxySettings.type, lastProxySettings.url, lastProxySettings.port,
+                                 lastProxySettings.userName, lastProxySettings.password);
 }
 
 ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
 {
     ProxySettings proxySettings;
 
-    SettingsGroup *networkProxyGroup = proofApp->settings()->group(QStringLiteral("network_proxy"), Settings::NotFoundPolicy::AddGlobal);
-    proxySettings.type = static_cast<NetworkConfigurationManager::ProxyType>(networkProxyGroup->value(QStringLiteral("type"),
-                                                                                                      static_cast<int>(NetworkConfigurationManager::ProxyType::NoProxyType),
-                                                                                                      Settings::NotFoundPolicy::AddGlobal).toInt());
+    SettingsGroup *networkProxyGroup = proofApp->settings()->group(QStringLiteral("network_proxy"),
+                                                                   Settings::NotFoundPolicy::AddGlobal);
+    proxySettings.type = static_cast<NetworkConfigurationManager::ProxyType>(
+        networkProxyGroup
+            ->value(QStringLiteral("type"), static_cast<int>(NetworkConfigurationManager::ProxyType::NoProxyType),
+                    Settings::NotFoundPolicy::AddGlobal)
+            .toInt());
     switch (proxySettings.type) {
     case NetworkConfigurationManager::ProxyType::NoProxyType:
     case NetworkConfigurationManager::ProxyType::AutoDiscoveryProxyType:
         break;
     case NetworkConfigurationManager::ProxyType::HttpProxyType:
     case NetworkConfigurationManager::ProxyType::SocksProxyType:
-        proxySettings.url = networkProxyGroup->value(QStringLiteral("host"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString();
-        proxySettings.port = networkProxyGroup->value(QStringLiteral("port"), 8080, Settings::NotFoundPolicy::AddGlobal).toUInt();
-        proxySettings.userName = networkProxyGroup->value(QStringLiteral("username"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString();
-        proxySettings.password = networkProxyGroup->value(QStringLiteral("password"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString();
+        proxySettings.url = networkProxyGroup
+                                ->value(QStringLiteral("host"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal)
+                                .toString();
+        proxySettings.port =
+            networkProxyGroup->value(QStringLiteral("port"), 8080, Settings::NotFoundPolicy::AddGlobal).toUInt();
+        proxySettings.userName = networkProxyGroup
+                                     ->value(QStringLiteral("username"), QStringLiteral(""),
+                                             Settings::NotFoundPolicy::AddGlobal)
+                                     .toString();
+        proxySettings.password = networkProxyGroup
+                                     ->value(QStringLiteral("password"), QStringLiteral(""),
+                                             Settings::NotFoundPolicy::AddGlobal)
+                                     .toString();
         break;
     case NetworkConfigurationManager::ProxyType::AutoConfigurationProxyType:
-        proxySettings.url = networkProxyGroup->value(QStringLiteral("url"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString();
+        proxySettings.url = networkProxyGroup
+                                ->value(QStringLiteral("url"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal)
+                                .toString();
         break;
     }
 
-    QStringList notTrimmedExcludes = networkProxyGroup->value(QStringLiteral("excludes"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal).toString().split(QStringLiteral("|"));
+    QStringList notTrimmedExcludes = networkProxyGroup
+                                         ->value(QStringLiteral("excludes"), QStringLiteral(""),
+                                                 Settings::NotFoundPolicy::AddGlobal)
+                                         .toString()
+                                         .split(QStringLiteral("|"));
     proxyExcludes.clear();
     for (auto exclude : notTrimmedExcludes) {
         exclude = exclude.trimmed();
@@ -898,7 +984,9 @@ void NetworkConfigurationManagerPrivate::setProxySettings(const ProxySettings &p
             proxy.setUser(proxySettings.userName);
         if (!proxySettings.password.isEmpty())
             proxy.setPassword(proxySettings.password);
-        proxy.setType(proxySettings.type == NetworkConfigurationManager::ProxyType::HttpProxyType ? QNetworkProxy::ProxyType::HttpCachingProxy : QNetworkProxy::ProxyType::Socks5Proxy);
+        proxy.setType(proxySettings.type == NetworkConfigurationManager::ProxyType::HttpProxyType
+                          ? QNetworkProxy::ProxyType::HttpCachingProxy
+                          : QNetworkProxy::ProxyType::Socks5Proxy);
         QNetworkProxyFactory::setApplicationProxyFactory(new ProxyFactory(proxy, proxyExcludes));
         break;
     }
@@ -933,7 +1021,8 @@ void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings 
     Q_Q(NetworkConfigurationManager);
 
     if (!QFile::permissions(proofApp->settings()->filePath()).testFlag(QFileDevice::WriteUser)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::ProxyConfigurationCannotBeWritten, QObject::tr("Proxy configuration can't be written. Permission denied"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::ProxyConfigurationCannotBeWritten,
+                              QObject::tr("Proxy configuration can't be written. Permission denied"), true);
         return;
     }
 
@@ -942,7 +1031,8 @@ void NetworkConfigurationManagerPrivate::writeProxySettings(const ProxySettings 
     auto settings = proofApp->settings();
     settings->deleteGroup(groupName);
     SettingsGroup *networkProxyGroup = settings->group(groupName, Settings::NotFoundPolicy::Add);
-    networkProxyGroup->setValue(QStringLiteral("type"), static_cast<int>(proxySettings.type), Proof::Settings::Storage::Global);
+    networkProxyGroup->setValue(QStringLiteral("type"), static_cast<int>(proxySettings.type),
+                                Proof::Settings::Storage::Global);
     switch (proxySettings.type) {
     case NetworkConfigurationManager::ProxyType::NoProxyType:
     case NetworkConfigurationManager::ProxyType::AutoDiscoveryProxyType:
@@ -983,7 +1073,8 @@ void NetworkConfigurationManagerPrivate::fetchVpnConfiguration()
         emit q->vpnConfigurationFetched(file->fileName(), file->readAll());
 }
 
-void NetworkConfigurationManagerPrivate::writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password)
+void NetworkConfigurationManagerPrivate::writeVpnConfiguration(const QString &absoluteFilePath,
+                                                               const QString &configuration, const QString &password)
 {
     Q_Q(NetworkConfigurationManager);
     if (ProofObject::call(thread, &WorkerThread::writeVpnConfiguration, absoluteFilePath, configuration, password))
@@ -992,8 +1083,10 @@ void NetworkConfigurationManagerPrivate::writeVpnConfiguration(const QString &ab
     QString fileName = QFileInfo(absoluteFilePath).fileName();
     QFile settingsFileTmp("/tmp/" + fileName);
     if (!settingsFileTmp.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        qCWarning(proofUtilsNetworkConfigurationLog) << settingsFileTmp.fileName() <<  "can't be opened:" << settingsFileTmp.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, QObject::tr("Can't write VPN configuration"), true);
+        qCWarning(proofUtilsNetworkConfigurationLog)
+            << settingsFileTmp.fileName() << "can't be opened:" << settingsFileTmp.errorString();
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten,
+                              QObject::tr("Can't write VPN configuration"), true);
         return;
     }
     settingsFileTmp.write(configuration.toLocal8Bit());
@@ -1006,12 +1099,14 @@ void NetworkConfigurationManagerPrivate::writeVpnConfiguration(const QString &ab
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << absoluteFilePath + " can't be rewritten:" << process.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, QObject::tr("Can't write VPN configuration"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten,
+                              QObject::tr("Can't write VPN configuration"), true);
         return;
     }
 
     if (!enterPassword(process, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten, QObject::tr("Can't write VPN configuration"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnConfigurationCannotBeWritten,
+                              QObject::tr("Can't write VPN configuration"), true);
         settingsFileTmp.remove();
         return;
     }
@@ -1033,7 +1128,9 @@ void NetworkConfigurationManagerPrivate::turnOnVpn(const QString &password)
     QUrl proxy;
     if (lastProxySettings.type != Proof::NetworkConfigurationManager::ProxyType::AutoDiscoveryProxyType) {
         QString remote;
-        for (QString line = configFile->readLine(); !line.isEmpty() && !configFile->atEnd() && !configFile->errorString().isEmpty(); line = configFile->readLine()) {
+        for (QString line = configFile->readLine();
+             !line.isEmpty() && !configFile->atEnd() && !configFile->errorString().isEmpty();
+             line = configFile->readLine()) {
             qCDebug(proofUtilsNetworkConfigurationLog) << "Line:" << line;
             QRegExp regExp(VPN_REMOTE_REGEXP);
             if (regExp.indexIn(line) != -1) {
@@ -1072,12 +1169,14 @@ void NetworkConfigurationManagerPrivate::turnOnVpn(const QString &password)
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be started:" << process.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, QObject::tr("VPN can't be started"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted,
+                              QObject::tr("VPN can't be started"), true);
         return;
     }
 
     if (!enterPassword(process, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted, QObject::tr("VPN can't be started. Password is wrong"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStarted,
+                              QObject::tr("VPN can't be started. Password is wrong"), true);
         return;
     }
 
@@ -1097,12 +1196,14 @@ void NetworkConfigurationManagerPrivate::turnOffVpn(const QString &password)
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be stopped:" << process.errorString();
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, QObject::tr("VPN can't be stopped"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped,
+                              QObject::tr("VPN can't be stopped"), true);
         return;
     }
 
     if (!enterPassword(process, password)) {
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped, QObject::tr("VPN can't be stopped. Password is wrong"), true);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::VpnCannotBeStopped,
+                              QObject::tr("VPN can't be stopped. Password is wrong"), true);
         return;
     }
 
@@ -1155,11 +1256,13 @@ void WorkerThread::fetchNetworkConfiguration(const QString &networkAdapterDescri
     networkConfigurationManager->fetchNetworkConfiguration(networkAdapterDescription);
 }
 
-void WorkerThread::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled, const QString &ipv4Address, const QString &subnetMask,
-                                             const QString &gateway, const QString &preferredDns, const QString &alternateDns, const QString &password)
+void WorkerThread::writeNetworkConfiguration(const QString &networkAdapterDescription, bool dhcpEnabled,
+                                             const QString &ipv4Address, const QString &subnetMask,
+                                             const QString &gateway, const QString &preferredDns,
+                                             const QString &alternateDns, const QString &password)
 {
-    networkConfigurationManager->writeNetworkConfiguration(networkAdapterDescription, dhcpEnabled, ipv4Address, subnetMask,
-                                                           gateway, preferredDns, alternateDns, password);
+    networkConfigurationManager->writeNetworkConfiguration(networkAdapterDescription, dhcpEnabled, ipv4Address,
+                                                           subnetMask, gateway, preferredDns, alternateDns, password);
 }
 
 void WorkerThread::fetchVpnConfiguration()
@@ -1167,7 +1270,8 @@ void WorkerThread::fetchVpnConfiguration()
     networkConfigurationManager->fetchVpnConfiguration();
 }
 
-void WorkerThread::writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration, const QString &password)
+void WorkerThread::writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration,
+                                         const QString &password)
 {
     networkConfigurationManager->writeVpnConfiguration(absoluteFilePath, configuration, password);
 }

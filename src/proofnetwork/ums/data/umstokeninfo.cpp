@@ -1,8 +1,8 @@
 #include "umstokeninfo.h"
 
 #include "umsuser_p.h"
-#include "proofnetwork/networkdataentity_p.h"
 
+#include "proofnetwork/networkdataentity_p.h"
 #include "proofnetwork/ums/data/umsuser.h"
 
 #include <QJsonArray>
@@ -33,16 +33,11 @@ class UmsTokenInfoPrivate : public NetworkDataEntityPrivate
 
 using namespace Proof::Ums;
 
-
-UmsTokenInfo::UmsTokenInfo()
-    : NetworkDataEntity(*new UmsTokenInfoPrivate)
-{
-}
+UmsTokenInfo::UmsTokenInfo() : NetworkDataEntity(*new UmsTokenInfoPrivate)
+{}
 
 UmsTokenInfo::~UmsTokenInfo()
-{
-
-}
+{}
 
 QString UmsTokenInfo::version() const
 {
@@ -96,7 +91,7 @@ UmsTokenInfoSP UmsTokenInfo::fromJson(const QJsonObject &tokenJson, const QStrin
 
     QString userName = tokenJson.value(QStringLiteral("unique_name")).toString();
     UmsTokenInfoSP umsToken = create();
-    UmsTokenInfoPrivate * const d = umsToken->d_func();
+    UmsTokenInfoPrivate *const d = umsToken->d_func();
     d->setToken(token);
     d->setVersion(tokenJson.value(QStringLiteral("ver")).toString(QLatin1String("")));
     d->setExpiresAt(QDateTime::fromTime_t(static_cast<uint>(tokenJson.value(QStringLiteral("exp")).toInt())));
@@ -119,7 +114,6 @@ UmsTokenInfoSP UmsTokenInfo::fromJson(const QJsonObject &tokenJson, const QStrin
 
     return umsToken;
 }
-
 
 void UmsTokenInfoPrivate::updateFrom(const Proof::NetworkDataEntitySP &other)
 {
@@ -163,9 +157,7 @@ void UmsTokenInfoPrivate::setValidFrom(const QDateTime &arg)
 UmsUserSP UmsTokenInfoPrivate::updateUser(const QString &arg)
 {
     Q_Q(UmsTokenInfo);
-    return updateEntityField(user, arg,
-                             umsUsersCache(), &UmsUser::userName,
-                             q, &UmsTokenInfo::userChanged);
+    return updateEntityField(user, arg, umsUsersCache(), &UmsUser::userName, q, &UmsTokenInfo::userChanged);
 }
 
 void UmsTokenInfoPrivate::setToken(const QString &arg)

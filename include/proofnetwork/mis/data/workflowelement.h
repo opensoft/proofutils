@@ -13,8 +13,7 @@ class PROOF_NETWORK_MIS_EXPORT WorkflowElement
     Q_DECLARE_PRIVATE(WorkflowElement)
 public:
     explicit WorkflowElement(const QString &string = QLatin1String(""));
-    WorkflowElement(WorkflowAction action, WorkflowStatus status,
-                    PaperSide paperSide = PaperSide::NotSetSide);
+    WorkflowElement(WorkflowAction action, WorkflowStatus status, PaperSide paperSide = PaperSide::NotSetSide);
     WorkflowElement(const WorkflowElement &other);
     WorkflowElement(WorkflowElement &&other);
     ~WorkflowElement();
@@ -36,12 +35,14 @@ public:
 
 private:
     QScopedPointer<WorkflowElementPrivate> d_ptr;
-
 };
 
-inline void swap(Proof::Mis::WorkflowElement &lhs, Proof::Mis::WorkflowElement &rhs) { lhs.swap(rhs); }
+inline void swap(Proof::Mis::WorkflowElement &lhs, Proof::Mis::WorkflowElement &rhs)
+{
+    lhs.swap(rhs);
+}
 
-}
-}
+} // namespace Mis
+} // namespace Proof
 
 #endif // PROOF_MIS_WORKFLOWELEMENT_H

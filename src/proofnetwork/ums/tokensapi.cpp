@@ -1,14 +1,14 @@
 #include "tokensapi.h"
-#include "proofnetwork/baserestapi_p.h"
 
+#include "proofnetwork/baserestapi_p.h"
 #include "proofnetwork/ums/data/umstokeninfo.h"
 
-#include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QNetworkReply>
 
 #ifndef QCA_DISABLED
-# include <QtCrypto>
+#    include <QtCrypto>
 #endif
 
 namespace Proof {
@@ -17,7 +17,7 @@ namespace Ums {
 class TokensApiPrivate : public BaseRestApiPrivate
 {
     Q_DECLARE_PUBLIC(TokensApi)
-    std::function<UmsTokenInfoSP (const QByteArray &)> tokenUnmarshaller();
+    std::function<UmsTokenInfoSP(const QByteArray &)> tokenUnmarshaller();
     bool verifyToken(const QByteArrayList &tokenList);
 
 #ifndef QCA_DISABLED
@@ -27,8 +27,8 @@ class TokensApiPrivate : public BaseRestApiPrivate
     QString clientSecret;
 };
 
-}
-}
+} // namespace Ums
+} // namespace Proof
 
 using namespace Proof;
 using namespace Proof::Ums;
@@ -107,14 +107,14 @@ CancelableFuture<QString> TokensApi::fetchPublicKey()
 {
     Q_D(TokensApi);
     return d->unmarshalReply(d->get(QStringLiteral("/Token/GetPublicKey")),
-                             [](const QByteArray &data){return QString(data);});
+                             [](const QByteArray &data) { return QString(data); });
 }
 
 CancelableFuture<QString> TokensApi::fetchCertificate()
 {
     Q_D(TokensApi);
     return d->unmarshalReply(d->get(QStringLiteral("/Token/GetCertificate")),
-                             [](const QByteArray &data){return QString(data);});
+                             [](const QByteArray &data) { return QString(data); });
 }
 
 std::function<UmsTokenInfoSP(const QByteArray &)> TokensApiPrivate::tokenUnmarshaller()
@@ -131,11 +131,11 @@ std::function<UmsTokenInfoSP(const QByteArray &)> TokensApiPrivate::tokenUnmarsh
         }
 
         if (!signatureVerified) {
-            return WithFailure(QStringLiteral("Token signature verification failed"),
-                               NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidTokenSignature);
+            return WithFailure(QStringLiteral("Token signature verification failed"), NETWORK_UMS_MODULE_CODE,
+                               NetworkErrorCode::InvalidTokenSignature);
         } else if (token.isEmpty() || !tokenInfo || !tokenInfo->isDirty()) {
-            return WithFailure(QStringLiteral("Failed to parse JSON from server reply"),
-                               NETWORK_UMS_MODULE_CODE, NetworkErrorCode::InvalidReply);
+            return WithFailure(QStringLiteral("Failed to parse JSON from server reply"), NETWORK_UMS_MODULE_CODE,
+                               NetworkErrorCode::InvalidReply);
         }
         return tokenInfo;
     };
@@ -159,16 +159,17 @@ bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
             signatureVerified = rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
 #else
             Q_UNUSED(signature)
-            qCWarning(proofNetworkUmsApiLog) << "rs256 algorithm" << algorithm << "is not supported. Token verification forcily succeeded!";
+            qCWarning(proofNetworkUmsApiLog)
+                << "rs256 algorithm" << algorithm << "is not supported. Token verification forcily succeeded!";
             signatureVerified = true;
 #endif
         } else if (algorithm == QLatin1String("none")) {
             signatureVerified = true;
         } else {
-            qCWarning(proofNetworkUmsApiLog) << "JWT algorithm" << algorithm << "is not supported. Token verification failed";
+            qCWarning(proofNetworkUmsApiLog)
+                << "JWT algorithm" << algorithm << "is not supported. Token verification failed";
         }
     }
 
     return signatureVerified;
 }
-

@@ -1,24 +1,22 @@
 // clazy:skip
 
-#include "gtest/test_global.h"
-
-#include "proofnetwork/ums/data/umsuser.h"
 #include "proofnetwork/ums/data/umstokeninfo.h"
+#include "proofnetwork/ums/data/umsuser.h"
 
+#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSignalSpy>
-#include <QFile>
+
+#include "gtest/test_global.h"
 
 using namespace Proof::Ums;
 using testing::Test;
 
-class UmsUserTest: public Test
+class UmsUserTest : public Test
 {
 public:
-    UmsUserTest()
-    {
-    }
+    UmsUserTest() {}
 
 protected:
     void SetUp() override
@@ -37,10 +35,7 @@ protected:
         qmlWrapperUT = tokenInfoUT->toQmlWrapper();
     }
 
-    void TearDown() override
-    {
-        delete qmlWrapperUT;
-    }
+    void TearDown() override { delete qmlWrapperUT; }
 
 protected:
     QJsonDocument jsonDoc;
@@ -85,10 +80,10 @@ TEST_F(UmsUserTest, updateFrom)
 
     tokenInfoUT->updateFrom(tokenInfoUT2);
 
-    for (QSignalSpy *spy: spies)
+    for (QSignalSpy *spy : spies)
         EXPECT_EQ(1, spy->count()) << spy->signal().constData();
 
-    for (QSignalSpy *spy: qmlspies)
+    for (QSignalSpy *spy : qmlspies)
         EXPECT_EQ(1, spy->count()) << spy->signal().constData();
 
     qDeleteAll(spies);
@@ -105,4 +100,3 @@ TEST_F(UmsUserTest, updateFrom)
     EXPECT_EQ(tokenInfoUT2->validFrom(), tokenInfoUT->validFrom());
     EXPECT_EQ(tokenInfoUT2->user()->roles(), tokenInfoUT->user()->roles());
 }
-

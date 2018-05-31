@@ -1,7 +1,6 @@
 #include "umstokeninfoqmlwrapper.h"
 
 #include "proofnetwork/qmlwrappers/networkdataentityqmlwrapper_p.h"
-
 #include "proofnetwork/ums/data/umstokeninfo.h"
 #include "proofnetwork/ums/data/umsuser.h"
 
@@ -16,8 +15,8 @@ class UmsTokenInfoQmlWrapperPrivate : public NetworkDataEntityQmlWrapperPrivate
     UmsUserQmlWrapper *user = nullptr;
 };
 
-}
-}
+} // namespace Ums
+} // namespace Proof
 
 using namespace Proof;
 using namespace Proof::Ums;
@@ -35,7 +34,6 @@ PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(UmsTokenInfo, QDateTime, expiresAt)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(UmsTokenInfo, QDateTime, validFrom)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(UmsTokenInfo, QString, token)
 
-
 UmsUserQmlWrapper *UmsTokenInfoQmlWrapper::user() const
 {
     Q_D(const UmsTokenInfoQmlWrapper);
@@ -48,14 +46,10 @@ void UmsTokenInfoQmlWrapper::setupEntity(const QSharedPointer<Proof::NetworkData
     UmsTokenInfoSP token = d->entity<UmsTokenInfo>();
     Q_ASSERT(token);
 
-    connect(token.data(), &UmsTokenInfo::versionChanged,
-            this, &UmsTokenInfoQmlWrapper::versionChanged);
-    connect(token.data(), &UmsTokenInfo::expiresAtChanged,
-            this, &UmsTokenInfoQmlWrapper::expiresAtChanged);
-    connect(token.data(), &UmsTokenInfo::validFromChanged,
-            this, &UmsTokenInfoQmlWrapper::validFromChanged);
-    connect(token.data(), &UmsTokenInfo::tokenChanged,
-            this, &UmsTokenInfoQmlWrapper::tokenChanged);
+    connect(token.data(), &UmsTokenInfo::versionChanged, this, &UmsTokenInfoQmlWrapper::versionChanged);
+    connect(token.data(), &UmsTokenInfo::expiresAtChanged, this, &UmsTokenInfoQmlWrapper::expiresAtChanged);
+    connect(token.data(), &UmsTokenInfo::validFromChanged, this, &UmsTokenInfoQmlWrapper::validFromChanged);
+    connect(token.data(), &UmsTokenInfo::tokenChanged, this, &UmsTokenInfoQmlWrapper::tokenChanged);
     connect(token.data(), &UmsTokenInfo::userChanged, d->lambdaConnectContext, [d] { d->updateUser(); });
 
     auto castedOld = qSharedPointerCast<UmsTokenInfo>(old);

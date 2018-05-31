@@ -1,8 +1,8 @@
 // clazy:skip
 
-#include "gtest/test_global.h"
-
 #include "proofnetwork/lprprinter/lprprinterapi.h"
+
+#include "gtest/test_global.h"
 
 using namespace Proof::NetworkServices;
 using testing::Test;
@@ -10,9 +10,7 @@ using testing::Test;
 class LprPrinterApiTest : public Test
 {
 public:
-    LprPrinterApiTest()
-    {
-    }
+    LprPrinterApiTest() {}
 
 protected:
     void SetUp() override

@@ -3,8 +3,6 @@
 
 #include "proofnetwork/proofnetwork_types.h"
 
-namespace Proof {
-}
+namespace Proof {}
 
 #endif // PROOFNETWORKLPRPRINTER_TYPES_H
-

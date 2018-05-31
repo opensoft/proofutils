@@ -1,26 +1,24 @@
 #include "qrcodegenerator.h"
 
 #include <QPainter>
-
 #include <qrencode.h>
 
 using namespace Proof;
 
 namespace {
-static const QHash<QrCodeGenerator::Mode, QRencodeMode> MODE_CONVERTOR = {
-    {QrCodeGenerator::Mode::Numeric, QR_MODE_NUM},
-    {QrCodeGenerator::Mode::AlphaNumeric, QR_MODE_AN},
-    {QrCodeGenerator::Mode::Character, QR_MODE_8}
-};
+static const QHash<QrCodeGenerator::Mode, QRencodeMode> MODE_CONVERTOR = {{QrCodeGenerator::Mode::Numeric, QR_MODE_NUM},
+                                                                          {QrCodeGenerator::Mode::AlphaNumeric,
+                                                                           QR_MODE_AN},
+                                                                          {QrCodeGenerator::Mode::Character, QR_MODE_8}};
 
-static const QHash<QrCodeGenerator::ErrorCorrection, QRecLevel> ERROR_CORRECTION_CONVERTOR = {
-    {QrCodeGenerator::ErrorCorrection::LowLevel, QR_ECLEVEL_L},
-    {QrCodeGenerator::ErrorCorrection::MediumLevel, QR_ECLEVEL_M},
-    {QrCodeGenerator::ErrorCorrection::QuartileLevel, QR_ECLEVEL_Q},
-    {QrCodeGenerator::ErrorCorrection::HighLevel, QR_ECLEVEL_H}
-};
+static const QHash<QrCodeGenerator::ErrorCorrection, QRecLevel> ERROR_CORRECTION_CONVERTOR =
+    {{QrCodeGenerator::ErrorCorrection::LowLevel, QR_ECLEVEL_L},
+     {QrCodeGenerator::ErrorCorrection::MediumLevel, QR_ECLEVEL_M},
+     {QrCodeGenerator::ErrorCorrection::QuartileLevel, QR_ECLEVEL_Q},
+     {QrCodeGenerator::ErrorCorrection::HighLevel, QR_ECLEVEL_H}};
 
-struct QrCodeData {
+struct QrCodeData
+{
     QByteArray data;
     int width = 0;
 };
@@ -50,7 +48,7 @@ QImage generateBitmap(const QrCodeData &rawData, int width)
     }
 
     QTransform transform;
-    transform.scale(width/rawData.width, width/rawData.width);
+    transform.scale(width / rawData.width, width / rawData.width);
     image = image.transformed(transform);
     int resultWidth = width + ((width + 8) % 8);
 
@@ -63,16 +61,16 @@ QImage generateBitmap(const QrCodeData &rawData, int width)
 
     return resultImage;
 }
-}
+} // namespace
 
-QImage QrCodeGenerator::generateBitmap(const QString &string, int width,
-                                       QrCodeGenerator::Mode mode, QrCodeGenerator::ErrorCorrection errorCorrection)
+QImage QrCodeGenerator::generateBitmap(const QString &string, int width, QrCodeGenerator::Mode mode,
+                                       QrCodeGenerator::ErrorCorrection errorCorrection)
 {
     return ::generateBitmap(::generateRawQrCode(string, mode, errorCorrection), width);
 }
 
-QByteArray QrCodeGenerator::generateEplBinaryData(const QString &string, int width,
-                                                  QrCodeGenerator::Mode mode, QrCodeGenerator::ErrorCorrection errorCorrection)
+QByteArray QrCodeGenerator::generateEplBinaryData(const QString &string, int width, QrCodeGenerator::Mode mode,
+                                                  QrCodeGenerator::ErrorCorrection errorCorrection)
 {
     QByteArray result;
     auto bitmap = generateBitmap(string, width, mode, errorCorrection);

@@ -1,12 +1,12 @@
 #ifndef PROOF_UMS_USER_H
 #define PROOF_UMS_USER_H
 
-#include "proofnetwork/user.h"
-#include "proofnetwork/ums/data/qmlwrappers/umsuserqmlwrapper.h"
-#include "proofnetwork/ums/proofnetworkums_types.h"
-#include "proofnetwork/ums/proofnetworkums_global.h"
-
 #include "proofcore/objectscache.h"
+
+#include "proofnetwork/ums/data/qmlwrappers/umsuserqmlwrapper.h"
+#include "proofnetwork/ums/proofnetworkums_global.h"
+#include "proofnetwork/ums/proofnetworkums_types.h"
+#include "proofnetwork/user.h"
 
 #include <QJsonObject>
 #include <QList>
@@ -40,7 +40,7 @@ private:
 
 PROOF_NETWORK_UMS_EXPORT ObjectsCache<QString, UmsUser> &umsUsersCache();
 
-}
-}
+} // namespace Ums
+} // namespace Proof
 
 #endif // PROOF_UMS_USER_H

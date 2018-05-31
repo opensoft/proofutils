@@ -17,7 +17,7 @@ class UmsTokenInfo;
 using UmsTokenInfoSP = QSharedPointer<UmsTokenInfo>;
 using UmsTokenInfoWP = QWeakPointer<UmsTokenInfo>;
 
-}
-}
+} // namespace Ums
+} // namespace Proof
 
 #endif // PROOFNETWORKUMS_TYPES_H

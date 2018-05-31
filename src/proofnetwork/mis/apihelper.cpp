@@ -8,86 +8,77 @@ namespace Mis {
  * Helper class for Mis API
  */
 
-static const QHash<QString, EntityStatus> ENTITY_STATUSES = {
-    {"invalid", EntityStatus::InvalidEntity},
-    {"not ready", EntityStatus::NotReadyEntity},
-    {"valid", EntityStatus::ValidEntity},
-    {"deleted", EntityStatus::DeletedEntity}
-};
+static const QHash<QString, EntityStatus> ENTITY_STATUSES = {{"invalid", EntityStatus::InvalidEntity},
+                                                             {"not ready", EntityStatus::NotReadyEntity},
+                                                             {"valid", EntityStatus::ValidEntity},
+                                                             {"deleted", EntityStatus::DeletedEntity}};
 
-static const QHash<QString, WorkflowStatus> WORKFLOW_STATUSES = {
-    {"needs", WorkflowStatus::NeedsStatus},
-    {"is ready for", WorkflowStatus::IsReadyForStatus},
-    {"in progress", WorkflowStatus::InProgressStatus},
-    {"suspended", WorkflowStatus::SuspendedStatus},
-    {"done", WorkflowStatus::DoneStatus},
-    {"halted", WorkflowStatus::HaltedStatus}
-};
+static const QHash<QString, WorkflowStatus> WORKFLOW_STATUSES = {{"needs", WorkflowStatus::NeedsStatus},
+                                                                 {"is ready for", WorkflowStatus::IsReadyForStatus},
+                                                                 {"in progress", WorkflowStatus::InProgressStatus},
+                                                                 {"suspended", WorkflowStatus::SuspendedStatus},
+                                                                 {"done", WorkflowStatus::DoneStatus},
+                                                                 {"halted", WorkflowStatus::HaltedStatus}};
 
-static const QHash<QString, WorkflowAction> WORKFLOW_ACTIONS = {
-    {"binding", WorkflowAction::BindingAction},
-    {"binning", WorkflowAction::BinningAction},
-    {"blister packing", WorkflowAction::BlisterPackingAction},
-    {"boxing", WorkflowAction::BoxingAction},
-    {"chip boarding", WorkflowAction::ChipBoardingAction},
-    {"clamping", WorkflowAction::ClampingAction},
-    {"color optimizing", WorkflowAction::ColorOptimizingAction},
-    {"component boxing", WorkflowAction::ComponentBoxingAction},
-    {"container packing", WorkflowAction::ContainerPackingAction},
-    {"cutting", WorkflowAction::CuttingAction},
-    {"die cutting", WorkflowAction::DieCuttingAction},
-    {"distribute", WorkflowAction::DistributeAction},
-    {"envelope adding", WorkflowAction::EnvelopeAddingAction},
-    {"folder making", WorkflowAction::FolderMakingAction},
-    {"folding", WorkflowAction::FoldingAction},
-    {"gluing", WorkflowAction::GluingAction},
-    {"inspection", WorkflowAction::InspectionAction},
-    {"laminating", WorkflowAction::LaminatingAction},
-    {"magnetize", WorkflowAction::MagnetizeAction},
-    {"mailing", WorkflowAction::MailingAction},
-    {"mounting", WorkflowAction::MountingAction},
-    {"outsource binding", WorkflowAction::OutsourceBindingAction},
-    {"outsource cutting", WorkflowAction::OutsourceCuttingAction},
-    {"pdf building", WorkflowAction::PdfBuildingAction},
-    {"pdf vt building", WorkflowAction::PdfVtBuildingAction},
-    {"plate making", WorkflowAction::PlateMakingAction},
-    {"pocket adding", WorkflowAction::PocketAddingAction},
-    {"printing", WorkflowAction::PrintingAction},
-    {"qc", WorkflowAction::QcAction},
-    {"rounding", WorkflowAction::RoundingAction},
-    {"scoring", WorkflowAction::ScoringAction},
-    {"screen imaging", WorkflowAction::ScreenImagingAction},
-    {"screen mounting", WorkflowAction::ScreenMountingAction},
-    {"screen preparation", WorkflowAction::ScreenPreparationAction},
-    {"screen washing", WorkflowAction::ScreenWashingAction},
-    {"ship boxing", WorkflowAction::ShipBoxingAction},
-    {"ship label", WorkflowAction::ShipLabelAction},
-    {"shipping", WorkflowAction::ShippingAction},
-    {"splitting", WorkflowAction::SplittingAction},
-    {"staging", WorkflowAction::StagingAction},
-    {"stripping", WorkflowAction::StrippingAction},
-    {"stuffing", WorkflowAction::StuffingAction},
-    {"truck loading", WorkflowAction::TruckLoadingAction},
-    {"uv coating", WorkflowAction::UvCoatingAction},
-    {"uv pdf building", WorkflowAction::UvPdfBuildingAction}
-};
+static const QHash<QString, WorkflowAction> WORKFLOW_ACTIONS =
+    {{"binding", WorkflowAction::BindingAction},
+     {"binning", WorkflowAction::BinningAction},
+     {"blister packing", WorkflowAction::BlisterPackingAction},
+     {"boxing", WorkflowAction::BoxingAction},
+     {"chip boarding", WorkflowAction::ChipBoardingAction},
+     {"clamping", WorkflowAction::ClampingAction},
+     {"color optimizing", WorkflowAction::ColorOptimizingAction},
+     {"component boxing", WorkflowAction::ComponentBoxingAction},
+     {"container packing", WorkflowAction::ContainerPackingAction},
+     {"cutting", WorkflowAction::CuttingAction},
+     {"die cutting", WorkflowAction::DieCuttingAction},
+     {"distribute", WorkflowAction::DistributeAction},
+     {"envelope adding", WorkflowAction::EnvelopeAddingAction},
+     {"folder making", WorkflowAction::FolderMakingAction},
+     {"folding", WorkflowAction::FoldingAction},
+     {"gluing", WorkflowAction::GluingAction},
+     {"inspection", WorkflowAction::InspectionAction},
+     {"laminating", WorkflowAction::LaminatingAction},
+     {"magnetize", WorkflowAction::MagnetizeAction},
+     {"mailing", WorkflowAction::MailingAction},
+     {"mounting", WorkflowAction::MountingAction},
+     {"outsource binding", WorkflowAction::OutsourceBindingAction},
+     {"outsource cutting", WorkflowAction::OutsourceCuttingAction},
+     {"pdf building", WorkflowAction::PdfBuildingAction},
+     {"pdf vt building", WorkflowAction::PdfVtBuildingAction},
+     {"plate making", WorkflowAction::PlateMakingAction},
+     {"pocket adding", WorkflowAction::PocketAddingAction},
+     {"printing", WorkflowAction::PrintingAction},
+     {"qc", WorkflowAction::QcAction},
+     {"rounding", WorkflowAction::RoundingAction},
+     {"scoring", WorkflowAction::ScoringAction},
+     {"screen imaging", WorkflowAction::ScreenImagingAction},
+     {"screen mounting", WorkflowAction::ScreenMountingAction},
+     {"screen preparation", WorkflowAction::ScreenPreparationAction},
+     {"screen washing", WorkflowAction::ScreenWashingAction},
+     {"ship boxing", WorkflowAction::ShipBoxingAction},
+     {"ship label", WorkflowAction::ShipLabelAction},
+     {"shipping", WorkflowAction::ShippingAction},
+     {"splitting", WorkflowAction::SplittingAction},
+     {"staging", WorkflowAction::StagingAction},
+     {"stripping", WorkflowAction::StrippingAction},
+     {"stuffing", WorkflowAction::StuffingAction},
+     {"truck loading", WorkflowAction::TruckLoadingAction},
+     {"uv coating", WorkflowAction::UvCoatingAction},
+     {"uv pdf building", WorkflowAction::UvPdfBuildingAction}};
 
-static const QHash<QString, TransitionEvent> TRANSITION_EVENTS = {
-    {"start", TransitionEvent::StartEvent},
-    {"stop", TransitionEvent::StopEvent},
-    {"abort", TransitionEvent::AbortEvent},
-    {"suspend", TransitionEvent::SuspendEvent},
-    {"resume", TransitionEvent::ResumeEvent},
-    {"perform", TransitionEvent::PerformEvent},
-    {"revert", TransitionEvent::RevertEvent},
-    {"request", TransitionEvent::RequestEvent}
-};
+static const QHash<QString, TransitionEvent> TRANSITION_EVENTS = {{"start", TransitionEvent::StartEvent},
+                                                                  {"stop", TransitionEvent::StopEvent},
+                                                                  {"abort", TransitionEvent::AbortEvent},
+                                                                  {"suspend", TransitionEvent::SuspendEvent},
+                                                                  {"resume", TransitionEvent::ResumeEvent},
+                                                                  {"perform", TransitionEvent::PerformEvent},
+                                                                  {"revert", TransitionEvent::RevertEvent},
+                                                                  {"request", TransitionEvent::RequestEvent}};
 
-static const QHash<QString, PaperSide> PAPER_SIDES = {
-    {"", PaperSide::NotSetSide},
-    {"front", PaperSide::FrontSide},
-    {"back", PaperSide::BackSide}
-};
+static const QHash<QString, PaperSide> PAPER_SIDES = {{"", PaperSide::NotSetSide},
+                                                      {"front", PaperSide::FrontSide},
+                                                      {"back", PaperSide::BackSide}};
 
 QString entityStatusToString(EntityStatus status)
 {
@@ -198,5 +189,5 @@ uint qHash(EntityStatus arg, uint seed)
     return ::qHash(static_cast<int>(arg), seed);
 }
 
-}
-}
+} // namespace Mis
+} // namespace Proof

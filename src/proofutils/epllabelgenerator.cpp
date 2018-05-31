@@ -30,48 +30,46 @@ uint qHash(EplLabelGenerator::BarcodeType barcodeType, uint seed = 0)
 }
 
 //TODO: consider moving all big statics to Q_GLOBAL_STATIC
-static const QHash<EplLabelGenerator::BarcodeType, QString> STRINGIFIED_BARCODE_TYPES = {
-    {EplLabelGenerator::BarcodeType::Code39, "3"},
-    {EplLabelGenerator::BarcodeType::Code39WithCheckDigit, "3C"},
-    {EplLabelGenerator::BarcodeType::Code93, "9"},
-    {EplLabelGenerator::BarcodeType::Code128UCC, "0"},
-    {EplLabelGenerator::BarcodeType::Code128Auto, "1"},
-    {EplLabelGenerator::BarcodeType::Code128A, "1A"},
-    {EplLabelGenerator::BarcodeType::Code128B, "1B"},
-    {EplLabelGenerator::BarcodeType::Code128C, "1C"},
-    {EplLabelGenerator::BarcodeType::Code128DeutschePost, "1D"},
-    {EplLabelGenerator::BarcodeType::Codabar, "K"},
-    {EplLabelGenerator::BarcodeType::Ean8, "E80"},
-    {EplLabelGenerator::BarcodeType::Ean8Addon2, "E82"},
-    {EplLabelGenerator::BarcodeType::Ean8Addon5, "E85"},
-    {EplLabelGenerator::BarcodeType::Ean13, "E30"},
-    {EplLabelGenerator::BarcodeType::Ean13Addon2, "E32"},
-    {EplLabelGenerator::BarcodeType::Ean13Addon5, "E35"},
-    {EplLabelGenerator::BarcodeType::GermanPostCode, "2G"},
-    {EplLabelGenerator::BarcodeType::Interleaved2Of5, "2"},
-    {EplLabelGenerator::BarcodeType::Interleaved2Of5WithMod10CheckDigit, "2C"},
-    {EplLabelGenerator::BarcodeType::Interleaved2Of5WithHumanReadableCheckDigit, "2D"},
-    {EplLabelGenerator::BarcodeType::Postnet, "P"},
-    {EplLabelGenerator::BarcodeType::Planet, "PL"},
-    {EplLabelGenerator::BarcodeType::PostnetJapanese, "J"},
-    {EplLabelGenerator::BarcodeType::UccEan128, "1E"},
-    {EplLabelGenerator::BarcodeType::UpcA, "UA0"},
-    {EplLabelGenerator::BarcodeType::UpcAAddon2, "UA2"},
-    {EplLabelGenerator::BarcodeType::UpcAAddon5, "UA5"},
-    {EplLabelGenerator::BarcodeType::UpcE, "UE0"},
-    {EplLabelGenerator::BarcodeType::UpcEAddon2, "UE2"},
-    {EplLabelGenerator::BarcodeType::UpcEAddon5, "UE5"},
-    {EplLabelGenerator::BarcodeType::UpcInterleaved2Of5, "2U"},
-    {EplLabelGenerator::BarcodeType::Msi1WithMod10CheckDigit, "L"},
-    {EplLabelGenerator::BarcodeType::Msi3WithMod10CheckDigit, "M"}
-};
+static const QHash<EplLabelGenerator::BarcodeType, QString> STRINGIFIED_BARCODE_TYPES =
+    {{EplLabelGenerator::BarcodeType::Code39, "3"},
+     {EplLabelGenerator::BarcodeType::Code39WithCheckDigit, "3C"},
+     {EplLabelGenerator::BarcodeType::Code93, "9"},
+     {EplLabelGenerator::BarcodeType::Code128UCC, "0"},
+     {EplLabelGenerator::BarcodeType::Code128Auto, "1"},
+     {EplLabelGenerator::BarcodeType::Code128A, "1A"},
+     {EplLabelGenerator::BarcodeType::Code128B, "1B"},
+     {EplLabelGenerator::BarcodeType::Code128C, "1C"},
+     {EplLabelGenerator::BarcodeType::Code128DeutschePost, "1D"},
+     {EplLabelGenerator::BarcodeType::Codabar, "K"},
+     {EplLabelGenerator::BarcodeType::Ean8, "E80"},
+     {EplLabelGenerator::BarcodeType::Ean8Addon2, "E82"},
+     {EplLabelGenerator::BarcodeType::Ean8Addon5, "E85"},
+     {EplLabelGenerator::BarcodeType::Ean13, "E30"},
+     {EplLabelGenerator::BarcodeType::Ean13Addon2, "E32"},
+     {EplLabelGenerator::BarcodeType::Ean13Addon5, "E35"},
+     {EplLabelGenerator::BarcodeType::GermanPostCode, "2G"},
+     {EplLabelGenerator::BarcodeType::Interleaved2Of5, "2"},
+     {EplLabelGenerator::BarcodeType::Interleaved2Of5WithMod10CheckDigit, "2C"},
+     {EplLabelGenerator::BarcodeType::Interleaved2Of5WithHumanReadableCheckDigit, "2D"},
+     {EplLabelGenerator::BarcodeType::Postnet, "P"},
+     {EplLabelGenerator::BarcodeType::Planet, "PL"},
+     {EplLabelGenerator::BarcodeType::PostnetJapanese, "J"},
+     {EplLabelGenerator::BarcodeType::UccEan128, "1E"},
+     {EplLabelGenerator::BarcodeType::UpcA, "UA0"},
+     {EplLabelGenerator::BarcodeType::UpcAAddon2, "UA2"},
+     {EplLabelGenerator::BarcodeType::UpcAAddon5, "UA5"},
+     {EplLabelGenerator::BarcodeType::UpcE, "UE0"},
+     {EplLabelGenerator::BarcodeType::UpcEAddon2, "UE2"},
+     {EplLabelGenerator::BarcodeType::UpcEAddon5, "UE5"},
+     {EplLabelGenerator::BarcodeType::UpcInterleaved2Of5, "2U"},
+     {EplLabelGenerator::BarcodeType::Msi1WithMod10CheckDigit, "L"},
+     {EplLabelGenerator::BarcodeType::Msi3WithMod10CheckDigit, "M"}};
 
 } // namespace Proof
 
 using namespace Proof;
 
-EplLabelGenerator::EplLabelGenerator(int printerDpi)
-    : d_ptr(new EplLabelGeneratorPrivate)
+EplLabelGenerator::EplLabelGenerator(int printerDpi) : d_ptr(new EplLabelGeneratorPrivate)
 {
     d_ptr->q_ptr = this;
     //We don't support any other dpi's for now
@@ -79,8 +77,7 @@ EplLabelGenerator::EplLabelGenerator(int printerDpi)
 }
 
 EplLabelGenerator::~EplLabelGenerator()
-{
-}
+{}
 
 void EplLabelGenerator::startLabel(int width, int height, int speed, int density, int gapLength)
 {
@@ -94,8 +91,8 @@ void EplLabelGenerator::startLabel(int width, int height, int speed, int density
     startPage();
 }
 
-QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize,
-                                 int horizontalScale, int verticalScale, int rotation, bool inverseColors)
+QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize, int horizontalScale,
+                                 int verticalScale, int rotation, bool inverseColors)
 {
     Q_D(EplLabelGenerator);
 
@@ -124,14 +121,14 @@ QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize
     rotation = (rotation % 360) / 90;
 
     d->lastLabel.append(QStringLiteral("A%1,%2,%3,%4,%5,%6,%7,\"%8\"\n")
-                        .arg(x)
-                        .arg(y)
-                        .arg(rotation)
-                        .arg(fontSize)
-                        .arg(horizontalScale)
-                        .arg(verticalScale)
-                        .arg(inverseColors ? QStringLiteral("R") : QStringLiteral("N")) // clazy:exclude=qstring-arg
-                        .arg(preparedText));
+                            .arg(x)
+                            .arg(y)
+                            .arg(rotation)
+                            .arg(fontSize)
+                            .arg(horizontalScale)
+                            .arg(verticalScale)
+                            .arg(inverseColors ? QStringLiteral("R") : QStringLiteral("N")) // clazy:exclude=qstring-arg
+                            .arg(preparedText));
 
     QRect rect(QPoint(x, y), textSize(text, fontSize, horizontalScale, verticalScale));
 
@@ -175,15 +172,15 @@ QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::Barc
     rotation = (rotation % 360) / 90;
 
     d->lastLabel.append(QStringLiteral("B%1,%2,%3,%4,%5,%6,%7,%8,\"%9\"\n")
-                        .arg(x)
-                        .arg(y)
-                        .arg(rotation)
-                        .arg(STRINGIFIED_BARCODE_TYPES.value(type, QStringLiteral("1")))
-                        .arg(narrowBarWidth)
-                        .arg(wideBarWidth)
-                        .arg(height)
-                        .arg(printReadableCode ? QStringLiteral("B") : QStringLiteral("N")) // clazy:exclude=qstring-arg
-                        .arg(preparedData));
+                            .arg(x)
+                            .arg(y)
+                            .arg(rotation)
+                            .arg(STRINGIFIED_BARCODE_TYPES.value(type, QStringLiteral("1")))
+                            .arg(narrowBarWidth)
+                            .arg(wideBarWidth)
+                            .arg(height)
+                            .arg(printReadableCode ? QStringLiteral("B") : QStringLiteral("N")) // clazy:exclude=qstring-arg
+                            .arg(preparedData));
 
     if (printReadableCode)
         height += d->charSize(4, 1, 1).height();
@@ -213,11 +210,7 @@ QRect EplLabelGenerator::addQrCode(const QString &data, int x, int y, int width)
     auto rawBinary = QrCodeGenerator::generateEplBinaryData(data, width);
     width = width + ((width + 8) % 8);
 
-    d->lastLabel.append(QStringLiteral("GW%1,%2,%3,%4,")
-                        .arg(x)
-                        .arg(y)
-                        .arg(width / 8)
-                        .arg(width));
+    d->lastLabel.append(QStringLiteral("GW%1,%2,%3,%4,").arg(x).arg(y).arg(width / 8).arg(width));
     d->lastLabel.append(rawBinary);
     d->lastLabel.append("\n");
 
@@ -240,12 +233,7 @@ QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGe
         break;
     }
 
-    d->lastLabel.append(QStringLiteral("L%1%2,%3,%4,%5\n")
-                        .arg(lineTypeString)
-                        .arg(x)
-                        .arg(y)
-                        .arg(width)
-                        .arg(height));
+    d->lastLabel.append(QStringLiteral("L%1%2,%3,%4,%5\n").arg(lineTypeString).arg(x).arg(y).arg(width).arg(height));
 
     return QRect(x, y, width, height);
 }
@@ -253,12 +241,7 @@ QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGe
 QRect EplLabelGenerator::addDiagonalLine(int x, int y, int endX, int endY, int width)
 {
     Q_D(EplLabelGenerator);
-    d->lastLabel.append(QStringLiteral("LS%1,%2,%3,%4,%5\n")
-                        .arg(x)
-                        .arg(y)
-                        .arg(width)
-                        .arg(endX)
-                        .arg(endY));
+    d->lastLabel.append(QStringLiteral("LS%1,%2,%3,%4,%5\n").arg(x).arg(y).arg(width).arg(endX).arg(endY));
 
     return {QPoint(qMin(x, endX), qMin(y, endY)), QSize(qAbs(endX - x), qAbs(endY - y) + width)};
 }
@@ -297,7 +280,7 @@ QSize EplLabelGeneratorPrivate::charSize(int fontSize, int horizontalScale, int 
 {
     QSize result;
     //Adding 2 to each size for inter-character gaps
-    switch(fontSize) {
+    switch (fontSize) {
     case 1:
         result = (dpi == 300) ? QSize(14, 22) : QSize(10, 14);
         break;
@@ -323,4 +306,3 @@ QSize EplLabelGeneratorPrivate::charSize(int fontSize, int horizontalScale, int 
     }
     return QSize(result.width() * horizontalScale, result.height() * verticalScale);
 }
-

@@ -5,7 +5,7 @@
 #include <QProcess>
 
 #ifdef Q_OS_ANDROID
-# include <QtAndroid>
+#    include <QtAndroid>
 #endif
 
 namespace {
@@ -21,7 +21,7 @@ private:
     Proof::PowerManagerPrivate *powerManager;
 };
 
-}
+} // namespace
 
 namespace Proof {
 
@@ -35,8 +35,7 @@ public:
     WorkerThread *thread;
 };
 
-PowerManager::PowerManager(QObject *parent)
-    : ProofObject(*new PowerManagerPrivate, parent)
+PowerManager::PowerManager(QObject *parent) : ProofObject(*new PowerManagerPrivate, parent)
 {
     Q_D(PowerManager);
     d->thread = new WorkerThread(d);
@@ -76,19 +75,21 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 
 #ifdef Q_OS_UNIX
     Q_Q(PowerManager);
-# ifdef Q_OS_ANDROID
+#    ifdef Q_OS_ANDROID
     qCDebug(proofUtilsMiscLog) << "Shutdown is not supported for Android.";
-    emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::PlatformNotSupported, QObject::tr("This action is not supported for current platform"), true);
-# else
+    emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::PlatformNotSupported,
+                          QObject::tr("This action is not supported for current platform"), true);
+#    else
     QScopedPointer<QProcess> shutdownProcess(new QProcess);
     shutdownProcess->setProcessChannelMode(QProcess::MergedChannels);
-    shutdownProcess->start(QStringLiteral("sudo -S -k shutdown -%1 now")
-                           .arg(restart ? QStringLiteral("r") : QStringLiteral("h")));
+    shutdownProcess->start(
+        QStringLiteral("sudo -S -k shutdown -%1 now").arg(restart ? QStringLiteral("r") : QStringLiteral("h")));
     shutdownProcess->waitForStarted();
     if (shutdownProcess->error() == QProcess::UnknownError) {
         if (!shutdownProcess->waitForReadyRead()) {
             qCDebug(proofUtilsMiscLog) << "No answer from sudo. Returning";
-            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, QStringLiteral("No answer from OS"), false);
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem,
+                                  QStringLiteral("No answer from OS"), false);
             return;
         }
         QByteArray readBuffer;
@@ -101,7 +102,8 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
             shutdownProcess->write(QStringLiteral("%1\n").arg(password).toLatin1());
             if (!shutdownProcess->waitForReadyRead()) {
                 qCDebug(proofUtilsMiscLog) << "No answer from sudo. Returning";
-                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem, QStringLiteral("No answer from OS"), false);
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::NoAnswerFromSystem,
+                                      QStringLiteral("No answer from OS"), false);
                 return;
             }
 
@@ -111,31 +113,39 @@ void PowerManagerPrivate::shutdown(const QString &password, bool restart)
 
             if (currentRead.contains("is not in the sudoers")) {
                 qCDebug(proofUtilsMiscLog) << "User not in sudoers list; log:\n" << readBuffer;
-                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UserNotASudoer, QStringLiteral("User not in sudoers list"), false);
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UserNotASudoer,
+                                      QStringLiteral("User not in sudoers list"), false);
                 return;
             }
             if (currentRead.contains("Sorry, try again")) {
                 qCDebug(proofUtilsMiscLog) << "Sudo rejected the password; log:\n" << readBuffer;
-                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::IncorrectPassword, QObject::tr("Incorrect password"), true);
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::IncorrectPassword,
+                                      QObject::tr("Incorrect password"), true);
                 return;
             }
 
             if (!currentRead.contains("The system is going down for")) {
                 qCDebug(proofUtilsMiscLog) << "Sudo doesn't do nothing; log:\n" << readBuffer;
-                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::IncorrectPassword, QObject::tr("Something went wrong during shutdown. Please, contact IT department."), true);
+                emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::IncorrectPassword,
+                                      QObject::tr(
+                                          "Something went wrong during shutdown. Please, contact IT department."),
+                                      true);
                 return;
             }
         }
 
         shutdownProcess->waitForFinished(-1);
-        qCDebug(proofUtilsMiscLog) << "Shutdown exitcode =" << shutdownProcess->exitCode() << "; log:\n" << readBuffer + shutdownProcess->readAll().trimmed();
+        qCDebug(proofUtilsMiscLog) << "Shutdown exitcode =" << shutdownProcess->exitCode() << "; log:\n"
+                                   << readBuffer + shutdownProcess->readAll().trimmed();
         if (shutdownProcess->exitCode())
-            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, QStringLiteral("Unknown error"), false);
+            emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, QStringLiteral("Unknown error"),
+                                  false);
     } else {
-        qCDebug(proofUtilsMiscLog) << "Process couldn't be started" << shutdownProcess->error() << shutdownProcess->errorString();
+        qCDebug(proofUtilsMiscLog) << "Process couldn't be started" << shutdownProcess->error()
+                                   << shutdownProcess->errorString();
         emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, QStringLiteral("Unknown error"), false);
     }
-# endif
+#    endif
 #else
     if (restart)
         restartApp();
@@ -155,15 +165,15 @@ void PowerManagerPrivate::restartApp()
         qApp->quit();
     } else {
         qCDebug(proofUtilsMiscLog) << "Can't restart application";
-        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError, QStringLiteral("Can't restart application"), false);
+        emit q->errorOccurred(UTILS_MODULE_CODE, UtilsErrorCode::UnknownError,
+                              QStringLiteral("Can't restart application"), false);
     }
 #endif
 }
 
 } // namespace Proof
 
-WorkerThread::WorkerThread(Proof::PowerManagerPrivate *powerManager)
-    : QThread(), powerManager(powerManager)
+WorkerThread::WorkerThread(Proof::PowerManagerPrivate *powerManager) : QThread(), powerManager(powerManager)
 {
     moveToThread(this);
 }

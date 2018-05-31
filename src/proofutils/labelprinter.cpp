@@ -2,10 +2,10 @@
 
 #include "proofcore/proofobject_p.h"
 #ifndef Q_OS_ANDROID
-# include "proofhardware/lprprinter/lprprinter.h"
+#    include "proofhardware/lprprinter/lprprinter.h"
 #endif
-#include "proofnetwork/lprprinter/lprprinterapi.h"
 #include "proofnetwork/apicall.h"
+#include "proofnetwork/lprprinter/lprprinterapi.h"
 
 namespace Proof {
 class LabelPrinterPrivate : public ProofObjectPrivate
@@ -47,9 +47,10 @@ LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
     d->printerName = params.printerName;
 #ifndef Q_OS_ANDROID
     if (!params.forceServiceUsage && !params.printerName.isEmpty()) {
-        d->hardwareLabelPrinter = new Proof::Hardware::LprPrinter(params.printerHost, params.printerName, params.strictHardwareCheck, this);
-        connect(d->hardwareLabelPrinter, &Proof::Hardware::LprPrinter::errorOccurred,
-                this, &Proof::LabelPrinter::errorOccurred);
+        d->hardwareLabelPrinter = new Proof::Hardware::LprPrinter(params.printerHost, params.printerName,
+                                                                  params.strictHardwareCheck, this);
+        connect(d->hardwareLabelPrinter, &Proof::Hardware::LprPrinter::errorOccurred, this,
+                &Proof::LabelPrinter::errorOccurred);
         return;
     }
 #endif
