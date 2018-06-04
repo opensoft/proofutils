@@ -21,9 +21,9 @@ class LprPrinterApiPrivate : public ProofServiceRestApiPrivate
 
     auto printerStatusUnmarshaller()
     {
-        return [](const QByteArray &data) -> LprPrinterStatus {
+        return [](const RestApiReply &reply) -> LprPrinterStatus {
             QJsonParseError jsonError;
-            QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+            QJsonDocument doc = QJsonDocument::fromJson(reply.data, &jsonError);
             if (jsonError.error != QJsonParseError::NoError) {
                 return WithFailure(QStringLiteral("JSON error: %1").arg(jsonError.errorString()),
                                    NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply, Failure::NoHint,
@@ -40,9 +40,9 @@ class LprPrinterApiPrivate : public ProofServiceRestApiPrivate
 
     auto discardingPrinterStatusUnmarshaller()
     {
-        return [](const QByteArray &data) -> bool {
+        return [](const RestApiReply &reply) -> bool {
             QJsonParseError jsonError;
-            QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+            QJsonDocument doc = QJsonDocument::fromJson(reply.data, &jsonError);
             if (jsonError.error != QJsonParseError::NoError) {
                 return WithFailure(QStringLiteral("JSON error: %1").arg(jsonError.errorString()),
                                    NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply, Failure::NoHint,
@@ -117,9 +117,9 @@ CancelableFuture<bool> LprPrinterApi::printFile(const QString &fileName, const Q
 CancelableFuture<QList<LprPrinterInfo>> LprPrinterApi::fetchPrintersList()
 {
     Q_D(LprPrinterApi);
-    auto unmarshaller = [](const QByteArray &data) -> QList<LprPrinterInfo> {
+    auto unmarshaller = [](const RestApiReply &reply) -> QList<LprPrinterInfo> {
         QJsonParseError jsonError;
-        QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+        QJsonDocument doc = QJsonDocument::fromJson(reply.data, &jsonError);
         if (jsonError.error != QJsonParseError::NoError) {
             return WithFailure(QStringLiteral("JSON error: %1").arg(jsonError.errorString()),
                                NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::InvalidReply, Failure::NoHint,

@@ -17,7 +17,7 @@ namespace Ums {
 class TokensApiPrivate : public BaseRestApiPrivate
 {
     Q_DECLARE_PUBLIC(TokensApi)
-    std::function<UmsTokenInfoSP(const QByteArray &)> tokenUnmarshaller();
+    std::function<UmsTokenInfoSP(const RestApiReply &)> tokenUnmarshaller();
     bool verifyToken(const QByteArrayList &tokenList);
 
 #ifndef QCA_DISABLED
@@ -107,20 +107,20 @@ CancelableFuture<QString> TokensApi::fetchPublicKey()
 {
     Q_D(TokensApi);
     return d->unmarshalReply(d->get(QStringLiteral("/Token/GetPublicKey")),
-                             [](const QByteArray &data) { return QString(data); });
+                             [](const RestApiReply &reply) { return QString(reply.data); });
 }
 
 CancelableFuture<QString> TokensApi::fetchCertificate()
 {
     Q_D(TokensApi);
     return d->unmarshalReply(d->get(QStringLiteral("/Token/GetCertificate")),
-                             [](const QByteArray &data) { return QString(data); });
+                             [](const RestApiReply &reply) { return QString(reply.data); });
 }
 
-std::function<UmsTokenInfoSP(const QByteArray &)> TokensApiPrivate::tokenUnmarshaller()
+std::function<UmsTokenInfoSP(const RestApiReply &)> TokensApiPrivate::tokenUnmarshaller()
 {
-    return [this](const QByteArray &data) -> UmsTokenInfoSP {
-        QString token = QJsonDocument::fromJson(data).object().value(QStringLiteral("access_token")).toString();
+    return [this](const RestApiReply &reply) -> UmsTokenInfoSP {
+        QString token = QJsonDocument::fromJson(reply.data).object().value(QStringLiteral("access_token")).toString();
         QByteArrayList tokenList = token.toUtf8().split('.');
 
         Proof::Ums::UmsTokenInfoSP tokenInfo;
