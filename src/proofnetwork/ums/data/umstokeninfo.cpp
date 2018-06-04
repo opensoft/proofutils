@@ -86,10 +86,10 @@ UmsTokenInfoSP UmsTokenInfo::create()
 
 UmsTokenInfoSP UmsTokenInfo::fromJson(const QJsonObject &tokenJson, const QString &token)
 {
-    if (!tokenJson.contains(QLatin1String("unique_name")))
+    if (!tokenJson.contains(QLatin1String("email")))
         return UmsTokenInfoSP();
 
-    QString userName = tokenJson.value(QStringLiteral("unique_name")).toString();
+    QString userName = tokenJson.value(QStringLiteral("email")).toString();
     UmsTokenInfoSP umsToken = create();
     UmsTokenInfoPrivate *const d = umsToken->d_func();
     d->setToken(token);

@@ -55,8 +55,8 @@ TEST_F(UmsUserTest, fromJson)
 {
     EXPECT_TRUE(tokenInfoUT->isFetched());
 
-    EXPECT_EQ("vadim.petrunin", tokenInfoUT->user()->userName());
-    EXPECT_EQ("vadim.petrunin", qmlWrapperUT->user()->userName());
+    EXPECT_EQ("vadim.petrunin@farheap.com", tokenInfoUT->user()->userName());
+    EXPECT_EQ("vadim.petrunin@farheap.com", qmlWrapperUT->user()->userName());
     EXPECT_EQ("Vadim Petrunin", tokenInfoUT->user()->fullName());
     EXPECT_EQ("Vadim Petrunin", qmlWrapperUT->user()->fullName());
     EXPECT_EQ("vadim.petrunin@farheap.com", tokenInfoUT->user()->email());
