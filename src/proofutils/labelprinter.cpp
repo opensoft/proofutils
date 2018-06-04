@@ -1,10 +1,13 @@
 #include "labelprinter.h"
 
 #include "proofcore/proofobject_p.h"
+#include "proofcore/tasks.h"
+
+#include "proofnetwork/lprprinter/lprprinterapi.h"
+
 #ifndef Q_OS_ANDROID
 #    include "proofhardware/lprprinter/lprprinter.h"
 #endif
-#include "proofnetwork/lprprinter/lprprinterapi.h"
 
 namespace Proof {
 class LabelPrinterPrivate : public ProofObjectPrivate
@@ -15,22 +18,6 @@ class LabelPrinterPrivate : public ProofObjectPrivate
     Proof::Hardware::LprPrinter *hardwareLabelPrinter = nullptr;
 #endif
     Proof::NetworkServices::LprPrinterApi *labelPrinterApi = nullptr;
-    Proof::RestClientSP restClient;
-    //Think about moving this object back to one thread
-    //bool LabelPrinter::event(QEvent *ev)
-    //{
-    //    Q_D(LabelPrinter);
-    //    if (ev->type() == QEvent::ThreadChange) {
-    //        QCoreApplication::postEvent(this, new QEvent(QEvent::User));
-    //    } else if (ev->type() == (QEvent::User)) {
-    //        if (d->restClient)
-    //            call(d->restClient.data(), &QObject::moveToThread, Proof::Call::BlockEvents, thread());
-    //    }
-    //    return QObject::event(ev);
-    //}
-    // This approach works fine, except one race when it is possible to call something between these two events which will cause the deadlock.
-    // If having extra thread for each label printer will affect us by any way sometime we need to return back to it and fix the race.
-    QThread *thread = nullptr;
 
     QString printerName;
 };
@@ -48,31 +35,21 @@ LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
     if (!params.forceServiceUsage && !params.printerName.isEmpty()) {
         d->hardwareLabelPrinter = new Proof::Hardware::LprPrinter(params.printerHost, params.printerName,
                                                                   params.strictHardwareCheck, this);
-        connect(d->hardwareLabelPrinter, &Proof::Hardware::LprPrinter::errorOccurred, this,
-                &Proof::LabelPrinter::errorOccurred);
         return;
     }
 #endif
 
-    d->restClient = Proof::RestClientSP::create();
-    d->restClient->setAuthType(Proof::RestAuthType::NoAuth);
-    d->restClient->setScheme(QStringLiteral("http"));
-    d->restClient->setHost(params.printerHost.isEmpty() ? QStringLiteral("127.0.0.1") : params.printerHost);
-    d->restClient->setPort(params.printerPort);
-    d->labelPrinterApi = new Proof::NetworkServices::LprPrinterApi(d->restClient);
-
-    d->thread = new QThread(this);
-    d->labelPrinterApi->moveToThread(d->thread);
-    d->thread->start();
+    auto restClient = Proof::RestClientSP::create();
+    restClient->setAuthType(Proof::RestAuthType::NoAuth);
+    restClient->setScheme(QStringLiteral("http"));
+    restClient->setHost(params.printerHost.isEmpty() ? QStringLiteral("127.0.0.1") : params.printerHost);
+    restClient->setPort(params.printerPort);
+    d->labelPrinterApi = new Proof::NetworkServices::LprPrinterApi(restClient);
 }
 
 LabelPrinter::~LabelPrinter()
 {
     Q_D(LabelPrinter);
-    if (d->thread) {
-        d->thread->quit();
-        d->thread->wait(1000);
-    }
     if (d->labelPrinterApi)
         delete d->labelPrinterApi;
 }
@@ -82,7 +59,7 @@ FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrin
     Q_D(const LabelPrinter);
 #ifndef Q_OS_ANDROID
     if (d->hardwareLabelPrinter)
-        return Future<bool>::successful(d->hardwareLabelPrinter->printRawData(label, ignorePrinterState));
+        return d->hardwareLabelPrinter->printRawData(label, ignorePrinterState);
 #else
     Q_UNUSED(ignorePrinterState)
 #endif
@@ -94,7 +71,7 @@ FutureSP<bool> LabelPrinter::printerIsReady() const
     Q_D(const LabelPrinter);
 #ifndef Q_OS_ANDROID
     if (d->hardwareLabelPrinter)
-        return Future<bool>::successful(d->hardwareLabelPrinter->printerIsReady());
+        return d->hardwareLabelPrinter->printerIsReady();
 #endif
     return d->labelPrinterApi->fetchStatus(d->printerName)->map([](const auto &status) -> bool {
         if (status.isReady)
