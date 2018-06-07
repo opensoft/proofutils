@@ -1,9 +1,5 @@
 include(proofnetwork.prf)
 
-win32 {
-    LIBS *= -lProofNetworkUms$${PROOF_VERSION_MAJOR}
-} else {
-    LIBS *= -lProofNetworkUms
-}
+LIBS *= -lProofNetworkUms
 
 android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofNetworkUms.so

@@ -1,9 +1,5 @@
 include(proofnetwork.prf)
 
-win32 {
-    LIBS *= -lProofNetworkMis$${PROOF_VERSION_MAJOR}
-} else {
-    LIBS *= -lProofNetworkMis
-}
+LIBS *= -lProofNetworkMis
 
 android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofNetworkMis.so
