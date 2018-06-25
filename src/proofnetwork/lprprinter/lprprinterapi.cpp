@@ -114,10 +114,10 @@ CancelableFuture<bool> LprPrinterApi::printFile(const QString &fileName, const Q
                              d->discardingPrinterStatusUnmarshaller());
 }
 
-CancelableFuture<QList<LprPrinterInfo>> LprPrinterApi::fetchPrintersList()
+CancelableFuture<QVector<LprPrinterInfo>> LprPrinterApi::fetchPrintersList()
 {
     Q_D(LprPrinterApi);
-    auto unmarshaller = [](const RestApiReply &reply) -> QList<LprPrinterInfo> {
+    auto unmarshaller = [](const RestApiReply &reply) -> QVector<LprPrinterInfo> {
         QJsonParseError jsonError;
         QJsonDocument doc = QJsonDocument::fromJson(reply.data, &jsonError);
         if (jsonError.error != QJsonParseError::NoError) {
@@ -129,7 +129,7 @@ CancelableFuture<QList<LprPrinterInfo>> LprPrinterApi::fetchPrintersList()
             return WithFailure(QStringLiteral("Array is not found in document"), NETWORK_LPR_PRINTER_MODULE_CODE,
                                NetworkErrorCode::InvalidReply);
         }
-        QList<LprPrinterInfo> printers;
+        QVector<LprPrinterInfo> printers;
         const QJsonArray array = doc.array();
         for (const QJsonValue &value : array) {
             QJsonObject object = value.toObject();

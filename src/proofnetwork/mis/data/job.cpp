@@ -23,7 +23,7 @@ class JobPrivate : NetworkDataEntityPrivate
     double height = 0.0;
     QString source;
     bool hasPreview = false;
-    QList<WorkflowElement> workflow;
+    QVector<WorkflowElement> workflow;
 };
 
 ObjectsCache<JobCacheKey, Job> &jobsCache()
@@ -156,7 +156,7 @@ void Job::setHasPreview(bool hasPreview)
     }
 }
 
-void Job::setWorkflow(const QList<WorkflowElement> &arg)
+void Job::setWorkflow(const QVector<WorkflowElement> &arg)
 {
     Q_D(Job);
     bool emitNeeded = arg.count() != d->workflow.count();
@@ -272,7 +272,7 @@ JobSP Job::fromJson(const QJsonObject &json)
     job->setSource(json.value(QStringLiteral("source")).toString(QLatin1String("")));
     job->setHasPreview(json.value(QStringLiteral("has_preview")).toBool());
 
-    QList<WorkflowElement> workflow;
+    QVector<WorkflowElement> workflow;
 
     QJsonArray workflowArray = json.value(QStringLiteral("workflow")).toArray();
 

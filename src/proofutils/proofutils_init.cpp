@@ -16,7 +16,7 @@ PROOF_LIBRARY_INITIALIZER(libraryInit)
 {
     // clang-format off
     qRegisterMetaType<Proof::NetworkConfigurationManager::ProxyType>("Proof::NetworkConfigurationManager::ProxyType");
-    qRegisterMetaType<QList<Proof::NetworkConfigurationManager::ProxyType>>("QList<Proof::NetworkConfigurationManager::ProxyType>");
+    qRegisterMetaType<QVector<Proof::NetworkConfigurationManager::ProxyType>>("QVector<Proof::NetworkConfigurationManager::ProxyType>");
     // clang-format on
 
     //label printer migration

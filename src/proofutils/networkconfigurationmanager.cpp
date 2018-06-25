@@ -251,7 +251,7 @@ void NetworkConfigurationManager::writeNetworkConfiguration(const QString &netwo
                                  alternateDns, password);
 }
 
-QList<int> NetworkConfigurationManager::proxyTypes() const
+QVector<int> NetworkConfigurationManager::proxyTypes() const
 {
     return {static_cast<int>(ProxyType::NoProxyType), static_cast<int>(ProxyType::HttpProxyType),
             static_cast<int>(ProxyType::SocksProxyType), static_cast<int>(ProxyType::AutoConfigurationProxyType),

@@ -10,8 +10,8 @@ using testing::TestWithParam;
 using SizeTestTuple = std::tuple<QSize, QString, int, int, int>;
 using BarcodeTestTuple = std::tuple<QString, QString, EplLabelGenerator::BarcodeType, int, int, int, bool, int, int, int>;
 
-static const QList<QSize> singleCharSizeAt203 = {{10, 14}, {12, 18}, {14, 22}, {16, 26}, {34, 50}};
-static const QList<QSize> singleCharSizeAt300 = {{14, 22}, {18, 30}, {22, 38}, {26, 46}, {50, 82}};
+static const QVector<QSize> singleCharSizeAt203 = {{10, 14}, {12, 18}, {14, 22}, {16, 26}, {34, 50}};
+static const QVector<QSize> singleCharSizeAt300 = {{14, 22}, {18, 30}, {22, 38}, {26, 46}, {50, 82}};
 
 class EplLabelGenerator203SizesTest : public TestWithParam<SizeTestTuple>
 {};

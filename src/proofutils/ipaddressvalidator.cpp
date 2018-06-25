@@ -9,9 +9,9 @@ class IpAddressValidatorPrivate
 
     bool maskValidationMode = false;
 
-    QValidator::State validateIp(const QList<quint8> &parts) const;
-    QValidator::State validateMask(const QList<quint8> &parts) const;
-    static QList<quint8> ipToUIntParts(const QString &ip);
+    QValidator::State validateIp(const QVector<quint8> &parts) const;
+    QValidator::State validateMask(const QVector<quint8> &parts) const;
+    static QVector<quint8> ipToUIntParts(const QString &ip);
 
     bool checkBinary(quint8 byte) const;
 };
@@ -32,7 +32,7 @@ QValidator::State IpAddressValidator::validate(QString &input, int &pos) const
     Q_D(const IpAddressValidator);
     Q_UNUSED(pos)
 
-    QList<quint8> parts = IpAddressValidatorPrivate::ipToUIntParts(input);
+    QVector<quint8> parts = IpAddressValidatorPrivate::ipToUIntParts(input);
 
     if (parts.isEmpty())
         return State::Intermediate;
@@ -59,7 +59,7 @@ void IpAddressValidator::setMaskValidationMode(bool maskValidationMode)
     emit maskValidationModeChanged(d->maskValidationMode);
 }
 
-QValidator::State IpAddressValidatorPrivate::validateIp(const QList<quint8> &parts) const
+QValidator::State IpAddressValidatorPrivate::validateIp(const QVector<quint8> &parts) const
 {
     if (parts[0] > 223)
         return QValidator::State::Intermediate;
@@ -69,7 +69,7 @@ QValidator::State IpAddressValidatorPrivate::validateIp(const QList<quint8> &par
     return QValidator::State::Acceptable;
 }
 
-QValidator::State IpAddressValidatorPrivate::validateMask(const QList<quint8> &parts) const
+QValidator::State IpAddressValidatorPrivate::validateMask(const QVector<quint8> &parts) const
 {
     if (!checkBinary(parts[0]))
         return QValidator::State::Intermediate;
@@ -102,19 +102,19 @@ bool Proof::IpAddressValidatorPrivate::checkBinary(quint8 byte) const
     return false;
 }
 
-QList<quint8> IpAddressValidatorPrivate::ipToUIntParts(const QString &ip)
+QVector<quint8> IpAddressValidatorPrivate::ipToUIntParts(const QString &ip)
 {
     QStringList splittedInput = ip.split(QStringLiteral("."));
     if (splittedInput.count() != 4)
-        return QList<quint8>();
+        return QVector<quint8>();
 
-    QList<quint8> parts;
+    QVector<quint8> parts;
 
     for (const auto &part : splittedInput) {
         bool ok = true;
         uint convertedPart = part.trimmed().toUInt(&ok);
         if (!ok || convertedPart > 255)
-            return QList<quint8>();
+            return QVector<quint8>();
         parts.append(static_cast<quint8>(convertedPart));
     }
 

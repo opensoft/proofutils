@@ -41,7 +41,7 @@ public:
     void setHeight(double height);
     void setSource(const QString &source);
     void setHasPreview(bool hasPreview);
-    void setWorkflow(const QList<WorkflowElement> &workflow);
+    void setWorkflow(const QVector<WorkflowElement> &workflow);
 
     JobQmlWrapper *toQmlWrapper(QObject *parent = nullptr) const override;
 

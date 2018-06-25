@@ -37,7 +37,7 @@ public:
     CancelableFuture<bool> printLabel(const QByteArray &label, const QString &printer = QString());
     CancelableFuture<bool> printFile(const QString &fileName, const QString &printer = QString(),
                                      unsigned int copies = 1);
-    CancelableFuture<QList<LprPrinterInfo>> fetchPrintersList();
+    CancelableFuture<QVector<LprPrinterInfo>> fetchPrintersList();
 };
 
 } // namespace NetworkServices

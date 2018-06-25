@@ -9,7 +9,7 @@
 #include "proofnetwork/user.h"
 
 #include <QJsonObject>
-#include <QList>
+#include <QVector>
 
 namespace Proof {
 namespace Ums {

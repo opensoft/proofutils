@@ -75,8 +75,8 @@ TEST_F(UmsUserTest, fromJson)
 
 TEST_F(UmsUserTest, updateFrom)
 {
-    QList<QSignalSpy *> spies = spiesForObject(tokenInfoUT.data());
-    QList<QSignalSpy *> qmlspies = spiesForObject(qmlWrapperUT);
+    QVector<QSignalSpy *> spies = spiesForObject(tokenInfoUT.data());
+    QVector<QSignalSpy *> qmlspies = spiesForObject(qmlWrapperUT);
 
     tokenInfoUT->updateFrom(tokenInfoUT2);
 

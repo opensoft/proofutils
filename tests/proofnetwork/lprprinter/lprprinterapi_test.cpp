@@ -128,7 +128,7 @@ TEST_F(LprPrinterApiTest, fetchPrintersList)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    const QList<Proof::NetworkServices::LprPrinterInfo> printers = lprPrinterApi->fetchPrintersList()->result();
+    const QVector<Proof::NetworkServices::LprPrinterInfo> printers = lprPrinterApi->fetchPrintersList()->result();
     ASSERT_EQ(2, printers.count());
 
     EXPECT_EQ("Zebra", printers[0].printer);

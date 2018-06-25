@@ -110,8 +110,8 @@ TEST_F(JobTest, customJob)
 
 TEST_F(JobTest, updateFrom)
 {
-    QList<QSignalSpy *> spies = spiesForObject(jobUT.data());
-    QList<QSignalSpy *> qmlspies = spiesForObject(qmlWrapperUT);
+    QVector<QSignalSpy *> spies = spiesForObject(jobUT.data());
+    QVector<QSignalSpy *> qmlspies = spiesForObject(qmlWrapperUT);
 
     jobUT->updateFrom(jobUT2);
 

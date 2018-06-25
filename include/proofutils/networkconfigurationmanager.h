@@ -49,7 +49,7 @@ public:
                                                const QString &ipv4Address, const QString &subnetMask,
                                                const QString &gateway, const QString &preferredDns,
                                                const QString &alternateDns, const QString &password);
-    Q_INVOKABLE QList<int> proxyTypes() const;
+    Q_INVOKABLE QVector<int> proxyTypes() const;
     Q_INVOKABLE void fetchProxySettings();
     Q_INVOKABLE void writeProxySettings(ProxyType proxyType, const QString &host, quint16 port, const QString &userName,
                                         const QString &password);
