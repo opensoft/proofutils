@@ -77,7 +77,7 @@ CancelableFuture<LprPrinterStatus> LprPrinterApi::fetchStatus(const QString &pri
     QUrlQuery query;
     if (!printer.isEmpty())
         query.addQueryItem(QStringLiteral("printer"), printer);
-    return d->unmarshalReply(d->get(QStringLiteral("/lpr/status"), query), d->printerStatusUnmarshaller());
+    return unmarshalReply(get(QStringLiteral("/lpr/status"), query), d->printerStatusUnmarshaller());
 }
 
 CancelableFuture<bool> LprPrinterApi::printLabel(const QByteArray &label, const QString &printer)
@@ -86,9 +86,9 @@ CancelableFuture<bool> LprPrinterApi::printLabel(const QByteArray &label, const 
     QUrlQuery query;
     if (!printer.isEmpty())
         query.addQueryItem(QStringLiteral("printer"), printer);
-    return d->unmarshalReply(d->post(QStringLiteral("/lpr/print-raw"), query,
-                                     QStringLiteral("{\"data\": \"%1\"}").arg(label.toBase64().constData()).toLatin1()),
-                             d->discardingPrinterStatusUnmarshaller());
+    return unmarshalReply(post(QStringLiteral("/lpr/print-raw"), query,
+                               QStringLiteral("{\"data\": \"%1\"}").arg(label.toBase64().constData()).toLatin1()),
+                          d->discardingPrinterStatusUnmarshaller());
 }
 
 CancelableFuture<bool> LprPrinterApi::printFile(const QString &fileName, const QString &printer, unsigned int copies)
@@ -97,26 +97,24 @@ CancelableFuture<bool> LprPrinterApi::printFile(const QString &fileName, const Q
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
         qCWarning(proofNetworkLprPrinterLog) << "Lpr-Printer: file error:" << file.error() << file.errorString();
-        return d->invalidArgumentsFailure<bool>(
+        return invalidArgumentsFailure<bool>(
             Failure(QStringLiteral("Can't open file"), NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError));
     }
     QByteArray data = file.readAll();
     if (file.error() != QFileDevice::NoError) {
         qCWarning(proofNetworkLprPrinterLog) << "Lpr-Printer: file error:" << file.error() << file.errorString();
-        return d->invalidArgumentsFailure<bool>(
+        return invalidArgumentsFailure<bool>(
             Failure(QStringLiteral("Can't read file"), NETWORK_LPR_PRINTER_MODULE_CODE, NetworkErrorCode::FileError));
     }
     QUrlQuery query;
     query.addQueryItem(QStringLiteral("copies"), QString::number(copies));
     if (!printer.isEmpty())
         query.addQueryItem(QStringLiteral("printer"), printer);
-    return d->unmarshalReply(d->post(QStringLiteral("/lpr/print"), query, data),
-                             d->discardingPrinterStatusUnmarshaller());
+    return unmarshalReply(post(QStringLiteral("/lpr/print"), query, data), d->discardingPrinterStatusUnmarshaller());
 }
 
 CancelableFuture<QVector<LprPrinterInfo>> LprPrinterApi::fetchPrintersList()
 {
-    Q_D(LprPrinterApi);
     auto unmarshaller = [](const RestApiReply &reply) -> QVector<LprPrinterInfo> {
         QJsonParseError jsonError;
         QJsonDocument doc = QJsonDocument::fromJson(reply.data, &jsonError);
@@ -140,5 +138,5 @@ CancelableFuture<QVector<LprPrinterInfo>> LprPrinterApi::fetchPrintersList()
         }
         return printers;
     };
-    return d->unmarshalReply(d->get(QStringLiteral("/lpr/list")), unmarshaller);
+    return unmarshalReply(get(QStringLiteral("/lpr/list")), unmarshaller);
 }

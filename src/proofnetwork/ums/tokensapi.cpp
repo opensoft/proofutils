@@ -62,8 +62,8 @@ CancelableFuture<UmsTokenInfoSP> TokensApi::fetchToken()
     urlQuery.addQueryItem(QStringLiteral("grant_type"), QStringLiteral("client_credentials"));
     urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
     urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
-    return d->unmarshalReply(d->post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
-                             d->tokenUnmarshaller());
+    return unmarshalReply(post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
+                          d->tokenUnmarshaller());
 }
 
 CancelableFuture<UmsTokenInfoSP> TokensApi::fetchTokenByBarcode(const QString &barcode)
@@ -74,8 +74,8 @@ CancelableFuture<UmsTokenInfoSP> TokensApi::fetchTokenByBarcode(const QString &b
     urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
     urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
     urlQuery.addQueryItem(QStringLiteral("barcode"), barcode);
-    return d->unmarshalReply(d->post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
-                             d->tokenUnmarshaller());
+    return unmarshalReply(post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
+                          d->tokenUnmarshaller());
 }
 
 CancelableFuture<UmsTokenInfoSP> TokensApi::fetchTokenByLogin(const QString &login, const QString &password)
@@ -87,8 +87,8 @@ CancelableFuture<UmsTokenInfoSP> TokensApi::fetchTokenByLogin(const QString &log
     urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
     urlQuery.addQueryItem(QStringLiteral("username"), login);
     urlQuery.addQueryItem(QStringLiteral("password"), password);
-    return d->unmarshalReply(d->post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
-                             d->tokenUnmarshaller());
+    return unmarshalReply(post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
+                          d->tokenUnmarshaller());
 }
 
 CancelableFuture<UmsTokenInfoSP> TokensApi::refreshToken(const QString &oldToken)
@@ -99,22 +99,20 @@ CancelableFuture<UmsTokenInfoSP> TokensApi::refreshToken(const QString &oldToken
     urlQuery.addQueryItem(QStringLiteral("client_id"), d->clientId);
     urlQuery.addQueryItem(QStringLiteral("client_secret"), d->clientSecret);
     urlQuery.addQueryItem(QStringLiteral("refresh_token"), oldToken);
-    return d->unmarshalReply(d->post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
-                             d->tokenUnmarshaller());
+    return unmarshalReply(post(QStringLiteral("/oauth2/token"), QUrlQuery(), urlQuery.toString().toLatin1()),
+                          d->tokenUnmarshaller());
 }
 
 CancelableFuture<QString> TokensApi::fetchPublicKey()
 {
-    Q_D(TokensApi);
-    return d->unmarshalReply(d->get(QStringLiteral("/Token/GetPublicKey")),
-                             [](const RestApiReply &reply) { return QString(reply.data); });
+    return unmarshalReply(get(QStringLiteral("/Token/GetPublicKey")),
+                          [](const RestApiReply &reply) { return QString(reply.data); });
 }
 
 CancelableFuture<QString> TokensApi::fetchCertificate()
 {
-    Q_D(TokensApi);
-    return d->unmarshalReply(d->get(QStringLiteral("/Token/GetCertificate")),
-                             [](const RestApiReply &reply) { return QString(reply.data); });
+    return unmarshalReply(get(QStringLiteral("/Token/GetCertificate")),
+                          [](const RestApiReply &reply) { return QString(reply.data); });
 }
 
 std::function<UmsTokenInfoSP(const RestApiReply &)> TokensApiPrivate::tokenUnmarshaller()
