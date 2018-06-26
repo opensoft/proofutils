@@ -34,16 +34,14 @@ PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, bool, hasPreview)
 
 WorkflowStatus JobQmlWrapper::workflowStatus(WorkflowAction action, PaperSide paperSide) const
 {
-    Q_D(const JobQmlWrapper);
-    const JobSP job = d->entity<Job>();
+    const JobSP job = entity<Job>();
     Q_ASSERT(job);
     return job->workflowStatus(action, paperSide);
 }
 
 void JobQmlWrapper::setupEntity(const QSharedPointer<NetworkDataEntity> &old)
 {
-    Q_D(JobQmlWrapper);
-    JobSP job = d->entity<Job>();
+    JobSP job = entity<Job>();
     Q_ASSERT(job);
 
     connect(job.data(), &Job::idChanged, this, &JobQmlWrapper::idChanged);

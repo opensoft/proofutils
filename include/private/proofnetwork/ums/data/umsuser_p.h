@@ -14,7 +14,6 @@ class UmsUserPrivate : public UserPrivate
     friend class UmsTokenInfo;
     explicit UmsUserPrivate(const QString &userName) : UserPrivate(userName) {}
 
-    void updateFrom(const Proof::NetworkDataEntitySP &other) override;
     void setRoles(QStringList newList);
 
     QStringList roles;

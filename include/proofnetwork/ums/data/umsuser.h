@@ -33,6 +33,7 @@ signals:
 
 protected:
     explicit UmsUser(const QString &userName = QString());
+    void updateSelf(const Proof::NetworkDataEntitySP &other) override;
 
 private:
     friend class UmsTokenInfo;

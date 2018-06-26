@@ -37,6 +37,7 @@ signals:
 
 protected:
     UmsTokenInfo();
+    void updateSelf(const Proof::NetworkDataEntitySP &other) override;
 };
 
 } // namespace Ums

@@ -11,8 +11,6 @@ class JobPrivate : NetworkDataEntityPrivate
 {
     Q_DECLARE_PUBLIC(Job)
 
-    void updateFrom(const Proof::NetworkDataEntitySP &other) override;
-
     void setId(const QString &id);
 
     QString id;
@@ -216,8 +214,7 @@ WorkflowStatus Job::workflowStatus(WorkflowAction action, PaperSide paperSide) c
 
 JobQmlWrapper *Job::toQmlWrapper(QObject *parent) const
 {
-    Q_D(const Job);
-    JobSP castedSelf = qSharedPointerCast<Job>(d->weakSelf);
+    JobSP castedSelf = castedSelfPtr<Job>();
     Q_ASSERT(castedSelf);
     return new JobQmlWrapper(castedSelf, parent);
 }
@@ -291,20 +288,20 @@ Job::Job(const QString &id, const QString &source) : NetworkDataEntity(*new JobP
     setName(id);
 }
 
-void JobPrivate::updateFrom(const Proof::NetworkDataEntitySP &other)
+void Job::updateSelf(const Proof::NetworkDataEntitySP &other)
 {
-    Q_Q(Job);
+    Q_D(Job);
     JobSP castedOther = qSharedPointerCast<Job>(other);
     Q_ASSERT(castedOther);
-    setId(castedOther->id());
-    q->setName(castedOther->name());
-    q->setStatus(castedOther->status());
-    q->setQuantity(castedOther->quantity());
-    q->setWidth(castedOther->width());
-    q->setHeight(castedOther->height());
-    q->setSource(castedOther->source());
-    q->setWorkflow(castedOther->d_func()->workflow);
-    q->setHasPreview(castedOther->hasPreview());
+    d->setId(castedOther->id());
+    setName(castedOther->name());
+    setStatus(castedOther->status());
+    setQuantity(castedOther->quantity());
+    setWidth(castedOther->width());
+    setHeight(castedOther->height());
+    setSource(castedOther->source());
+    setWorkflow(castedOther->d_func()->workflow);
+    setHasPreview(castedOther->hasPreview());
 
-    NetworkDataEntityPrivate::updateFrom(other);
+    NetworkDataEntity::updateSelf(other);
 }

@@ -43,14 +43,14 @@ UmsUserQmlWrapper *UmsTokenInfoQmlWrapper::user() const
 void UmsTokenInfoQmlWrapper::setupEntity(const QSharedPointer<Proof::NetworkDataEntity> &old)
 {
     Q_D(UmsTokenInfoQmlWrapper);
-    UmsTokenInfoSP token = d->entity<UmsTokenInfo>();
+    UmsTokenInfoSP token = entity<UmsTokenInfo>();
     Q_ASSERT(token);
 
     connect(token.data(), &UmsTokenInfo::versionChanged, this, &UmsTokenInfoQmlWrapper::versionChanged);
     connect(token.data(), &UmsTokenInfo::expiresAtChanged, this, &UmsTokenInfoQmlWrapper::expiresAtChanged);
     connect(token.data(), &UmsTokenInfo::validFromChanged, this, &UmsTokenInfoQmlWrapper::validFromChanged);
     connect(token.data(), &UmsTokenInfo::tokenChanged, this, &UmsTokenInfoQmlWrapper::tokenChanged);
-    connect(token.data(), &UmsTokenInfo::userChanged, d->lambdaConnectContext, [d] { d->updateUser(); });
+    connect(token.data(), &UmsTokenInfo::userChanged, entityConnectContext(), [d] { d->updateUser(); });
 
     auto castedOld = qSharedPointerCast<UmsTokenInfo>(old);
     if (castedOld) {
@@ -69,7 +69,7 @@ void UmsTokenInfoQmlWrapper::setupEntity(const QSharedPointer<Proof::NetworkData
 void UmsTokenInfoQmlWrapperPrivate::updateUser()
 {
     Q_Q(UmsTokenInfoQmlWrapper);
-    UmsTokenInfoSP token = entity<UmsTokenInfo>();
+    UmsTokenInfoSP token = q->entity<UmsTokenInfo>();
     if (!user)
         user = token->user()->toQmlWrapper(q);
     else

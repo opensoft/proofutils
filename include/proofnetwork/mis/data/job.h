@@ -66,6 +66,7 @@ signals:
 
 protected:
     explicit Job(const QString &id, const QString &source);
+    void updateSelf(const Proof::NetworkDataEntitySP &other) override;
 };
 
 PROOF_NETWORK_MIS_EXPORT ObjectsCache<JobCacheKey, Job> &jobsCache();

@@ -29,8 +29,7 @@ QStringList UmsUser::roles() const
 
 UmsUserQmlWrapper *UmsUser::toQmlWrapper(QObject *parent) const
 {
-    Q_D(const UmsUser);
-    UmsUserSP castedSelf = qSharedPointerCast<UmsUser>(d->weakSelf);
+    UmsUserSP castedSelf = castedSelfPtr<UmsUser>();
     Q_ASSERT(castedSelf);
     return new UmsUserQmlWrapper(castedSelf, parent);
 }
@@ -42,12 +41,13 @@ UmsUserSP UmsUser::create(const QString &userName)
     return result;
 }
 
-void UmsUserPrivate::updateFrom(const NetworkDataEntitySP &other)
+void UmsUser::updateSelf(const NetworkDataEntitySP &other)
 {
+    Q_D(UmsUser);
     UmsUserSP castedOther = qSharedPointerCast<UmsUser>(other);
-    setRoles(castedOther->roles());
+    d->setRoles(castedOther->roles());
 
-    UserPrivate::updateFrom(other);
+    User::updateSelf(other);
 }
 
 void UmsUserPrivate::setRoles(QStringList newList)

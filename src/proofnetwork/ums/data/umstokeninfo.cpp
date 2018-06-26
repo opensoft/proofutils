@@ -13,8 +13,6 @@ class UmsTokenInfoPrivate : public NetworkDataEntityPrivate
 {
     Q_DECLARE_PUBLIC(UmsTokenInfo)
 
-    void updateFrom(const Proof::NetworkDataEntitySP &other) override;
-
     void setVersion(const QString &arg);
     void setExpiresAt(const QDateTime &arg);
     void setValidFrom(const QDateTime &arg);
@@ -71,8 +69,7 @@ QString UmsTokenInfo::token() const
 
 UmsTokenInfoQmlWrapper *UmsTokenInfo::toQmlWrapper(QObject *parent) const
 {
-    Q_D(const UmsTokenInfo);
-    UmsTokenInfoSP castedSelf = qSharedPointerCast<UmsTokenInfo>(d->weakSelf);
+    UmsTokenInfoSP castedSelf = castedSelfPtr<UmsTokenInfo>();
     Q_ASSERT(castedSelf);
     return new UmsTokenInfoQmlWrapper(castedSelf, parent);
 }
@@ -115,16 +112,17 @@ UmsTokenInfoSP UmsTokenInfo::fromJson(const QJsonObject &tokenJson, const QStrin
     return umsToken;
 }
 
-void UmsTokenInfoPrivate::updateFrom(const Proof::NetworkDataEntitySP &other)
+void UmsTokenInfo::updateSelf(const Proof::NetworkDataEntitySP &other)
 {
+    Q_D(UmsTokenInfo);
     UmsTokenInfoSP castedOther = qSharedPointerCast<UmsTokenInfo>(other);
-    setVersion(castedOther->version());
-    setExpiresAt(castedOther->expiresAt());
-    setValidFrom(castedOther->validFrom());
-    updateUser(castedOther->user()->userName());
-    setToken(castedOther->token());
+    d->setVersion(castedOther->version());
+    d->setExpiresAt(castedOther->expiresAt());
+    d->setValidFrom(castedOther->validFrom());
+    d->updateUser(castedOther->user()->userName());
+    d->setToken(castedOther->token());
 
-    NetworkDataEntityPrivate::updateFrom(other);
+    NetworkDataEntity::updateSelf(other);
 }
 
 void UmsTokenInfoPrivate::setVersion(const QString &arg)
@@ -157,7 +155,7 @@ void UmsTokenInfoPrivate::setValidFrom(const QDateTime &arg)
 UmsUserSP UmsTokenInfoPrivate::updateUser(const QString &arg)
 {
     Q_Q(UmsTokenInfo);
-    return updateEntityField(user, arg, umsUsersCache(), &UmsUser::userName, q, &UmsTokenInfo::userChanged);
+    return NDE::updateEntityField(user, arg, umsUsersCache(), &UmsUser::userName, q, &UmsTokenInfo::userChanged);
 }
 
 void UmsTokenInfoPrivate::setToken(const QString &arg)

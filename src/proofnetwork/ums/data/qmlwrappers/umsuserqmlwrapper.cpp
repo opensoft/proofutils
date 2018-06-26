@@ -30,8 +30,7 @@ void UmsUserQmlWrapper::setupEntity(const QSharedPointer<Proof::NetworkDataEntit
 {
     UserQmlWrapper::setupEntity();
 
-    Q_D(UmsUserQmlWrapper);
-    UmsUserSP user = d->entity<UmsUser>();
+    UmsUserSP user = entity<UmsUser>();
     Q_ASSERT(user);
 
     connect(user.data(), &UmsUser::rolesChanged, this, &UmsUserQmlWrapper::rolesChanged);
