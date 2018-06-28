@@ -19,7 +19,7 @@ class LabelPrinterPrivate : public ProofObjectPrivate
 #endif
     Proof::NetworkServices::LprPrinterApi *labelPrinterApi = nullptr;
 
-    QString printerName;
+    LabelPrinterParams params;
 };
 
 } // namespace Proof
@@ -30,7 +30,7 @@ LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
     : ProofObject(*new LabelPrinterPrivate, parent)
 {
     Q_D(LabelPrinter);
-    d->printerName = params.printerName;
+    d->params = params;
 #ifndef Q_OS_ANDROID
     if (!params.forceServiceUsage && !params.printerName.isEmpty()) {
         d->hardwareLabelPrinter = new Proof::Hardware::LprPrinter(params.printerHost, params.printerName,
@@ -44,15 +44,11 @@ LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
     restClient->setScheme(QStringLiteral("http"));
     restClient->setHost(params.printerHost.isEmpty() ? QStringLiteral("127.0.0.1") : params.printerHost);
     restClient->setPort(params.printerPort);
-    d->labelPrinterApi = new Proof::NetworkServices::LprPrinterApi(restClient);
+    d->labelPrinterApi = new Proof::NetworkServices::LprPrinterApi(restClient, this);
 }
 
 LabelPrinter::~LabelPrinter()
-{
-    Q_D(LabelPrinter);
-    if (d->labelPrinterApi)
-        delete d->labelPrinterApi;
-}
+{}
 
 FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState) const
 {
@@ -63,7 +59,7 @@ FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrin
 #else
     Q_UNUSED(ignorePrinterState)
 #endif
-    return d->labelPrinterApi->printLabel(label, d->printerName);
+    return d->labelPrinterApi->printLabel(label, d->params.printerName);
 }
 
 FutureSP<bool> LabelPrinter::printerIsReady() const
@@ -73,10 +69,16 @@ FutureSP<bool> LabelPrinter::printerIsReady() const
     if (d->hardwareLabelPrinter)
         return d->hardwareLabelPrinter->printerIsReady();
 #endif
-    return d->labelPrinterApi->fetchStatus(d->printerName)->map([](const auto &status) -> bool {
+    return d->labelPrinterApi->fetchStatus(d->params.printerName)->map([](const auto &status) -> bool {
         if (status.isReady)
             return true;
         else
             return WithFailure(status.reason, UTILS_MODULE_CODE, UtilsErrorCode::LabelPrinterError);
     });
+}
+
+QString LabelPrinter::title() const
+{
+    Q_D(const LabelPrinter);
+    return d->params.printerTitle;
 }

@@ -38,6 +38,7 @@ public:
 
     FutureSP<bool> printLabel(const QByteArray &label, bool ignorePrinterState = false) const;
     FutureSP<bool> printerIsReady() const;
+    QString title() const;
 };
 
 } // namespace Proof
