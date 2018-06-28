@@ -95,7 +95,7 @@ QString WorkflowElement::toString() const
 {
     return QStringLiteral("%1:%2%3").arg(workflowStatusToString(d_ptr->status), workflowActionToString(d_ptr->action),
                                          d_ptr->paperSide == PaperSide::NotSetSide
-                                             ? QLatin1String("")
+                                             ? QString()
                                              : QStringLiteral(":%1").arg(paperSideToString(d_ptr->paperSide)));
 }
 

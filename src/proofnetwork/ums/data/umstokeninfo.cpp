@@ -90,7 +90,7 @@ UmsTokenInfoSP UmsTokenInfo::fromJson(const QJsonObject &tokenJson, const QStrin
     UmsTokenInfoSP umsToken = create();
     UmsTokenInfoPrivate *const d = umsToken->d_func();
     d->setToken(token);
-    d->setVersion(tokenJson.value(QStringLiteral("ver")).toString(QLatin1String("")));
+    d->setVersion(tokenJson.value(QStringLiteral("ver")).toString());
     d->setExpiresAt(QDateTime::fromTime_t(static_cast<uint>(tokenJson.value(QStringLiteral("exp")).toInt())));
     d->setValidFrom(QDateTime::fromTime_t(static_cast<uint>(tokenJson.value(QStringLiteral("nbf")).toInt())));
 
@@ -102,8 +102,8 @@ UmsTokenInfoSP UmsTokenInfo::fromJson(const QJsonObject &tokenJson, const QStrin
     for (const auto &roleValue : rolesArray)
         roles << roleValue.toString();
 
-    userD->setFullName(tokenJson.value(QStringLiteral("name")).toString(QLatin1String("")));
-    userD->setEmail(tokenJson.value(QStringLiteral("email")).toString(QLatin1String("")));
+    userD->setFullName(tokenJson.value(QStringLiteral("name")).toString());
+    userD->setEmail(tokenJson.value(QStringLiteral("email")).toString());
     userD->setRoles(roles);
     user->setFetched(true);
     d->updateUser(user->userName());

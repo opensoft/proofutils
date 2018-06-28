@@ -258,15 +258,15 @@ JobSP Job::fromJson(const QJsonObject &json)
     if (!json.contains(QLatin1String("id")))
         return JobSP();
 
-    QString id = json.value(QStringLiteral("id")).toString(QLatin1String(""));
+    QString id = json.value(QStringLiteral("id")).toString();
     JobSP job = create(id);
     job->setFetched(true);
     job->setStatus(entityStatusFromString(json.value(QStringLiteral("status")).toString(QStringLiteral("valid"))));
-    job->setName(json.value(QStringLiteral("name")).toString(QLatin1String("")));
+    job->setName(json.value(QStringLiteral("name")).toString());
     job->setQuantity(json.value(QStringLiteral("quantity")).toInt());
     job->setWidth(json.value(QStringLiteral("width")).toDouble());
     job->setHeight(json.value(QStringLiteral("height")).toDouble());
-    job->setSource(json.value(QStringLiteral("source")).toString(QLatin1String("")));
+    job->setSource(json.value(QStringLiteral("source")).toString());
     job->setHasPreview(json.value(QStringLiteral("has_preview")).toBool());
 
     QVector<WorkflowElement> workflow;

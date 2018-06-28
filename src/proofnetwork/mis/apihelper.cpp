@@ -82,27 +82,27 @@ static const QHash<QString, PaperSide> PAPER_SIDES = {{"", PaperSide::NotSetSide
 
 QString entityStatusToString(EntityStatus status)
 {
-    return ENTITY_STATUSES.key(status, QLatin1String(""));
+    return ENTITY_STATUSES.key(status, QString());
 }
 
 QString workflowStatusToString(WorkflowStatus status)
 {
-    return WORKFLOW_STATUSES.key(status, QLatin1String(""));
+    return WORKFLOW_STATUSES.key(status, QString());
 }
 
 QString workflowActionToString(WorkflowAction action)
 {
-    return WORKFLOW_ACTIONS.key(action, QLatin1String(""));
+    return WORKFLOW_ACTIONS.key(action, QString());
 }
 
 QString transitionEventToString(TransitionEvent event)
 {
-    return TRANSITION_EVENTS.key(event, QLatin1String(""));
+    return TRANSITION_EVENTS.key(event, QString());
 }
 
 QString paperSideToString(PaperSide side)
 {
-    return PAPER_SIDES.key(side, QLatin1String(""));
+    return PAPER_SIDES.key(side, QString());
 }
 
 EntityStatus entityStatusFromString(QString statusString, bool *ok)

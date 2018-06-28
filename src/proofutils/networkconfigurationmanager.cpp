@@ -403,7 +403,7 @@ void NetworkConfigurationManagerPrivate::checkPassword(const QString &password)
 #ifdef Q_OS_LINUX
     QProcess checker;
     checker.setProcessChannelMode(QProcess::MergedChannels);
-    checker.start(QString("sudo -S -k pwd"));
+    checker.start(QStringLiteral("sudo -S -k pwd"));
     if (checker.error() == QProcess::UnknownError)
         emit q->passwordChecked(enterPassword(checker, password));
     else
@@ -504,12 +504,13 @@ NetworkConfigurationManagerPrivate::fetchNetworkConfigurationPrivate(const QStri
     readInfoProcess.setReadChannel(QProcess::StandardOutput);
     QString splitSimbol = "\";\"";
     readInfoProcess.start("PowerShell",
-                          {"-command", QString("$WMI = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter "
-                                               "{InterfaceIndex LIKE '%1'};"
-                                               "$WMI.DHCPEnabled; %2; $WMI.IPAddress; %2; $WMI.IPSubnet; %2; "
-                                               "$WMI.DefaultIPGateway; %2; $WMI.DNSServerSearchOrder;")
-                                           .arg(networkConfiguration.index)
-                                           .arg(splitSimbol)});
+                          {"-command",
+                           QStringLiteral("$WMI = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter "
+                                          "{InterfaceIndex LIKE '%1'};"
+                                          "$WMI.DHCPEnabled; %2; $WMI.IPAddress; %2; $WMI.IPSubnet; %2; "
+                                          "$WMI.DefaultIPGateway; %2; $WMI.DNSServerSearchOrder;")
+                               .arg(networkConfiguration.index)
+                               .arg(splitSimbol)});
     readInfoProcess.waitForStarted();
     if (readInfoProcess.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "PowerShell can't be started:" << readInfoProcess.errorString();
@@ -680,13 +681,14 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
     query.append(" -WindowStyle hidden");
     QString argumentList;
     argumentList.append(
-        QString(" $WMI = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter {InterfaceIndex LIKE '%1'};")
+        QStringLiteral(
+            " $WMI = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter {InterfaceIndex LIKE '%1'};")
             .arg(adapterIndex));
     argumentList.append(dhcpEnabled
                             ? " $WMI.EnableDHCP();"
-                            : QString(" $WMI.EnableStatic(\"{%1}\", \"{%2}\");").arg(ipv4Address).arg(subnetMask));
-    argumentList.append(
-        QString("$WMI.SetGateways(%1);").arg(gateway.isEmpty() || dhcpEnabled ? "" : QString("\"{%1}\"").arg(gateway)));
+                            : QStringLiteral(" $WMI.EnableStatic(\"{%1}\", \"{%2}\");").arg(ipv4Address).arg(subnetMask));
+    argumentList.append(QStringLiteral("$WMI.SetGateways(%1);")
+                            .arg(gateway.isEmpty() || dhcpEnabled ? QString() : QStringLiteral("\"{%1}\"").arg(gateway)));
     QString dnsServers;
     if (!dhcpEnabled) {
         for (const auto &dnsServer : {preferredDns, alternateDns}) {
@@ -694,12 +696,13 @@ void NetworkConfigurationManagerPrivate::writeNetworkConfiguration(const QString
                 continue;
             if (!dnsServers.isEmpty())
                 dnsServers.append(",");
-            dnsServers.append(QString("\"{%1}\"").arg(dnsServer));
+            dnsServers.append(QStringLiteral("\"{%1}\"").arg(dnsServer));
         }
     }
     if (!dnsServers.isEmpty())
-        argumentList.append(QString(" $dnsServers = %1;").arg(dnsServers));
-    argumentList.append(QString(" $WMI.SetDNSServerSearchOrder(%1);").arg(dnsServers.isEmpty() ? "" : "$dnsServers"));
+        argumentList.append(QStringLiteral(" $dnsServers = %1;").arg(dnsServers));
+    argumentList.append(
+        QStringLiteral(" $WMI.SetDNSServerSearchOrder(%1);").arg(dnsServers.isEmpty() ? QString() : "$dnsServers"));
 
     query.append(" -ArgumentList { " + argumentList + " }");
 
@@ -934,29 +937,23 @@ ProxySettings NetworkConfigurationManagerPrivate::readProxySettingsFromConfig()
         break;
     case NetworkConfigurationManager::ProxyType::HttpProxyType:
     case NetworkConfigurationManager::ProxyType::SocksProxyType:
-        proxySettings.url = networkProxyGroup
-                                ->value(QStringLiteral("host"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal)
-                                .toString();
+        proxySettings.url =
+            networkProxyGroup->value(QStringLiteral("host"), QString(), Settings::NotFoundPolicy::AddGlobal).toString();
         proxySettings.port =
             networkProxyGroup->value(QStringLiteral("port"), 8080, Settings::NotFoundPolicy::AddGlobal).toUInt();
-        proxySettings.userName = networkProxyGroup
-                                     ->value(QStringLiteral("username"), QStringLiteral(""),
-                                             Settings::NotFoundPolicy::AddGlobal)
-                                     .toString();
-        proxySettings.password = networkProxyGroup
-                                     ->value(QStringLiteral("password"), QStringLiteral(""),
-                                             Settings::NotFoundPolicy::AddGlobal)
-                                     .toString();
+        proxySettings.userName =
+            networkProxyGroup->value(QStringLiteral("username"), QString(), Settings::NotFoundPolicy::AddGlobal).toString();
+        proxySettings.password =
+            networkProxyGroup->value(QStringLiteral("password"), QString(), Settings::NotFoundPolicy::AddGlobal).toString();
         break;
     case NetworkConfigurationManager::ProxyType::AutoConfigurationProxyType:
-        proxySettings.url = networkProxyGroup
-                                ->value(QStringLiteral("url"), QStringLiteral(""), Settings::NotFoundPolicy::AddGlobal)
-                                .toString();
+        proxySettings.url =
+            networkProxyGroup->value(QStringLiteral("url"), QString(), Settings::NotFoundPolicy::AddGlobal).toString();
         break;
     }
 
     QStringList notTrimmedExcludes = networkProxyGroup
-                                         ->value(QStringLiteral("excludes"), QStringLiteral(""),
+                                         ->value(QStringLiteral("excludes"), QString(),
                                                  Settings::NotFoundPolicy::AddGlobal)
                                          .toString()
                                          .split(QStringLiteral("|"));
@@ -997,7 +994,7 @@ void NetworkConfigurationManagerPrivate::setProxySettings(const ProxySettings &p
         if (scheme.isEmpty())
             url.setScheme(QStringLiteral("pac+http"));
         else
-            url.setScheme(QString("pac+%1").arg(scheme));
+            url.setScheme(QStringLiteral("pac+%1").arg(scheme));
         qputenv(httpProxyEnvironmentVariable, url.toEncoded());
         QNetworkProxyFactory::setUseSystemConfiguration(true);
         qCDebug(proofUtilsNetworkConfigurationLog) << "Environment variable" << qgetenv(httpProxyEnvironmentVariable);

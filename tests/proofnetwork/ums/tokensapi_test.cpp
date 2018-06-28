@@ -70,7 +70,7 @@ TEST_F(TokensApiTest, fetchTokenByBarcode)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByBarcode("")->result();
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByBarcode(QString())->result();
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
@@ -100,7 +100,7 @@ TEST_F(TokensApiTest, refreshToken)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->refreshToken("")->result();
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->refreshToken(QString())->result();
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
