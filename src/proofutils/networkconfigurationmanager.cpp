@@ -221,7 +221,9 @@ QVariantMap NetworkConfigurationManager::addresses() const
             auto ip = address.ip();
             if (ip.isLoopback())
                 continue;
-            QVariantList list = addresses.value(interface.humanReadableName(), QVariantList{}).toList();
+            // clang-format off
+            QVariantList list = addresses.value(interface.humanReadableName(), QVariantList{}).toList(); // clazy:exclude=inefficient-qlist
+            // clang-format on
             list << ip.toString();
             addresses[interface.humanReadableName()] = list;
         }

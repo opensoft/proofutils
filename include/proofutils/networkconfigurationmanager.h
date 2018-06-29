@@ -13,7 +13,6 @@ class PROOF_UTILS_EXPORT NetworkConfigurationManager : public ProofObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(NetworkConfigurationManager)
-    Q_ENUMS(ProxyType)
     Q_PROPERTY(bool ipSettingsSupported READ ipSettingsSupported CONSTANT)
     Q_PROPERTY(bool vpnSettingsSupported READ vpnSettingsSupported CONSTANT)
 
@@ -33,6 +32,7 @@ public:
         AutoConfigurationProxyType,
         AutoDiscoveryProxyType
     };
+    Q_ENUM(ProxyType)
 
     explicit NetworkConfigurationManager(QObject *parent = nullptr);
     ~NetworkConfigurationManager();
@@ -51,8 +51,8 @@ public:
                                                const QString &alternateDns, const QString &password);
     Q_INVOKABLE QVector<int> proxyTypes() const;
     Q_INVOKABLE void fetchProxySettings();
-    Q_INVOKABLE void writeProxySettings(ProxyType proxyType, const QString &host, quint16 port, const QString &userName,
-                                        const QString &password);
+    Q_INVOKABLE void writeProxySettings(Proof::NetworkConfigurationManager::ProxyType proxyType, const QString &host,
+                                        quint16 port, const QString &userName, const QString &password);
     Q_INVOKABLE bool vpnEnabled();
     Q_INVOKABLE void fetchVpnConfiguration();
     Q_INVOKABLE void writeVpnConfiguration(const QString &absoluteFilePath, const QString &configuration,
