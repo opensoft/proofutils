@@ -268,15 +268,9 @@ JobSP Job::fromJson(const QJsonObject &json)
     job->setHeight(json.value(QStringLiteral("height")).toDouble());
     job->setSource(json.value(QStringLiteral("source")).toString());
     job->setHasPreview(json.value(QStringLiteral("has_preview")).toBool());
-
-    QVector<WorkflowElement> workflow;
-
-    QJsonArray workflowArray = json.value(QStringLiteral("workflow")).toArray();
-
-    for (const auto &elementValue : qAsConst(workflowArray))
-        workflow << WorkflowElement(elementValue.toString());
-
-    job->setWorkflow(workflow);
+    job->setWorkflow(algorithms::map(json.value(QStringLiteral("workflow")).toArray(),
+                                     [](const auto &value) { return WorkflowElement(value.toString()); },
+                                     QVector<WorkflowElement>()));
     return job;
 }
 

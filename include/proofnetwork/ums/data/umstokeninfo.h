@@ -10,7 +10,7 @@ namespace Proof {
 namespace Ums {
 
 class UmsTokenInfoPrivate;
-class PROOF_NETWORK_UMS_EXPORT UmsTokenInfo : public NetworkDataEntity // clazy:exclude=ctor-missing-parent-argument
+class PROOF_NETWORK_UMS_EXPORT UmsTokenInfo : public NetworkDataEntity
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(UmsTokenInfo)

@@ -53,8 +53,8 @@ class LprPrinterApiPrivate : public ProofServiceRestApiPrivate
                                    NetworkErrorCode::InvalidReply);
             }
             QJsonObject object = doc.object();
-            if (!object.value("is_ready").toBool()) {
-                return WithFailure(object.value("reason").toString(), NETWORK_LPR_PRINTER_MODULE_CODE,
+            if (!object.value(QStringLiteral("is_ready")).toBool()) {
+                return WithFailure(object.value(QStringLiteral("reason")).toString(), NETWORK_LPR_PRINTER_MODULE_CODE,
                                    NetworkErrorCode::ServerError);
             }
             return true;

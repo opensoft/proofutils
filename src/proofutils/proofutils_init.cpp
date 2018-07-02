@@ -25,45 +25,49 @@ PROOF_LIBRARY_INITIALIZER(libraryInit)
         if (oldProofVersion >= Proof::packVersion(0, 17, 12, 25))
             return;
 
-        auto printerGroup = settings->group("label_printer", Proof::Settings::NotFoundPolicy::DoNothing);
+        auto printerGroup = settings->group(QStringLiteral("label_printer"), Proof::Settings::NotFoundPolicy::DoNothing);
 
         if (!printerGroup)
             return;
 
         auto commonPrinters = settings->mainGroup()
-                                  ->value("label_printers", "", Proof::Settings::NotFoundPolicy::DoNothing)
+                                  ->value(QStringLiteral("label_printers"), "", Proof::Settings::NotFoundPolicy::DoNothing)
                                   .toString()
-                                  .split("|", QString::SkipEmptyParts);
+                                  .split(QStringLiteral("|"), QString::SkipEmptyParts);
 
-        auto name = printerGroup->value("name", "", Proof::Settings::NotFoundPolicy::DoNothing).toString();
+        auto name = printerGroup->value(QStringLiteral("name"), "", Proof::Settings::NotFoundPolicy::DoNothing).toString();
         if (name.isEmpty()) {
-            settings->deleteGroup("label_printer", Proof::Settings::Storage::Local);
+            settings->deleteGroup(QStringLiteral("label_printer"), Proof::Settings::Storage::Local);
             return;
         }
 
-        settings->mainGroup()->setValue("selected_printer", name, Proof::Settings::Storage::Local);
+        settings->mainGroup()->setValue(QStringLiteral("selected_printer"), name, Proof::Settings::Storage::Local);
 
         if (commonPrinters.contains(name)) {
-            settings->deleteGroup("label_printer", Proof::Settings::Storage::Local);
+            settings->deleteGroup(QStringLiteral("label_printer"), Proof::Settings::Storage::Local);
             return;
         }
 
         commonPrinters << name;
-        settings->mainGroup()->setValue("label_printers", commonPrinters.join("|"), Proof::Settings::Storage::Global);
+        settings->mainGroup()->setValue(QStringLiteral("label_printers"), commonPrinters.join(QStringLiteral("|")),
+                                        Proof::Settings::Storage::Global);
         auto newPrinterGroup = settings->group(name, Proof::Settings::NotFoundPolicy::AddGlobal);
-        auto host = printerGroup->value("host", "", Proof::Settings::NotFoundPolicy::DoNothing).toString();
-        auto port = printerGroup->value("port", "", Proof::Settings::NotFoundPolicy::DoNothing).toInt();
-        auto binariesCheck = printerGroup->value("binaries_check", "", Proof::Settings::NotFoundPolicy::DoNothing).toBool();
-        auto forceServiceUsage =
-            printerGroup->value("force_service_usage", "", Proof::Settings::NotFoundPolicy::DoNothing).toBool();
+        auto host = printerGroup->value(QStringLiteral("host"), "", Proof::Settings::NotFoundPolicy::DoNothing).toString();
+        auto port = printerGroup->value(QStringLiteral("port"), "", Proof::Settings::NotFoundPolicy::DoNothing).toInt();
+        auto binariesCheck =
+            printerGroup->value(QStringLiteral("binaries_check"), "", Proof::Settings::NotFoundPolicy::DoNothing).toBool();
+        auto forceServiceUsage = printerGroup
+                                     ->value(QStringLiteral("force_service_usage"), "",
+                                             Proof::Settings::NotFoundPolicy::DoNothing)
+                                     .toBool();
 
-        newPrinterGroup->setValue("name", name);
-        newPrinterGroup->setValue("title", name);
-        newPrinterGroup->setValue("host", host);
-        newPrinterGroup->setValue("port", port);
-        newPrinterGroup->setValue("binaries_check", binariesCheck);
-        newPrinterGroup->setValue("force_service_usage", forceServiceUsage);
+        newPrinterGroup->setValue(QStringLiteral("name"), name);
+        newPrinterGroup->setValue(QStringLiteral("title"), name);
+        newPrinterGroup->setValue(QStringLiteral("host"), host);
+        newPrinterGroup->setValue(QStringLiteral("port"), port);
+        newPrinterGroup->setValue(QStringLiteral("binaries_check"), binariesCheck);
+        newPrinterGroup->setValue(QStringLiteral("force_service_usage"), forceServiceUsage);
 
-        settings->deleteGroup("label_printer", Proof::Settings::Storage::Local);
+        settings->deleteGroup(QStringLiteral("label_printer"), Proof::Settings::Storage::Local);
     });
 }

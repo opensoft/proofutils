@@ -18,7 +18,7 @@ namespace Mis {
 using JobCacheKey = QPair<QString, QString>;
 
 class JobPrivate;
-class PROOF_NETWORK_MIS_EXPORT Job : public NetworkDataEntity // clazy:exclude=ctor-missing-parent-argument
+class PROOF_NETWORK_MIS_EXPORT Job : public NetworkDataEntity
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(Job)

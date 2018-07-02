@@ -70,7 +70,7 @@ struct ProxySettings
     quint16 port = 0;
 };
 
-class WorkerThread : public QThread // clazy:exclude=ctor-missing-parent-argument
+class WorkerThread : public QThread
 {
     Q_OBJECT
 public:
@@ -375,7 +375,7 @@ void NetworkConfigurationManagerPrivate::checkVpnCanBeControlled()
     QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
     qCDebug(proofUtilsNetworkConfigurationLog) << "Checking OpenVPN service existance";
-    process.start("/usr/sbin/service --status-all");
+    process.start(QStringLiteral("/usr/sbin/service --status-all"));
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN service can't be checked" << process.errorString();
@@ -451,8 +451,8 @@ void NetworkConfigurationManagerPrivate::fetchNetworkInterfaces()
     if (settingsFile.open(QIODevice::ReadOnly)) {
         while (!settingsFile.atEnd()) {
             QString line = QString(settingsFile.readLine()).trimmed();
-            if (line.startsWith("iface")) {
-                QStringList ifaceLine = line.split(" ", QString::SkipEmptyParts);
+            if (line.startsWith(QLatin1String("iface"))) {
+                QStringList ifaceLine = line.split(QStringLiteral(" "), QString::SkipEmptyParts);
                 if (ifaceLine.count() > 1)
                     result.append(ifaceLine.at(1));
             }
@@ -462,7 +462,8 @@ void NetworkConfigurationManagerPrivate::fetchNetworkInterfaces()
             << NETWORK_SETTINGS_FILE << "can't be opened:" << settingsFile.errorString();
     }
 
-    for (const auto &interface : QNetworkInterface::allInterfaces()) {
+    const auto allInterfaces = QNetworkInterface::allInterfaces();
+    for (const auto &interface : allInterfaces) {
         if (interface.flags().testFlag(QNetworkInterface::IsLoopBack)
             || interface.flags().testFlag(QNetworkInterface::IsPointToPoint))
             result.removeAll(interface.humanReadableName());
@@ -1164,7 +1165,7 @@ void NetworkConfigurationManagerPrivate::turnOnVpn(const QString &password)
             args << QStringLiteral("--http-proxy") << proxy.host() << QString::number(proxy.port());
     }
     qCDebug(proofUtilsNetworkConfigurationLog) << "OpenVPN args:" << args;
-    process.start("sudo", args);
+    process.start(QStringLiteral("sudo"), args);
     process.waitForStarted();
     if (process.error() != QProcess::UnknownError) {
         qCDebug(proofUtilsNetworkConfigurationLog) << "VPN can't be started:" << process.errorString();

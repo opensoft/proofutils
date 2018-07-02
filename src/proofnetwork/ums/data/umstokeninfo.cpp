@@ -99,6 +99,7 @@ UmsTokenInfoSP UmsTokenInfo::fromJson(const QJsonObject &tokenJson, const QStrin
 
     QStringList roles;
     const QJsonArray rolesArray = tokenJson.value(QStringLiteral("roles")).toArray();
+    roles.reserve(rolesArray.count());
     for (const auto &roleValue : rolesArray)
         roles << roleValue.toString();
 
