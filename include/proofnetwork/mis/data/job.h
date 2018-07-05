@@ -30,6 +30,7 @@ public:
     double width() const;
     double height() const;
     QString source() const;
+    int pageCount() const;
     bool hasPreview() const;
     void setWorkflowStatus(WorkflowAction action, WorkflowStatus status, PaperSide paperSide = PaperSide::NotSetSide);
     WorkflowStatus workflowStatus(WorkflowAction action, PaperSide paperSide = PaperSide::NotSetSide) const;
@@ -40,6 +41,7 @@ public:
     void setWidth(double width);
     void setHeight(double height);
     void setSource(const QString &source);
+    void setPageCount(int pageCount);
     void setHasPreview(bool hasPreview);
     void setWorkflow(const QVector<WorkflowElement> &workflow);
 
@@ -61,6 +63,7 @@ signals:
     void widthChanged(double arg);
     void heightChanged(double arg);
     void sourceChanged(const QString &arg);
+    void pageCountChanged(int arg);
     void hasPreviewChanged(bool arg);
     void workflowChanged();
 

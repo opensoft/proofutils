@@ -7,6 +7,7 @@
     "height": 1350,
     "status": "valid",
     "has_preview": true,
+    "page_count": 10,
     "workflow": [
         "is ready for:cutting",
         "needs:boxing"

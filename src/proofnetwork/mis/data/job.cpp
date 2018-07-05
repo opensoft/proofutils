@@ -20,6 +20,7 @@ class JobPrivate : NetworkDataEntityPrivate
     double width = 0.0;
     double height = 0.0;
     QString source;
+    int pageCount = 0;
     bool hasPreview = false;
     QVector<WorkflowElement> workflow;
 };
@@ -74,6 +75,12 @@ QString Job::source() const
 {
     Q_D(const Job);
     return d->source;
+}
+
+int Job::pageCount() const
+{
+    Q_D(const Job);
+    return d->pageCount;
 }
 
 bool Job::hasPreview() const
@@ -142,6 +149,15 @@ void Job::setSource(const QString &source)
     if (d->source != source) {
         d->source = source;
         emit sourceChanged(source);
+    }
+}
+
+void Job::setPageCount(int pageCount)
+{
+    Q_D(Job);
+    if (d->pageCount != pageCount) {
+        d->pageCount = pageCount;
+        emit pageCountChanged(pageCount);
     }
 }
 
@@ -230,10 +246,10 @@ QJsonObject Job::toJson() const
     json.insert(QStringLiteral("width"), width());
     json.insert(QStringLiteral("height"), height());
     json.insert(QStringLiteral("source"), source());
+    json.insert(QStringLiteral("page_count"), pageCount());
     json.insert(QStringLiteral("has_preview"), hasPreview());
 
     QJsonArray workflowArray;
-
     for (const auto &workflowElement : qAsConst(d->workflow))
         workflowArray << workflowElement.toString();
 
@@ -267,6 +283,7 @@ JobSP Job::fromJson(const QJsonObject &json)
     job->setWidth(json.value(QStringLiteral("width")).toDouble());
     job->setHeight(json.value(QStringLiteral("height")).toDouble());
     job->setSource(json.value(QStringLiteral("source")).toString());
+    job->setPageCount(json.value(QStringLiteral("page_count")).toInt());
     job->setHasPreview(json.value(QStringLiteral("has_preview")).toBool());
     job->setWorkflow(algorithms::map(json.value(QStringLiteral("workflow")).toArray(),
                                      [](const auto &value) { return WorkflowElement(value.toString()); },
@@ -295,6 +312,7 @@ void Job::updateSelf(const Proof::NetworkDataEntitySP &other)
     setHeight(castedOther->height());
     setSource(castedOther->source());
     setWorkflow(castedOther->d_func()->workflow);
+    setPageCount(castedOther->pageCount());
     setHasPreview(castedOther->hasPreview());
 
     NetworkDataEntity::updateSelf(other);

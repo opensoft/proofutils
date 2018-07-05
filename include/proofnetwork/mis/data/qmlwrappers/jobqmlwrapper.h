@@ -22,6 +22,7 @@ class PROOF_NETWORK_MIS_EXPORT JobQmlWrapper : public NetworkDataEntityQmlWrappe
     Q_PROPERTY(double width READ width NOTIFY widthChanged)
     Q_PROPERTY(double height READ height NOTIFY heightChanged)
     Q_PROPERTY(QString source READ source NOTIFY sourceChanged)
+    Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
     Q_PROPERTY(bool hasPreview READ hasPreview NOTIFY hasPreviewChanged)
     Q_DECLARE_PRIVATE(JobQmlWrapper)
 public:
@@ -36,6 +37,7 @@ public:
     double width() const;
     double height() const;
     QString source() const;
+    int pageCount() const;
     bool hasPreview() const;
     Q_INVOKABLE Proof::Mis::WorkflowStatus
     workflowStatus(Proof::Mis::WorkflowAction action,
@@ -49,6 +51,7 @@ signals:
     void widthChanged(double width);
     void heightChanged(double height);
     void sourceChanged(const QString &source);
+    void pageCountChanged(int pageCount);
     void hasPreviewChanged(bool hasPreview);
     void workflowChanged();
 

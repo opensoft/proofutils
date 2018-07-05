@@ -71,6 +71,8 @@ TEST_F(JobTest, fromJson)
     EXPECT_EQ(EntityStatus::ValidEntity, qmlWrapperUT->status());
     EXPECT_TRUE(jobUT->hasPreview());
     EXPECT_TRUE(qmlWrapperUT->hasPreview());
+    EXPECT_EQ(10, jobUT->pageCount());
+    EXPECT_EQ(10, qmlWrapperUT->pageCount());
 }
 
 TEST_F(JobTest, toJson)
@@ -85,6 +87,7 @@ TEST_F(JobTest, toJson)
     EXPECT_EQ(WorkflowStatus::NeedsStatus, job->workflowStatus(WorkflowAction::BoxingAction));
     EXPECT_EQ(EntityStatus::ValidEntity, job->status());
     EXPECT_TRUE(jobUT->hasPreview());
+    EXPECT_EQ(10, jobUT->pageCount());
 }
 
 TEST_F(JobTest, customJob)
@@ -98,6 +101,7 @@ TEST_F(JobTest, customJob)
     job->setHasPreview(true);
     job->setWorkflowStatus(WorkflowAction::CuttingAction, WorkflowStatus::IsReadyForStatus);
     job->setStatus(EntityStatus::NotReadyEntity);
+    job->setPageCount(5);
     EXPECT_EQ("123", job->id());
     EXPECT_EQ("I-123", job->name());
     EXPECT_EQ("ProFIT", job->source());
@@ -105,7 +109,8 @@ TEST_F(JobTest, customJob)
     EXPECT_DOUBLE_EQ(512.0, job->height());
     EXPECT_EQ(WorkflowStatus::IsReadyForStatus, job->workflowStatus(WorkflowAction::CuttingAction));
     EXPECT_EQ(EntityStatus::NotReadyEntity, job->status());
-    EXPECT_TRUE(jobUT->hasPreview());
+    EXPECT_TRUE(job->hasPreview());
+    EXPECT_EQ(5, job->pageCount());
 }
 
 TEST_F(JobTest, updateFrom)
@@ -134,6 +139,7 @@ TEST_F(JobTest, updateFrom)
     EXPECT_EQ(jobUT2->source(), jobUT->source());
     EXPECT_EQ(jobUT2->status(), jobUT->status());
     EXPECT_EQ(jobUT2->hasPreview(), jobUT->hasPreview());
+    EXPECT_EQ(jobUT2->pageCount(), jobUT->pageCount());
     EXPECT_EQ(jobUT2->workflowStatus(WorkflowAction::CuttingAction),
               jobUT->workflowStatus(WorkflowAction::CuttingAction));
     EXPECT_EQ(jobUT2->workflowStatus(WorkflowAction::BoxingAction), jobUT->workflowStatus(WorkflowAction::BoxingAction));
