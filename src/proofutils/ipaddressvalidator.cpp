@@ -1,5 +1,7 @@
 #include "ipaddressvalidator.h"
 
+#include "proofcore/proofglobal.h"
+
 namespace Proof {
 class IpAddressValidatorPrivate
 {
@@ -29,7 +31,7 @@ IpAddressValidator::~IpAddressValidator()
 
 QValidator::State IpAddressValidator::validate(QString &input, int &pos) const
 {
-    Q_D(const IpAddressValidator);
+    Q_D_CONST(IpAddressValidator);
     Q_UNUSED(pos)
 
     QVector<quint8> parts = IpAddressValidatorPrivate::ipToUIntParts(input);
@@ -45,7 +47,7 @@ QValidator::State IpAddressValidator::validate(QString &input, int &pos) const
 
 bool IpAddressValidator::maskValidationMode() const
 {
-    Q_D(const IpAddressValidator);
+    Q_D_CONST(IpAddressValidator);
     return d->maskValidationMode;
 }
 

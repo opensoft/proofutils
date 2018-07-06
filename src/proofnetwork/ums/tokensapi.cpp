@@ -44,7 +44,7 @@ TokensApi::TokensApi(const QString &clientId, const QString &clientSecret, const
 #ifndef QCA_DISABLED
 QCA::RSAPublicKey TokensApi::rsaKey() const
 {
-    Q_D(const TokensApi);
+    Q_D_CONST(TokensApi);
     return d->rsaPublicKey;
 }
 

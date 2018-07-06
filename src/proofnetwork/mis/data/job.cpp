@@ -37,55 +37,55 @@ using namespace Proof::Mis;
 
 QString Job::id() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     return d->id;
 }
 
 EntityStatus Job::status() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     return d->status;
 }
 
 QString Job::name() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     return d->name;
 }
 
 qlonglong Job::quantity() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     return d->quantity;
 }
 
 double Job::width() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     return d->width;
 }
 
 double Job::height() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     return d->height;
 }
 
 QString Job::source() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     return d->source;
 }
 
 int Job::pageCount() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     return d->pageCount;
 }
 
 bool Job::hasPreview() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     return d->hasPreview;
 }
 
@@ -199,7 +199,7 @@ void Job::setWorkflowStatus(WorkflowAction action, WorkflowStatus status, PaperS
 
 WorkflowStatus Job::workflowStatus(WorkflowAction action, PaperSide paperSide) const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     WorkflowStatus fallbackStatus = WorkflowStatus::UnknownStatus;
     for (const auto &element : qAsConst(d->workflow)) {
         if (element.action() != action)
@@ -237,7 +237,7 @@ JobQmlWrapper *Job::toQmlWrapper(QObject *parent) const
 
 QJsonObject Job::toJson() const
 {
-    Q_D(const Job);
+    Q_D_CONST(Job);
     QJsonObject json;
     json.insert(QStringLiteral("id"), id());
     json.insert(QStringLiteral("status"), entityStatusToString(status()));

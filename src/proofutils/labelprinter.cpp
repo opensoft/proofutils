@@ -52,7 +52,7 @@ LabelPrinter::~LabelPrinter()
 
 FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState) const
 {
-    Q_D(const LabelPrinter);
+    Q_D_CONST(LabelPrinter);
 #ifndef Q_OS_ANDROID
     if (d->hardwareLabelPrinter)
         return d->hardwareLabelPrinter->printRawData(label, ignorePrinterState);
@@ -64,7 +64,7 @@ FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrin
 
 FutureSP<bool> LabelPrinter::printerIsReady() const
 {
-    Q_D(const LabelPrinter);
+    Q_D_CONST(LabelPrinter);
 #ifndef Q_OS_ANDROID
     if (d->hardwareLabelPrinter)
         return d->hardwareLabelPrinter->printerIsReady();
@@ -79,6 +79,6 @@ FutureSP<bool> LabelPrinter::printerIsReady() const
 
 QString LabelPrinter::title() const
 {
-    Q_D(const LabelPrinter);
+    Q_D_CONST(LabelPrinter);
     return d->params.printerTitle;
 }

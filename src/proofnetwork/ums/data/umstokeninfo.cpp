@@ -39,31 +39,31 @@ UmsTokenInfo::~UmsTokenInfo()
 
 QString UmsTokenInfo::version() const
 {
-    Q_D(const UmsTokenInfo);
+    Q_D_CONST(UmsTokenInfo);
     return d->version;
 }
 
 QDateTime UmsTokenInfo::expiresAt() const
 {
-    Q_D(const UmsTokenInfo);
+    Q_D_CONST(UmsTokenInfo);
     return d->expiresAt;
 }
 
 QDateTime UmsTokenInfo::validFrom() const
 {
-    Q_D(const UmsTokenInfo);
+    Q_D_CONST(UmsTokenInfo);
     return d->validFrom;
 }
 
 UmsUserSP UmsTokenInfo::user() const
 {
-    Q_D(const UmsTokenInfo);
+    Q_D_CONST(UmsTokenInfo);
     return d->user;
 }
 
 QString UmsTokenInfo::token() const
 {
-    Q_D(const UmsTokenInfo);
+    Q_D_CONST(UmsTokenInfo);
     return d->token;
 }
 

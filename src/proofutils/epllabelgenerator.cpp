@@ -1,6 +1,8 @@
 #include "epllabelgenerator.h"
 
-#include "qrcodegenerator.h"
+#include "proofcore/proofglobal.h"
+
+#include "proofutils/qrcodegenerator.h"
 
 #include <QtMath>
 
@@ -151,14 +153,14 @@ QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize
 
 QSize EplLabelGenerator::textSize(const QString &text, int fontSize, int horizontalScale, int verticalScale) const
 {
-    Q_D(const EplLabelGenerator);
+    Q_D_CONST(EplLabelGenerator);
     QSize singleCharSize = d->charSize(fontSize, horizontalScale, verticalScale);
     return QSize(singleCharSize.width() * text.length(), singleCharSize.height());
 }
 
 QSize EplLabelGenerator::labelSize() const
 {
-    Q_D(const EplLabelGenerator);
+    Q_D_CONST(EplLabelGenerator);
     return QSize(d->labelWidth, d->labelHeight);
 }
 
@@ -272,7 +274,7 @@ void EplLabelGenerator::startPage()
 
 QByteArray EplLabelGenerator::labelData() const
 {
-    Q_D(const EplLabelGenerator);
+    Q_D_CONST(EplLabelGenerator);
     return d->lastLabel;
 }
 

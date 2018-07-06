@@ -23,7 +23,7 @@ UmsUser::~UmsUser()
 
 QStringList UmsUser::roles() const
 {
-    Q_D(const UmsUser);
+    Q_D_CONST(UmsUser);
     return d->roles;
 }
 

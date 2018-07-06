@@ -36,7 +36,7 @@ PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(UmsTokenInfo, QString, token)
 
 UmsUserQmlWrapper *UmsTokenInfoQmlWrapper::user() const
 {
-    Q_D(const UmsTokenInfoQmlWrapper);
+    Q_D_CONST(UmsTokenInfoQmlWrapper);
     return d->user;
 }
 
