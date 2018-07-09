@@ -33,11 +33,6 @@ public:
 
     CancelableFuture<QString> fetchPublicKey();
     CancelableFuture<QString> fetchCertificate();
-    //TODO: remove signals after full switch to new network
-signals:
-    void tokenFetched(qulonglong operationId, const Proof::Ums::UmsTokenInfoSP &tokenInfo);
-    void publicKeyFetched(qulonglong operationId, const QString &publicKey);
-    void certificateFetched(qulonglong operationId, const QString &certificate);
 };
 
 } // namespace Ums
