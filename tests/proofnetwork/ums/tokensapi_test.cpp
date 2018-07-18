@@ -56,6 +56,16 @@ TEST_F(TokensApiTest, fetchToken)
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
     Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchToken()->result();
+    EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
+    EXPECT_EQ(QUrl("/oauth2/token"), serverRunner->lastQueryUrl());
+    auto query = QUrlQuery(serverRunner->lastQueryBody());
+    EXPECT_TRUE(query.hasQueryItem("grant_type"));
+    EXPECT_EQ("client_credentials", query.queryItemValue("grant_type"));
+    EXPECT_TRUE(query.hasQueryItem("client_id"));
+    EXPECT_EQ("test", query.queryItemValue("client_id"));
+    EXPECT_TRUE(query.hasQueryItem("client_secret"));
+    EXPECT_EQ("test", query.queryItemValue("client_secret"));
+
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
@@ -70,7 +80,20 @@ TEST_F(TokensApiTest, fetchTokenByBarcode)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByBarcode(QString())->result();
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByBarcode(QString("barcode"))->result();
+
+    EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
+    EXPECT_EQ(QUrl("/oauth2/token"), serverRunner->lastQueryUrl());
+    auto query = QUrlQuery(serverRunner->lastQueryBody());
+    EXPECT_TRUE(query.hasQueryItem("grant_type"));
+    EXPECT_EQ("client_credentials", query.queryItemValue("grant_type"));
+    EXPECT_TRUE(query.hasQueryItem("client_id"));
+    EXPECT_EQ("test", query.queryItemValue("client_id"));
+    EXPECT_TRUE(query.hasQueryItem("client_secret"));
+    EXPECT_EQ("test", query.queryItemValue("client_secret"));
+    EXPECT_TRUE(query.hasQueryItem("barcode"));
+    EXPECT_EQ("barcode", query.queryItemValue("barcode"));
+
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
@@ -85,7 +108,22 @@ TEST_F(TokensApiTest, fetchTokenByLogin)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByLogin("", "")->result();
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByLogin("login", "password")->result();
+
+    EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
+    EXPECT_EQ(QUrl("/oauth2/token"), serverRunner->lastQueryUrl());
+    auto query = QUrlQuery(serverRunner->lastQueryBody());
+    EXPECT_TRUE(query.hasQueryItem("grant_type"));
+    EXPECT_EQ("password", query.queryItemValue("grant_type"));
+    EXPECT_TRUE(query.hasQueryItem("client_id"));
+    EXPECT_EQ("test", query.queryItemValue("client_id"));
+    EXPECT_TRUE(query.hasQueryItem("client_secret"));
+    EXPECT_EQ("test", query.queryItemValue("client_secret"));
+    EXPECT_TRUE(query.hasQueryItem("username"));
+    EXPECT_EQ("login", query.queryItemValue("username"));
+    EXPECT_TRUE(query.hasQueryItem("password"));
+    EXPECT_EQ("password", query.queryItemValue("password"));
+
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
@@ -100,7 +138,19 @@ TEST_F(TokensApiTest, refreshToken)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->refreshToken(QString())->result();
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->refreshToken(QString("oldtoken"))->result();
+    EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
+    EXPECT_EQ(QUrl("/oauth2/token"), serverRunner->lastQueryUrl());
+    auto query = QUrlQuery(serverRunner->lastQueryBody());
+    EXPECT_TRUE(query.hasQueryItem("grant_type"));
+    EXPECT_EQ("refresh_token", query.queryItemValue("grant_type"));
+    EXPECT_TRUE(query.hasQueryItem("client_id"));
+    EXPECT_EQ("test", query.queryItemValue("client_id"));
+    EXPECT_TRUE(query.hasQueryItem("client_secret"));
+    EXPECT_EQ("test", query.queryItemValue("client_secret"));
+    EXPECT_TRUE(query.hasQueryItem("refresh_token"));
+    EXPECT_EQ("oldtoken", query.queryItemValue("refresh_token"));
+
     EXPECT_TRUE(tokenInfo->isFetched());
     EXPECT_TRUE(tokenInfo->user()->isFetched());
     EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
@@ -113,6 +163,10 @@ TEST_F(TokensApiTest, fetchPublicKey)
     serverRunner->setServerAnswer("12345");
 
     QString answer = tokensApiUT->fetchPublicKey()->result();
+    EXPECT_EQ(FakeServer::Method::Get, serverRunner->lastQueryMethod());
+    EXPECT_EQ(QUrl("/Token/GetPublicKey"), serverRunner->lastQueryUrl());
+    EXPECT_TRUE(serverRunner->lastQueryBody().isEmpty());
+
     EXPECT_EQ("12345", answer);
 }
 
@@ -122,5 +176,9 @@ TEST_F(TokensApiTest, fetchCertificate)
     serverRunner->setServerAnswer("12345");
 
     QString answer = tokensApiUT->fetchCertificate()->result();
+    EXPECT_EQ(FakeServer::Method::Get, serverRunner->lastQueryMethod());
+    EXPECT_EQ(QUrl("/Token/GetCertificate"), serverRunner->lastQueryUrl());
+    EXPECT_TRUE(serverRunner->lastQueryBody().isEmpty());
+
     EXPECT_EQ("12345", answer);
 }
