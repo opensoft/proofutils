@@ -7,7 +7,6 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QSignalSpy>
 
 #include "gtest/test_global.h"
 
