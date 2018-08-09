@@ -2,11 +2,11 @@
 
 #include "proofnetwork/mis/data/job.h"
 
+#include "gtest/test_global.h"
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSignalSpy>
-
-#include "gtest/test_global.h"
 
 using namespace Proof::Mis;
 using testing::Test;

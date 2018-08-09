@@ -2,9 +2,9 @@
 
 #include "proofnetwork/lprprinter/lprprinterapi.h"
 
-#include <QFile>
-
 #include "gtest/test_global.h"
+
+#include <QFile>
 
 using namespace Proof::NetworkServices;
 using testing::Test;

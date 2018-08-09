@@ -3,12 +3,12 @@
 #include "proofnetwork/ums/data/umstokeninfo.h"
 #include "proofnetwork/ums/data/umsuser.h"
 
+#include "gtest/test_global.h"
+
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSignalSpy>
-
-#include "gtest/test_global.h"
 
 using namespace Proof::Ums;
 using testing::Test;

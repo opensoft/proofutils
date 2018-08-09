@@ -4,11 +4,11 @@
 #include "proofnetwork/ums/data/umsuser.h"
 #include "proofnetwork/ums/tokensapi.h"
 
+#include "gtest/test_global.h"
+
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-
-#include "gtest/test_global.h"
 
 using testing::Test;
 

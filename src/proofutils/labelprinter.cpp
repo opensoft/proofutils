@@ -1,7 +1,8 @@
 #include "labelprinter.h"
 
+#include "proofseed/tasks.h"
+
 #include "proofcore/proofobject_p.h"
-#include "proofcore/tasks.h"
 
 #include "proofnetwork/lprprinter/lprprinterapi.h"
 

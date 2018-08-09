@@ -1,7 +1,8 @@
 #ifndef PROOF_UTILS_LABELPRINTER_H
 #define PROOF_UTILS_LABELPRINTER_H
 
-#include "proofcore/future.h"
+#include "proofseed/future.h"
+
 #include "proofcore/proofobject.h"
 
 #include "proofutils/proofutils_global.h"
