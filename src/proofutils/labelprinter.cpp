@@ -7,7 +7,7 @@
 #include "proofnetwork/lprprinter/lprprinterapi.h"
 
 #ifndef Q_OS_ANDROID
-#    include "proofhardware/lprprinter/lprprinter.h"
+#    include "proofutils/lprprinter.h"
 #endif
 
 namespace Proof {

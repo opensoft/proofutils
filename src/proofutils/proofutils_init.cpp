@@ -1,4 +1,3 @@
-#include "networkconfigurationmanager.h"
 #include "proofutils_global.h"
 
 #include "proofcore/coreapplication.h"
@@ -10,13 +9,12 @@
 Q_LOGGING_CATEGORY(proofUtilsMiscLog, "proof.utils.misc")
 Q_LOGGING_CATEGORY(proofUtilsEplGeneratorLog, "proof.utils.eplgenerator")
 Q_LOGGING_CATEGORY(proofUtilsQrCodeGeneratorLog, "proof.utils.qrcodegenerator")
-Q_LOGGING_CATEGORY(proofUtilsNetworkConfigurationLog, "proof.utils.networkconfiguration")
+Q_LOGGING_CATEGORY(proofUtilsLprPrinterInfoLog, "proof.utils.lprprinter.info")
+Q_LOGGING_CATEGORY(proofUtilsLprPrinterDataLog, "proof.utils.lprprinter.data")
 
 PROOF_LIBRARY_INITIALIZER(libraryInit)
 {
     // clang-format off
-    qRegisterMetaType<Proof::NetworkConfigurationManager::ProxyType>("Proof::NetworkConfigurationManager::ProxyType");
-    qRegisterMetaType<QVector<Proof::NetworkConfigurationManager::ProxyType>>("QVector<Proof::NetworkConfigurationManager::ProxyType>");
     // clang-format on
 
     //label printer migration

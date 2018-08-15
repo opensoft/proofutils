@@ -12,25 +12,25 @@
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsMiscLog);
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsEplGeneratorLog);
 Q_DECLARE_LOGGING_CATEGORY(proofUtilsQrCodeGeneratorLog);
-Q_DECLARE_LOGGING_CATEGORY(proofUtilsNetworkConfigurationLog);
+Q_DECLARE_LOGGING_CATEGORY(proofUtilsLprPrinterInfoLog);
+Q_DECLARE_LOGGING_CATEGORY(proofUtilsLprPrinterDataLog);
 
 namespace Proof {
 namespace UtilsErrorCode {
 enum Code
 {
-    IncorrectPassword = 1,
-    NoAnswerFromSystem = 2,
-    UserNotASudoer = 3,
-    ApplicationCannotBeRestarted = 4,
-    PlatformNotSupported = 5,
     UnknownError = 6,
-    NetworkConfigurationCannotBeWritten = 7,
-    VpnCannotBeStarted = 8,
-    VpnCannotBeStopped = 9,
-    VpnConfigurationNotFound = 10,
-    VpnConfigurationCannotBeWritten = 11,
-    ProxyConfigurationCannotBeWritten = 12,
-    LabelPrinterError = 13
+    LabelPrinterError = 13,
+    LprCannotBeStarted = 100,
+    LpqCannotBeStarted = 101,
+    LpoptionsCannotBeStarted = 102,
+    LprProcessNonZeroExitCode = 103,
+    PrinterInfoCannotBeQueried = 104,
+    PrinterInfoError = 105,
+    PrinterOptionsCannotBeQueried = 106,
+    PrinterNotReady = 107,
+    TemporaryFileError = 108,
+    PrinterOffline = 109
 };
 }
 constexpr long UTILS_MODULE_CODE = 200;

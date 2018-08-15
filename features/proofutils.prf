@@ -1,7 +1,5 @@
 include(proofcore.prf)
-
 include(proofnetworklprprinter.prf)
-!android:include(proofhardwarelprprinter.prf)
 
 LIBS *= -lProofUtils
 

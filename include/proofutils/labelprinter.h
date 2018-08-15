@@ -8,9 +8,7 @@
 #include "proofutils/proofutils_global.h"
 
 namespace Proof {
-
 class LabelPrinterPrivate;
-
 struct LabelPrinterParams
 {
     LabelPrinterParams() {}
