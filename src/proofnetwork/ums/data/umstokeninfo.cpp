@@ -1,9 +1,8 @@
-#include "umstokeninfo.h"
-
-#include "umsuser_p.h"
+#include "proofnetwork/ums/data/umstokeninfo.h"
 
 #include "proofnetwork/networkdataentity_p.h"
 #include "proofnetwork/ums/data/umsuser.h"
+#include "proofnetwork/ums/data/umsuser_p.h"
 
 #include <QJsonArray>
 

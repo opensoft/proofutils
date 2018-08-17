@@ -1,4 +1,4 @@
-#include "umstokeninfoqmlwrapper.h"
+#include "proofnetwork/ums/data/qmlwrappers/umstokeninfoqmlwrapper.h"
 
 #include "proofnetwork/qmlwrappers/networkdataentityqmlwrapper_p.h"
 #include "proofnetwork/ums/data/umstokeninfo.h"

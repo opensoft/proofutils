@@ -1,4 +1,4 @@
-#include "job.h"
+#include "proofnetwork/mis/data/job.h"
 
 #include "proofnetwork/networkdataentity_p.h"
 

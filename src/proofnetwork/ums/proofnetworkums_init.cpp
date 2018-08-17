@@ -1,8 +1,8 @@
-#include "data/umstokeninfo.h"
-#include "data/umsuser.h"
-#include "proofnetworkums_global.h"
-
 #include "proofcore/proofglobal.h"
+
+#include "proofnetwork/ums/data/umstokeninfo.h"
+#include "proofnetwork/ums/data/umsuser.h"
+#include "proofnetwork/ums/proofnetworkums_global.h"
 
 #include <QtQml/QQmlListProperty>
 

@@ -1,4 +1,4 @@
-#include "epllabelgenerator.h"
+#include "proofutils/epllabelgenerator.h"
 
 #include "proofcore/proofglobal.h"
 

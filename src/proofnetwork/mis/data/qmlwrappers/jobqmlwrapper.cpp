@@ -1,4 +1,4 @@
-#include "jobqmlwrapper.h"
+#include "proofnetwork/mis/data/qmlwrappers/jobqmlwrapper.h"
 
 #include "proofnetwork/jdf/data/qmlwrappers/bundleitemqmlwrapper.h"
 #include "proofnetwork/mis/data/job.h"

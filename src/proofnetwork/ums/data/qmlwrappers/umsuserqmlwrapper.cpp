@@ -1,4 +1,4 @@
-#include "umsuserqmlwrapper.h"
+#include "proofnetwork/ums/data/qmlwrappers/umsuserqmlwrapper.h"
 
 #include "proofnetwork/qmlwrappers/userqmlwrapper_p.h"
 #include "proofnetwork/ums/data/umsuser.h"

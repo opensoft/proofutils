@@ -1,4 +1,4 @@
-#include "qrcodegenerator.h"
+#include "proofutils/qrcodegenerator.h"
 
 #include <QPainter>
 #include <qrencode.h>

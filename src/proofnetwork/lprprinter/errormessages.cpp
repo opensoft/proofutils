@@ -1,5 +1,5 @@
-#include "errormessages_p.h"
-#include "proofnetworklprprinter_global.h"
+#include "proofnetwork/lprprinter/errormessages_p.h"
+#include "proofnetwork/lprprinter/proofnetworklprprinter_global.h"
 
 #include <QSharedPointer>
 

@@ -1,4 +1,4 @@
-#include "labelprinter.h"
+#include "proofutils/labelprinter.h"
 
 #include "proofseed/tasks.h"
 

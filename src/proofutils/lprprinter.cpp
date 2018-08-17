@@ -1,4 +1,4 @@
-#include "lprprinter.h"
+#include "proofutils/lprprinter.h"
 
 #include "proofseed/tasks.h"
 

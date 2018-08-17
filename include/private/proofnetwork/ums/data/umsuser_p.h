@@ -1,8 +1,7 @@
 #ifndef PROOF_UMS_UMSUSER_P_H
 #define PROOF_UMS_UMSUSER_P_H
 
-#include "umsuser.h"
-
+#include "proofnetwork/ums/data/umsuser.h"
 #include "proofnetwork/user_p.h"
 
 namespace Proof {

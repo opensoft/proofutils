@@ -1,9 +1,9 @@
-#include "apihelper.h"
-#include "data/job.h"
-#include "data/qmlwrappers/jobqmlwrapper.h"
-#include "proofnetworkmis_global.h"
-
 #include "proofcore/proofglobal.h"
+
+#include "proofnetwork/mis/apihelper.h"
+#include "proofnetwork/mis/data/job.h"
+#include "proofnetwork/mis/data/qmlwrappers/jobqmlwrapper.h"
+#include "proofnetwork/mis/proofnetworkmis_global.h"
 
 Q_LOGGING_CATEGORY(proofNetworkMisDataLog, "proof.network.mis.data")
 

@@ -1,10 +1,10 @@
-#include "proofutils_global.h"
-
 #include "proofcore/coreapplication.h"
 #include "proofcore/helpers/versionhelper.h"
 #include "proofcore/proofglobal.h"
 #include "proofcore/settings.h"
 #include "proofcore/settingsgroup.h"
+
+#include "proofutils/proofutils_global.h"
 
 Q_LOGGING_CATEGORY(proofUtilsMiscLog, "proof.utils.misc")
 Q_LOGGING_CATEGORY(proofUtilsEplGeneratorLog, "proof.utils.eplgenerator")

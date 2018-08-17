@@ -1,8 +1,7 @@
-#include "lprprinterapi.h"
-
-#include "proofnetworklprprinter_types.h"
+#include "proofnetwork/lprprinter/lprprinterapi.h"
 
 #include "proofnetwork/lprprinter/errormessages_p.h"
+#include "proofnetwork/lprprinter/proofnetworklprprinter_types.h"
 #include "proofnetwork/proofservicerestapi_p.h"
 
 #include <QFile>

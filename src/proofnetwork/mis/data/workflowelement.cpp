@@ -1,4 +1,4 @@
-#include "workflowelement.h"
+#include "proofnetwork/mis/data/workflowelement.h"
 
 #include <QRegExp>
 

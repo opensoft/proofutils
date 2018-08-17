@@ -1,6 +1,6 @@
-#include "umsuser.h"
+#include "proofnetwork/ums/data/umsuser.h"
 
-#include "umsuser_p.h"
+#include "proofnetwork/ums/data/umsuser_p.h"
 
 namespace Proof {
 namespace Ums {

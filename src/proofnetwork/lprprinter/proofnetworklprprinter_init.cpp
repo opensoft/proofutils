@@ -1,7 +1,7 @@
-#include "lprprinterapi.h"
-#include "proofnetworklprprinter_global.h"
-
 #include "proofcore/proofglobal.h"
+
+#include "proofnetwork/lprprinter/lprprinterapi.h"
+#include "proofnetwork/lprprinter/proofnetworklprprinter_global.h"
 
 Q_LOGGING_CATEGORY(proofNetworkLprPrinterLog, "proof.network.lpr-printer")
 
