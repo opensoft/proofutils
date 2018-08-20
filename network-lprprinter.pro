@@ -1,7 +1,8 @@
 TEMPLATE = lib
 TARGET = ProofNetworkLprPrinter
-include(../proof.pri)
-DESTDIR = $$BUILDPATH/lib
+PROOF_PRI_PATH = $$PWD/../proofboot
+!exists($$PROOF_PRI_PATH/proof.pri):PROOF_PRI_PATH = $$(PROOF_PATH)
+include($$PROOF_PRI_PATH/proof.pri)
 
 DEFINES += PROOF_NETWORK_LPRPRINTER_LIB
 
@@ -18,4 +19,4 @@ SOURCES += \
     src/proofnetwork/lprprinter/lprprinterapi.cpp \
     src/proofnetwork/lprprinter/proofnetworklprprinter_init.cpp
 
-include(../proof_translation.pri)
+include($$PROOF_PRI_PATH/proof_translation.pri)

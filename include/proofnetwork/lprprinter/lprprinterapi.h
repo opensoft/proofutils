@@ -3,7 +3,6 @@
 
 #include "proofnetworklprprinter_global.h"
 
-#include "proofnetwork/jdf/proofnetworkjdf_types.h"
 #include "proofnetwork/proofservicerestapi.h"
 
 #include <QByteArray>
