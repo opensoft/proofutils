@@ -1,7 +1,7 @@
 #ifndef ERRORMESSAGES_P_H
 #define ERRORMESSAGES_P_H
 
-#include "proofcore/errormessagesregistry_p.h"
+#include "proofnetwork/errormessagesregistry.h"
 
 namespace Proof {
 namespace NetworkServices {
