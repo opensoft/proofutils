@@ -89,15 +89,19 @@ jobs:
     - &unit-tests
       stage: unit tests
       name: tests/ProofUtils
+      if: tag IS blank AND branch != master
       script: $HOME/proof-bin/dev-tools/travis/proof-modules/unit-tests/run_tests.sh utils
     - <<: *unit-tests
       name: tests/ProofNetworkMis
+      if: tag IS blank AND branch != master
       script: $HOME/proof-bin/dev-tools/travis/proof-modules/unit-tests/run_tests.sh network-mis
     - <<: *unit-tests
       name: tests/ProofNetworkUms
+      if: tag IS blank AND branch != master
       script: $HOME/proof-bin/dev-tools/travis/proof-modules/unit-tests/run_tests.sh network-ums
     - <<: *unit-tests
       name: tests/ProofNetworkLprPrinter
+      if: tag IS blank AND branch != master
       script: $HOME/proof-bin/dev-tools/travis/proof-modules/unit-tests/run_tests.sh network-lprprinter
 
     - &post-compile
