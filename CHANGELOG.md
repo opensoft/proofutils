@@ -1,7 +1,15 @@
 ProofUtils Changelog
 ====================
 
+
 ## Not Released
+#### Features
+ * --
+
+#### Bug Fixing
+ * --
+
+## 0.18.9.23
 #### Features
  * Utils: IpAddressValidator is now in Gui module
  * Utils: PowerManager is now in Gui module
