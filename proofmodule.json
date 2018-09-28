@@ -1,0 +1,31 @@
+{
+    "name": "proofutils",
+    "has_tests": true,
+    "has_plugins": true,
+    "has_tools": false,
+    "bootstrap": {
+        "process_3rdparty": false,
+        "process_qml": false,
+        "custom_steps": []
+    },
+    "depends": ["proofbase"],
+    "affects": ["proofgui"],
+    "libraries": [
+        {
+            "name": "ProofUtils",
+            "headers_subdir": "proofutils"
+        },
+        {
+            "name": "ProofNetworkMis",
+            "headers_subdir": "proofnetwork/mis"
+        },
+        {
+            "name": "ProofNetworkUms",
+            "headers_subdir": "proofnetwork/ums"
+        },
+        {
+            "name": "ProofNetworkLprPrinter",
+            "headers_subdir": "proofnetwork/lprprinter"
+        }
+    ]
+}
