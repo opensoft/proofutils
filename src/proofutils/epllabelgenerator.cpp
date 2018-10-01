@@ -88,7 +88,7 @@ static const QHash<EplLabelGenerator::BarcodeType, QString> STRINGIFIED_BARCODE_
      {EplLabelGenerator::BarcodeType::UpcEAddon2, "UE2"},
      {EplLabelGenerator::BarcodeType::UpcEAddon5, "UE5"},
      {EplLabelGenerator::BarcodeType::UpcInterleaved2Of5, "2U"},
-     {EplLabelGenerator::BarcodeType::Msi1WithMod10CheckDigit, "L"},
+     //     {EplLabelGenerator::BarcodeType::Msi1WithMod10CheckDigit, "L"},
      {EplLabelGenerator::BarcodeType::Msi3WithMod10CheckDigit, "M"}};
 
 } // namespace Proof
@@ -230,18 +230,18 @@ QRect EplLabelGenerator::addBarcode(const QString &data, EplLabelGenerator::Barc
     return rect;
 }
 
-QRect EplLabelGenerator::addQrCode(const QString &data, int x, int y, int width)
-{
-    Q_D(EplLabelGenerator);
-    auto rawBinary = QrCodeGenerator::generateEplBinaryData(data, width);
-    width = width + ((width + 8) % 8);
+//QRect EplLabelGenerator::addQrCode(const QString &data, int x, int y, int width)
+//{
+//    Q_D(EplLabelGenerator);
+//    auto rawBinary = QrCodeGenerator::generateEplBinaryData(data, width);
+//    width = width + ((width + 8) % 8);
 
-    d->lastLabel.append(QStringLiteral("GW%1,%2,%3,%4,").arg(x).arg(y).arg(width / 8).arg(width));
-    d->lastLabel.append(rawBinary);
-    d->lastLabel.append("\n");
+//    d->lastLabel.append(QStringLiteral("GW%1,%2,%3,%4,").arg(x).arg(y).arg(width / 8).arg(width));
+//    d->lastLabel.append(rawBinary);
+//    d->lastLabel.append("\n");
 
-    return QRect(x, y, width, width);
-}
+//    return QRect(x, y, width, width);
+//}
 
 QRect EplLabelGenerator::addLine(int x, int y, int width, int height, EplLabelGenerator::LineType type)
 {
