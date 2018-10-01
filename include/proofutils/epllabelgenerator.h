@@ -69,7 +69,7 @@ public:
         UpcEAddon2,
         UpcEAddon5,
         UpcInterleaved2Of5,
-        Msi1WithMod10CheckDigit,
+        //        Msi1WithMod10CheckDigit,
         Msi3WithMod10CheckDigit
     };
 
@@ -94,7 +94,7 @@ public:
     QRect addBarcode(const QString &data, BarcodeType type, int x, int y, int height = 200,
                      bool printReadableCode = true, int narrowBarWidth = 2, int wideBarWidth = 4, int rotation = 0);
 
-    QRect addQrCode(const QString &data, int x, int y, int width = 200);
+    //    QRect addQrCode(const QString &data, int x, int y, int width = 200);
 
     QRect addLine(int x, int y, int width, int height, LineType type = LineType::Black);
     QRect addDiagonalLine(int x, int y, int endX, int endY, int width);

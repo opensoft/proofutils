@@ -62,6 +62,9 @@ public:
     FutureSP<bool> printLabel(const QByteArray &label, bool ignorePrinterState = false) const;
     FutureSP<bool> printerIsReady() const;
     QString title() const;
+
+private:
+    int iMLost = 42;
 };
 
 } // namespace Proof
