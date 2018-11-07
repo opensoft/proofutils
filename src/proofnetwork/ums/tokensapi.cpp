@@ -30,10 +30,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkReply>
-
-#ifndef QCA_DISABLED
-#    include <QtCrypto>
-#endif
+#include <QtCrypto>
 
 namespace Proof {
 namespace Ums {
@@ -44,9 +41,7 @@ class TokensApiPrivate : public BaseRestApiPrivate
     std::function<UmsTokenInfoSP(const RestApiReply &)> tokenUnmarshaller();
     bool verifyToken(const QByteArrayList &tokenList);
 
-#ifndef QCA_DISABLED
     QCA::RSAPublicKey rsaPublicKey;
-#endif
     QString clientId;
     QString clientSecret;
 };
@@ -65,7 +60,6 @@ TokensApi::TokensApi(const QString &clientId, const QString &clientSecret, const
     d->clientSecret = clientSecret;
 }
 
-#ifndef QCA_DISABLED
 QCA::RSAPublicKey TokensApi::rsaKey() const
 {
     Q_D_CONST(TokensApi);
@@ -77,7 +71,6 @@ void TokensApi::setRsaKey(const QCA::RSAPublicKey &key)
     Q_D(TokensApi);
     d->rsaPublicKey = key;
 }
-#endif
 
 CancelableFuture<UmsTokenInfoSP> TokensApi::fetchToken()
 {
@@ -177,14 +170,7 @@ bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
         signedMessage.append(tokenList[1]);
         //TODO: add HS256 support if ever will be needed
         if (algorithm == QLatin1String("rs256")) {
-#ifndef QCA_DISABLED
             signatureVerified = rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
-#else
-            Q_UNUSED(signature)
-            qCWarning(proofNetworkUmsApiLog)
-                << "rs256 algorithm" << algorithm << "is not supported. Token verification forcily succeeded!";
-            signatureVerified = true;
-#endif
         } else if (algorithm == QLatin1String("none")) {
             signatureVerified = true;
         } else {
