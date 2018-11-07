@@ -29,9 +29,7 @@
 #include "proofnetwork/ums/proofnetworkums_global.h"
 #include "proofnetwork/ums/proofnetworkums_types.h"
 
-#ifndef QCA_DISABLED
-#    include <qca_publickey.h>
-#endif
+#include <qca_publickey.h>
 
 namespace Proof {
 namespace Ums {
@@ -45,10 +43,8 @@ public:
     explicit TokensApi(const QString &clientId, const QString &clientSecret, const RestClientSP &restClient,
                        QObject *parent = nullptr);
 
-#ifndef QCA_DISABLED
     QCA::RSAPublicKey rsaKey() const;
     void setRsaKey(const QCA::RSAPublicKey &key);
-#endif
 
     CancelableFuture<UmsTokenInfoSP> fetchToken();
     CancelableFuture<UmsTokenInfoSP> fetchTokenByBarcode(const QString &barcode);
