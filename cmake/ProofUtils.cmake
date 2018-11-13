@@ -13,7 +13,7 @@ proof_add_target_headers(Utils
     include/proofutils/basic_package.h
 )
 
-if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+if (NOT ANDROID)
     proof_add_target_sources(Utils src/proofutils/lprprinter.cpp)
     proof_add_target_headers(Utils include/proofutils/lprprinter.h)
 endif()
