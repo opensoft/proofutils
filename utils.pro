@@ -5,7 +5,7 @@ PROOF_PRI_PATH = $$PWD/../proofboot
 !exists($$PROOF_PRI_PATH/proof.pri):PROOF_PRI_PATH = $$(PROOF_PATH)
 include($$PROOF_PRI_PATH/proof.pri)
 
-DEFINES += PROOF_UTILS_LIB
+DEFINES += Proof_Utils_EXPORTS
 
 CONFIG += proofcore proofnetwork proofnetworklprprinter
 msvc {

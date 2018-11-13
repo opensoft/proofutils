@@ -2,7 +2,7 @@
 
 #include "proofnetwork/mis/data/job.h"
 
-#include "gtest/test_global.h"
+#include "gtest/proof/test_global.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>

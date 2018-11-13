@@ -3,7 +3,7 @@
 #include "proofnetwork/ums/data/umstokeninfo.h"
 #include "proofnetwork/ums/data/umsuser.h"
 
-#include "gtest/test_global.h"
+#include "gtest/proof/test_global.h"
 
 #include <QFile>
 #include <QJsonDocument>

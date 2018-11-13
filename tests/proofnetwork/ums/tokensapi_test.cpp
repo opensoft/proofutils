@@ -4,7 +4,7 @@
 #include "proofnetwork/ums/data/umsuser.h"
 #include "proofnetwork/ums/tokensapi.h"
 
-#include "gtest/test_global.h"
+#include "gtest/proof/test_global.h"
 
 #include <QFile>
 #include <QJsonDocument>
