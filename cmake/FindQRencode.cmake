@@ -1,7 +1,7 @@
 find_path(QRencode_INCLUDE_DIRS NAMES qrencode.h
     HINTS $ENV{QRENCODE_DIR}
     PATH_SUFFIXES include/qrencode include
-    PATHS ~/Library/Frameworks Library/Frameworks /usr/local /usr
+    PATHS ~/Library/Frameworks /Library/Frameworks /usr/local /usr
     DOC "QRencode include directory"
 )
 
