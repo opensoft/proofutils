@@ -18,8 +18,9 @@ if (NOT ANDROID)
     proof_add_target_headers(Utils include/proofutils/lprprinter.h)
 endif()
 
+find_package(QRencode REQUIRED)
 proof_add_module(Utils
     QT_LIBS Core Network Gui
     PROOF_LIBS Core NetworkLprPrinter
-    OTHER_LIBS qrencode
+    OTHER_LIBS QRencode::QRencode
 )
