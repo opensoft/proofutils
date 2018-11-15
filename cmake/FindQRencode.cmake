@@ -18,7 +18,6 @@ find_library(QRencode_LIBRARY_DEBUG NAMES qrencoded
 
 include(SelectLibraryConfigurations)
 select_library_configurations(QRencode)
-mark_as_advanced(QRencode_LIBRARY_RELEASE QRencode_LIBRARY_DEBUG)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(QRencode
@@ -29,7 +28,6 @@ if(NOT QRencode_FOUND)
     return()
 endif()
 
-set(QRencode_LIBRARIES "${QRencode_LIBRARY}")
 if(NOT TARGET QRencode::QRencode)
     add_library(QRencode::QRencode INTERFACE IMPORTED)
 endif()
