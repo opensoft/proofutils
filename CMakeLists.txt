@@ -15,6 +15,7 @@ if(NOT DEFINED PROOF_FULL_BUILD)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 include(ProofNetworkMis)
 include(ProofNetworkUms)
 include(ProofNetworkLprPrinter)
