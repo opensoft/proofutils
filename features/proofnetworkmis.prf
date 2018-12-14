@@ -1,5 +1,0 @@
-include(proofnetwork.prf)
-
-LIBS *= -lProofNetworkMis
-
-android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofNetworkMis.so

@@ -1,5 +1,0 @@
-include(proofnetwork.prf)
-
-LIBS *= -lProofNetworkUms
-
-android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofNetworkUms.so

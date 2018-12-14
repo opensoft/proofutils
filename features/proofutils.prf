@@ -1,6 +1,0 @@
-include(proofcore.prf)
-include(proofnetworklprprinter.prf)
-
-LIBS *= -lProofUtils
-
-android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofUtils.so

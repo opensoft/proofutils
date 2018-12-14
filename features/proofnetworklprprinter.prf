@@ -1,5 +1,0 @@
-include(proofnetwork.prf)
-
-LIBS *= -lProofNetworkLprPrinter
-
-android:ANDROID_EXTRA_LIBS *= $$(PROOF_PATH)/lib/libProofNetworkLprPrinter.so
