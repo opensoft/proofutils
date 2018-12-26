@@ -114,8 +114,8 @@ UmsTokenInfoSP UmsTokenInfo::fromJson(const QJsonObject &tokenJson, const QStrin
     UmsTokenInfoPrivate *const d = umsToken->d_func();
     d->setToken(token);
     d->setVersion(tokenJson.value(QStringLiteral("ver")).toString());
-    d->setExpiresAt(QDateTime::fromTime_t(static_cast<uint>(tokenJson.value(QStringLiteral("exp")).toInt())));
-    d->setValidFrom(QDateTime::fromTime_t(static_cast<uint>(tokenJson.value(QStringLiteral("nbf")).toInt())));
+    d->setExpiresAt(QDateTime::fromSecsSinceEpoch(static_cast<uint>(tokenJson.value(QStringLiteral("exp")).toInt())));
+    d->setValidFrom(QDateTime::fromSecsSinceEpoch(static_cast<uint>(tokenJson.value(QStringLiteral("nbf")).toInt())));
 
     UmsUserSP user = umsUsersCache().add(userName, UmsUser::create(userName));
     UmsUserPrivate *userD = user->d_func();

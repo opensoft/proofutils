@@ -64,10 +64,10 @@ TEST_F(UmsUserTest, fromJson)
 
     EXPECT_EQ("1.0", tokenInfoUT->version());
     EXPECT_EQ("1.0", qmlWrapperUT->version());
-    EXPECT_EQ((uint)1476782390, tokenInfoUT->expiresAt().toTime_t());
-    EXPECT_EQ((uint)1476782390, qmlWrapperUT->expiresAt().toTime_t());
-    EXPECT_EQ((uint)1476695990, tokenInfoUT->validFrom().toTime_t());
-    EXPECT_EQ((uint)1476695990, qmlWrapperUT->validFrom().toTime_t());
+    EXPECT_EQ((uint)1476782390, tokenInfoUT->expiresAt().toSecsSinceEpoch());
+    EXPECT_EQ((uint)1476782390, qmlWrapperUT->expiresAt().toSecsSinceEpoch());
+    EXPECT_EQ((uint)1476695990, tokenInfoUT->validFrom().toSecsSinceEpoch());
+    EXPECT_EQ((uint)1476695990, qmlWrapperUT->validFrom().toSecsSinceEpoch());
     auto roles = QStringList{"dev:DSB:Admin", "KY:UMS:Admin", "SH3:Admin"};
     EXPECT_EQ(roles, tokenInfoUT->user()->roles());
     EXPECT_EQ(roles, qmlWrapperUT->user()->roles());
