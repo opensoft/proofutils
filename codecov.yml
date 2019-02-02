@@ -1,0 +1,2 @@
+ignore:
+- ".*proofutils/lprprinter.(h|cpp)" # not really possible to verify by unit-tests without mocking lpr/lpq system utilities
