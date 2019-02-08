@@ -43,8 +43,11 @@ using namespace Proof::Ums;
 UmsUserQmlWrapper::UmsUserQmlWrapper(const UmsUserSP &user, QObject *parent)
     : UserQmlWrapper(user, *new UmsUserQmlWrapperPrivate, parent)
 {
-    setupEntity();
+    setupEntity(); // NOLINT
 }
+
+UmsUserQmlWrapper::~UmsUserQmlWrapper()
+{}
 
 PROOF_NDE_WRAPPER_TOOLS_IMPL(UmsUser)
 

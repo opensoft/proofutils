@@ -56,7 +56,7 @@ enum Code
     TemporaryFileError = 108,
     PrinterOffline = 109
 };
-}
+} // namespace UtilsErrorCode
 constexpr long UTILS_MODULE_CODE = 200;
 } // namespace Proof
 #endif // PROOFUTILITIES_GLOBAL_H

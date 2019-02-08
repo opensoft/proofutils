@@ -29,7 +29,6 @@
 
 using namespace Proof;
 
-namespace {
 static const QHash<QrCodeGenerator::Mode, QRencodeMode> MODE_CONVERTOR = {{QrCodeGenerator::Mode::Numeric, QR_MODE_NUM},
                                                                           {QrCodeGenerator::Mode::AlphaNumeric,
                                                                            QR_MODE_AN},
@@ -41,6 +40,7 @@ static const QHash<QrCodeGenerator::ErrorCorrection, QRecLevel> ERROR_CORRECTION
      {QrCodeGenerator::ErrorCorrection::QuartileLevel, QR_ECLEVEL_Q},
      {QrCodeGenerator::ErrorCorrection::HighLevel, QR_ECLEVEL_H}};
 
+namespace {
 struct QrCodeData
 {
     QByteArray data;
@@ -72,7 +72,7 @@ QImage generateBitmap(const QrCodeData &rawData, int width)
     }
 
     QTransform transform;
-    transform.scale(width / rawData.width, width / rawData.width);
+    transform.scale((double)width / rawData.width, (double)width / rawData.width);
     image = image.transformed(transform);
     int resultWidth = width + ((width + 8) % 8);
 
@@ -101,12 +101,12 @@ QByteArray QrCodeGenerator::generateEplBinaryData(const QString &string, int wid
 
     for (int i = 0; i < bitmap.height(); ++i) {
         for (int j = 0; j < bitmap.width() / 8; ++j) {
-            qint8 byte = 0;
-            for (int bit = 0; bit < 8; ++bit) {
-                if (bitmap.pixel(j * 8 + bit, i) == QColor(Qt::white).rgb())
-                    byte |= 1 << (7 - bit);
+            quint8 byte = 0;
+            for (unsigned bit = 0; bit < 8; ++bit) {
+                if (bitmap.pixel(j * 8 + static_cast<int>(bit), i) == QColor(Qt::white).rgb())
+                    byte |= 1u << (7u - bit);
             }
-            result.append(byte);
+            result.append(static_cast<qint8>(byte));
         }
     }
 

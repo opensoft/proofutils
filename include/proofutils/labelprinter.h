@@ -57,6 +57,10 @@ class PROOF_UTILS_EXPORT LabelPrinter : public ProofObject
     Q_DECLARE_PRIVATE(LabelPrinter)
 public:
     explicit LabelPrinter(const LabelPrinterParams &params, QObject *parent = nullptr);
+    LabelPrinter(const LabelPrinter &other) = delete;
+    LabelPrinter &operator=(const LabelPrinter &other) = delete;
+    LabelPrinter(LabelPrinter &&other) = delete;
+    LabelPrinter &operator=(LabelPrinter &&other) = delete;
     ~LabelPrinter();
 
     FutureSP<bool> printLabel(const QByteArray &label, bool ignorePrinterState = false) const;

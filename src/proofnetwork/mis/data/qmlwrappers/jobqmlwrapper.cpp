@@ -38,7 +38,7 @@ class JobQmlWrapperPrivate : public NetworkDataEntityQmlWrapperPrivate
 JobQmlWrapper::JobQmlWrapper(const JobSP &job, QObject *parent)
     : NetworkDataEntityQmlWrapper(job, *new JobQmlWrapperPrivate, parent)
 {
-    setupEntity();
+    setupEntity(); // NOLINT
 }
 
 JobQmlWrapper::~JobQmlWrapper()

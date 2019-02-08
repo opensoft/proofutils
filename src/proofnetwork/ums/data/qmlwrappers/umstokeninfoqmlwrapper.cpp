@@ -48,8 +48,11 @@ using namespace Proof::Ums;
 UmsTokenInfoQmlWrapper::UmsTokenInfoQmlWrapper(const UmsTokenInfoSP &umsTokenInfo, QObject *parent)
     : NetworkDataEntityQmlWrapper(umsTokenInfo, *new UmsTokenInfoQmlWrapperPrivate, parent)
 {
-    setupEntity();
+    setupEntity(); // NOLINT
 }
+
+UmsTokenInfoQmlWrapper::~UmsTokenInfoQmlWrapper()
+{}
 
 PROOF_NDE_WRAPPER_TOOLS_IMPL(UmsTokenInfo)
 

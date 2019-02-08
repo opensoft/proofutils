@@ -148,7 +148,8 @@ std::function<UmsTokenInfoSP(const RestApiReply &)> TokensApiPrivate::tokenUnmar
         if (!signatureVerified) {
             return WithFailure(QStringLiteral("Token signature verification failed"), NETWORK_UMS_MODULE_CODE,
                                NetworkErrorCode::InvalidTokenSignature);
-        } else if (token.isEmpty() || !tokenInfo || !tokenInfo->isDirty()) {
+        }
+        if (token.isEmpty() || !tokenInfo || !tokenInfo->isDirty()) {
             return WithFailure(QStringLiteral("Failed to parse JSON from server reply"), NETWORK_UMS_MODULE_CODE,
                                NetworkErrorCode::InvalidReply);
         }

@@ -37,15 +37,15 @@ namespace NetworkServices {
 
 struct PROOF_NETWORK_LPRPRINTER_EXPORT LprPrinterStatus
 {
-    bool isReady;
+    bool isReady = false;
     QString reason;
 };
 
 struct PROOF_NETWORK_LPRPRINTER_EXPORT LprPrinterInfo
 {
     QString printer;
-    bool acceptsRaw;
-    bool acceptsFiles;
+    bool acceptsRaw = false;
+    bool acceptsFiles = false;
 };
 
 class LprPrinterApiPrivate;
