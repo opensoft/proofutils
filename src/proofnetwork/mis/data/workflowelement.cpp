@@ -32,7 +32,7 @@ namespace Mis {
 class WorkflowElementPrivate
 {
     Q_DECLARE_PUBLIC(WorkflowElement)
-    WorkflowElement *q_ptr;
+    WorkflowElement *q_ptr = nullptr;
 
     WorkflowAction action = WorkflowAction::UnknownAction;
     WorkflowStatus status = WorkflowStatus::UnknownStatus;
@@ -68,7 +68,7 @@ WorkflowElement::WorkflowElement(WorkflowAction action, WorkflowStatus status, P
     d_ptr->paperSide = paperSide;
 }
 
-WorkflowElement::WorkflowElement(const WorkflowElement &other) : d_ptr(new WorkflowElementPrivate)
+WorkflowElement::WorkflowElement(const WorkflowElement &other) noexcept : d_ptr(new WorkflowElementPrivate)
 {
     d_ptr->q_ptr = this;
 
@@ -77,7 +77,7 @@ WorkflowElement::WorkflowElement(const WorkflowElement &other) : d_ptr(new Workf
     d_ptr->status = other.status();
 }
 
-WorkflowElement::WorkflowElement(WorkflowElement &&other) : d_ptr(other.d_ptr.take())
+WorkflowElement::WorkflowElement(WorkflowElement &&other) noexcept : d_ptr(other.d_ptr.take())
 {
     d_ptr->q_ptr = this;
 }
@@ -123,7 +123,7 @@ QString WorkflowElement::toString() const
                                              : QStringLiteral(":%1").arg(paperSideToString(d_ptr->paperSide)));
 }
 
-WorkflowElement &WorkflowElement::operator=(const WorkflowElement &other)
+WorkflowElement &WorkflowElement::operator=(const WorkflowElement &other) noexcept
 {
     d_ptr->action = other.action();
     d_ptr->paperSide = other.paperSide();
@@ -131,7 +131,7 @@ WorkflowElement &WorkflowElement::operator=(const WorkflowElement &other)
     return *this;
 }
 
-WorkflowElement &WorkflowElement::operator=(WorkflowElement &&other)
+WorkflowElement &WorkflowElement::operator=(WorkflowElement &&other) noexcept
 {
     d_ptr.reset(other.d_ptr.take());
     return *this;

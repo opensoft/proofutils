@@ -35,7 +35,7 @@ class JobPrivate : NetworkDataEntityPrivate
 {
     Q_DECLARE_PUBLIC(Job)
 
-    void setId(const QString &id);
+    void setId(const QString &arg);
 
     QString id;
     EntityStatus status = EntityStatus::ValidEntity;
@@ -194,14 +194,14 @@ void Job::setHasPreview(bool hasPreview)
     }
 }
 
-void Job::setWorkflow(const QVector<WorkflowElement> &arg)
+void Job::setWorkflow(const QVector<WorkflowElement> &workflow)
 {
     Q_D(Job);
-    bool emitNeeded = arg.count() != d->workflow.count();
-    for (int i = 0; i < arg.count() && !emitNeeded; ++i)
-        emitNeeded = arg[i] != d->workflow[i];
+    bool emitNeeded = workflow.count() != d->workflow.count();
+    for (int i = 0; i < workflow.count() && !emitNeeded; ++i)
+        emitNeeded = workflow[i] != d->workflow[i];
     if (emitNeeded) {
-        d->workflow = arg;
+        d->workflow = workflow;
         emit workflowChanged();
     }
 }
@@ -228,9 +228,9 @@ WorkflowStatus Job::workflowStatus(WorkflowAction action, PaperSide paperSide) c
     for (const auto &element : qAsConst(d->workflow)) {
         if (element.action() != action)
             continue;
-        if (element.paperSide() == paperSide) {
+        if (element.paperSide() == paperSide)
             return element.status();
-        } else if (paperSide == PaperSide::NotSetSide) {
+        if (paperSide == PaperSide::NotSetSide) {
             if (fallbackStatus == WorkflowStatus::UnknownStatus)
                 fallbackStatus = element.status();
             else if ((element.status() == WorkflowStatus::SuspendedStatus

@@ -45,7 +45,7 @@ class LprPrinterApiPrivate : public ProofServiceRestApiPrivate
     auto printerStatusUnmarshaller()
     {
         return [](const RestApiReply &reply) -> LprPrinterStatus {
-            QJsonParseError jsonError;
+            QJsonParseError jsonError{};
             QJsonDocument doc = QJsonDocument::fromJson(reply.data, &jsonError);
             if (jsonError.error != QJsonParseError::NoError) {
                 return WithFailure(QStringLiteral("JSON error: %1").arg(jsonError.errorString()),
@@ -64,7 +64,7 @@ class LprPrinterApiPrivate : public ProofServiceRestApiPrivate
     auto discardingPrinterStatusUnmarshaller()
     {
         return [](const RestApiReply &reply) -> bool {
-            QJsonParseError jsonError;
+            QJsonParseError jsonError{};
             QJsonDocument doc = QJsonDocument::fromJson(reply.data, &jsonError);
             if (jsonError.error != QJsonParseError::NoError) {
                 return WithFailure(QStringLiteral("JSON error: %1").arg(jsonError.errorString()),
@@ -139,7 +139,7 @@ CancelableFuture<bool> LprPrinterApi::printFile(const QString &fileName, const Q
 CancelableFuture<QVector<LprPrinterInfo>> LprPrinterApi::fetchPrintersList()
 {
     auto unmarshaller = [](const RestApiReply &reply) -> QVector<LprPrinterInfo> {
-        QJsonParseError jsonError;
+        QJsonParseError jsonError{};
         QJsonDocument doc = QJsonDocument::fromJson(reply.data, &jsonError);
         if (jsonError.error != QJsonParseError::NoError) {
             return WithFailure(QStringLiteral("JSON error: %1").arg(jsonError.errorString()),

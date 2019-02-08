@@ -39,6 +39,10 @@ class PROOF_NETWORK_UMS_EXPORT UmsTokenInfo : public NetworkDataEntity
     Q_OBJECT
     Q_DECLARE_PRIVATE(UmsTokenInfo)
 public:
+    UmsTokenInfo(const UmsTokenInfo &other) = delete;
+    UmsTokenInfo &operator=(const UmsTokenInfo &other) = delete;
+    UmsTokenInfo(UmsTokenInfo &&other) = delete;
+    UmsTokenInfo &operator=(UmsTokenInfo &&other) = delete;
     ~UmsTokenInfo();
 
     QString version() const;

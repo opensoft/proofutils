@@ -97,8 +97,7 @@ FutureSP<bool> LabelPrinter::printerIsReady() const
     return d->labelPrinterApi->fetchStatus(d->params.printerName)->map([](const auto &status) -> bool {
         if (status.isReady)
             return true;
-        else
-            return WithFailure(status.reason, UTILS_MODULE_CODE, UtilsErrorCode::LabelPrinterError);
+        return WithFailure(status.reason, UTILS_MODULE_CODE, UtilsErrorCode::LabelPrinterError);
     });
 }
 

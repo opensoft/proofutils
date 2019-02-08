@@ -38,8 +38,8 @@ class PROOF_NETWORK_MIS_EXPORT WorkflowElement
 public:
     explicit WorkflowElement(const QString &string = QString());
     WorkflowElement(WorkflowAction action, WorkflowStatus status, PaperSide paperSide = PaperSide::NotSetSide);
-    WorkflowElement(const WorkflowElement &other);
-    WorkflowElement(WorkflowElement &&other);
+    WorkflowElement(const WorkflowElement &other) noexcept;
+    WorkflowElement(WorkflowElement &&other) noexcept;
     ~WorkflowElement();
 
     WorkflowAction action() const;
@@ -51,8 +51,8 @@ public:
 
     QString toString() const;
 
-    WorkflowElement &operator=(const WorkflowElement &other);
-    WorkflowElement &operator=(WorkflowElement &&other);
+    WorkflowElement &operator=(const WorkflowElement &other) noexcept;
+    WorkflowElement &operator=(WorkflowElement &&other) noexcept;
     bool operator==(const WorkflowElement &other) const;
     bool operator!=(const WorkflowElement &other) const;
     void swap(WorkflowElement &other);

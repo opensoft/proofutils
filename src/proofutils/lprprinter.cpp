@@ -133,7 +133,7 @@ FutureSP<bool> LprPrinterPrivate::printRawData(const QByteArray &data, bool igno
             args << QStringLiteral("-o") << QStringLiteral("l") << printFile.fileName().replace("/", "\\");
             printProcess->start(system32Path() + "\\lpr.exe", args);
 #else
-                printProcess->start(QStringLiteral("lpr"), args);
+            printProcess->start(QStringLiteral("lpr"), args);
 #endif
             qCDebug(proofUtilsLprPrinterDataLog) << "Lpr started as" << printProcess->program() << args;
 

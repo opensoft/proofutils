@@ -44,6 +44,10 @@ class PROOF_NETWORK_UMS_EXPORT UmsUser : public User
     Q_OBJECT
     Q_DECLARE_PRIVATE(UmsUser)
 public:
+    UmsUser(const UmsUser &other) = delete;
+    UmsUser &operator=(const UmsUser &other) = delete;
+    UmsUser(UmsUser &&other) = delete;
+    UmsUser &operator=(UmsUser &&other) = delete;
     ~UmsUser();
 
     QStringList roles() const;

@@ -80,7 +80,11 @@ public:
         Xor
     };
 
-    EplLabelGenerator(int printerDpi = 203);
+    explicit EplLabelGenerator(int printerDpi = 203);
+    EplLabelGenerator(const EplLabelGenerator &other) = delete;
+    EplLabelGenerator &operator=(const EplLabelGenerator &other) = delete;
+    EplLabelGenerator(EplLabelGenerator &&other) = delete;
+    EplLabelGenerator &operator=(EplLabelGenerator &&other) = delete;
     virtual ~EplLabelGenerator();
 
     void startLabel(int width = 795, int height = 1250, int speed = 4, int density = 10, int gapLength = 24);

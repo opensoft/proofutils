@@ -46,8 +46,9 @@ class PROOF_NETWORK_UMS_EXPORT UmsTokenInfoQmlWrapper : public NetworkDataEntity
 
     Q_DECLARE_PRIVATE(UmsTokenInfoQmlWrapper)
 public:
-    UmsTokenInfoQmlWrapper(const UmsTokenInfoSP &umsTokenInfo, QObject *parent = nullptr);
-    PROOF_NDE_WRAPPER_TOOLS(UmsUser)
+    explicit UmsTokenInfoQmlWrapper(const UmsTokenInfoSP &umsTokenInfo, QObject *parent = nullptr);
+    ~UmsTokenInfoQmlWrapper();
+    PROOF_NDE_WRAPPER_TOOLS(UmsTokenInfo)
 
     QString version() const;
     QDateTime expiresAt() const;
