@@ -25,7 +25,7 @@
 #ifndef PROOF_UTILS_LABELPRINTER_H
 #define PROOF_UTILS_LABELPRINTER_H
 
-#include "proofseed/future.h"
+#include "proofseed/asynqro_extra.h"
 
 #include "proofcore/proofobject.h"
 
@@ -63,8 +63,8 @@ public:
     LabelPrinter &operator=(LabelPrinter &&other) = delete;
     ~LabelPrinter();
 
-    FutureSP<bool> printLabel(const QByteArray &label, bool ignorePrinterState = false) const;
-    FutureSP<bool> printerIsReady() const;
+    Future<bool> printLabel(const QByteArray &label, bool ignorePrinterState = false) const;
+    Future<bool> printerIsReady() const;
     QString title() const;
 };
 

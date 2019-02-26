@@ -24,7 +24,7 @@
  */
 #include "proofutils/labelprinter.h"
 
-#include "proofseed/tasks.h"
+#include "proofseed/asynqro_extra.h"
 
 #include "proofcore/proofobject_p.h"
 
@@ -75,7 +75,7 @@ LabelPrinter::LabelPrinter(const LabelPrinterParams &params, QObject *parent)
 LabelPrinter::~LabelPrinter()
 {}
 
-FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState) const
+Future<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrinterState) const
 {
     Q_D_CONST(LabelPrinter);
 #ifndef Q_OS_ANDROID
@@ -87,14 +87,14 @@ FutureSP<bool> LabelPrinter::printLabel(const QByteArray &label, bool ignorePrin
     return d->labelPrinterApi->printLabel(label, d->params.printerName);
 }
 
-FutureSP<bool> LabelPrinter::printerIsReady() const
+Future<bool> LabelPrinter::printerIsReady() const
 {
     Q_D_CONST(LabelPrinter);
 #ifndef Q_OS_ANDROID
     if (d->hardwareLabelPrinter)
         return d->hardwareLabelPrinter->printerIsReady();
 #endif
-    return d->labelPrinterApi->fetchStatus(d->params.printerName)->map([](const auto &status) -> bool {
+    return d->labelPrinterApi->fetchStatus(d->params.printerName).map([](const auto &status) -> bool {
         if (status.isReady)
             return true;
         return WithFailure(status.reason, UTILS_MODULE_CODE, UtilsErrorCode::LabelPrinterError);

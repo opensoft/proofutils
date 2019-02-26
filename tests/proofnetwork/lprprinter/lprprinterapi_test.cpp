@@ -48,7 +48,7 @@ TEST_F(LprPrinterApiTest, fetchStatus)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    auto result = lprPrinterApi->fetchStatus()->result();
+    auto result = lprPrinterApi->fetchStatus().result();
 
     EXPECT_EQ(FakeServer::Method::Get, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/status"), serverRunner->lastQueryUrl());
@@ -66,7 +66,7 @@ TEST_F(LprPrinterApiTest, fetchBadStatus)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    auto result = lprPrinterApi->fetchStatus()->result();
+    auto result = lprPrinterApi->fetchStatus().result();
 
     EXPECT_EQ(FakeServer::Method::Get, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/status"), serverRunner->lastQueryUrl());
@@ -85,15 +85,15 @@ TEST_F(LprPrinterApiTest, printLabel)
     serverRunner->setServerAnswer(json);
 
     auto result = lprPrinterApi->printLabel("something");
-    result->wait();
+    result.wait();
 
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/print-raw"), serverRunner->lastQueryUrl());
     auto bodyObject = QJsonDocument::fromJson(serverRunner->lastQueryBody()).object();
     EXPECT_EQ(QByteArray("something").toBase64().constData(), bodyObject["data"].toString().toLatin1());
 
-    ASSERT_TRUE(result->succeeded());
-    EXPECT_TRUE(result->result());
+    ASSERT_TRUE(result.isSucceeded());
+    EXPECT_TRUE(result.result());
 }
 
 TEST_F(LprPrinterApiTest, failedPrintLabel)
@@ -105,14 +105,14 @@ TEST_F(LprPrinterApiTest, failedPrintLabel)
     serverRunner->setServerAnswer(json);
 
     auto result = lprPrinterApi->printLabel("something");
-    result->wait();
+    result.wait();
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/print-raw"), serverRunner->lastQueryUrl());
     auto bodyObject = QJsonDocument::fromJson(serverRunner->lastQueryBody()).object();
     EXPECT_EQ(QByteArray("something").toBase64().constData(), bodyObject["data"].toString().toLatin1());
 
-    ASSERT_TRUE(result->failed());
-    EXPECT_EQ("Some error occurred", result->failureReason().message);
+    ASSERT_TRUE(result.isFailed());
+    EXPECT_EQ("Some error occurred", result.failureReason().message);
 }
 
 TEST_F(LprPrinterApiTest, printFile)
@@ -124,7 +124,7 @@ TEST_F(LprPrinterApiTest, printFile)
     serverRunner->setServerAnswer(json);
 
     auto result = lprPrinterApi->printFile(":/data/status.json");
-    result->wait();
+    result.wait();
 
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/print?copies=1"), serverRunner->lastQueryUrl());
@@ -133,8 +133,8 @@ TEST_F(LprPrinterApiTest, printFile)
     ASSERT_TRUE(f.open(QFile::ReadOnly));
     EXPECT_EQ(f.readAll(), body);
 
-    ASSERT_TRUE(result->succeeded());
-    EXPECT_TRUE(result->result());
+    ASSERT_TRUE(result.isSucceeded());
+    EXPECT_TRUE(result.result());
 }
 
 TEST_F(LprPrinterApiTest, failedPrintFile)
@@ -146,7 +146,7 @@ TEST_F(LprPrinterApiTest, failedPrintFile)
     serverRunner->setServerAnswer(json);
 
     auto result = lprPrinterApi->printFile(":/data/status.json");
-    result->wait();
+    result.wait();
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/print?copies=1"), serverRunner->lastQueryUrl());
     auto body = serverRunner->lastQueryBody();
@@ -154,8 +154,8 @@ TEST_F(LprPrinterApiTest, failedPrintFile)
     ASSERT_TRUE(f.open(QFile::ReadOnly));
     EXPECT_EQ(f.readAll(), body);
 
-    ASSERT_TRUE(result->failed());
-    EXPECT_EQ("Some error occurred", result->failureReason().message);
+    ASSERT_TRUE(result.isFailed());
+    EXPECT_EQ("Some error occurred", result.failureReason().message);
 }
 
 TEST_F(LprPrinterApiTest, fetchPrintersList)
@@ -166,7 +166,7 @@ TEST_F(LprPrinterApiTest, fetchPrintersList)
     ASSERT_FALSE(json.isEmpty());
     serverRunner->setServerAnswer(json);
 
-    const QVector<Proof::NetworkServices::LprPrinterInfo> printers = lprPrinterApi->fetchPrintersList()->result();
+    const QVector<Proof::NetworkServices::LprPrinterInfo> printers = lprPrinterApi->fetchPrintersList().result();
     EXPECT_EQ(FakeServer::Method::Get, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/list"), serverRunner->lastQueryUrl());
     EXPECT_TRUE(serverRunner->lastQueryBody().isEmpty());

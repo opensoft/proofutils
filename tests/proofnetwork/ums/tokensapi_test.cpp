@@ -52,7 +52,7 @@ TEST_F(TokensApiTest, fetchToken)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchToken()->result();
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchToken().result();
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/oauth2/token"), serverRunner->lastQueryUrl());
     auto query = QUrlQuery(serverRunner->lastQueryBody());
@@ -77,7 +77,7 @@ TEST_F(TokensApiTest, fetchTokenByBarcode)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByBarcode(QString("barcode"))->result();
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByBarcode(QString("barcode")).result();
 
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/oauth2/token"), serverRunner->lastQueryUrl());
@@ -105,7 +105,7 @@ TEST_F(TokensApiTest, fetchTokenByLogin)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByLogin("login", "password")->result();
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->fetchTokenByLogin("login", "password").result();
 
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/oauth2/token"), serverRunner->lastQueryUrl());
@@ -135,7 +135,7 @@ TEST_F(TokensApiTest, refreshToken)
     serverRunner->setServerAnswer(tokenFromFile);
     tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
 
-    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->refreshToken(QString("oldtoken"))->result();
+    Proof::Ums::UmsTokenInfoSP tokenInfo = tokensApiUT->refreshToken(QString("oldtoken")).result();
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/oauth2/token"), serverRunner->lastQueryUrl());
     auto query = QUrlQuery(serverRunner->lastQueryBody());
@@ -159,7 +159,7 @@ TEST_F(TokensApiTest, fetchPublicKey)
     ASSERT_TRUE(serverRunner->serverIsRunning());
     serverRunner->setServerAnswer("12345");
 
-    QString answer = tokensApiUT->fetchPublicKey()->result();
+    QString answer = tokensApiUT->fetchPublicKey().result();
     EXPECT_EQ(FakeServer::Method::Get, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/Token/GetPublicKey"), serverRunner->lastQueryUrl());
     EXPECT_TRUE(serverRunner->lastQueryBody().isEmpty());
@@ -172,7 +172,7 @@ TEST_F(TokensApiTest, fetchCertificate)
     ASSERT_TRUE(serverRunner->serverIsRunning());
     serverRunner->setServerAnswer("12345");
 
-    QString answer = tokensApiUT->fetchCertificate()->result();
+    QString answer = tokensApiUT->fetchCertificate().result();
     EXPECT_EQ(FakeServer::Method::Get, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/Token/GetCertificate"), serverRunner->lastQueryUrl());
     EXPECT_TRUE(serverRunner->lastQueryBody().isEmpty());

@@ -24,7 +24,7 @@
  */
 #include "proofutils/lprprinter.h"
 
-#include "proofseed/tasks.h"
+#include "proofseed/asynqro_extra.h"
 
 #include "proofcore/proofobject_p.h"
 
@@ -34,7 +34,7 @@
 #include <QThread>
 
 static const QString EMPTY_PRINTER_TEXT = QStringLiteral("Printing aborted.\n Empty printer.");
-static const QString RESTRICTOR = QStringLiteral("__Proof_Lpr");
+static constexpr int32_t RESTRICTOR = Proof::UTILS_MODULE_CODE + 42;
 
 namespace Proof {
 namespace Hardware {
@@ -42,11 +42,11 @@ class LprPrinterPrivate : public ProofObjectPrivate
 {
     Q_DECLARE_PUBLIC(LprPrinter)
 
-    FutureSP<bool> printRawData(const QByteArray &data, bool ignorePrinterState) const;
-    FutureSP<bool> printFile(const QString &fileName, unsigned int quantity, bool ignorePrinterState) const;
+    Future<bool> printRawData(const QByteArray &data, bool ignorePrinterState) const;
+    Future<bool> printFile(const QString &fileName, unsigned int quantity, bool ignorePrinterState) const;
 
-    FutureSP<bool> printerIsReady() const;
-    FutureSP<bool> checkLpOptions() const;
+    Future<bool> printerIsReady() const;
+    Future<bool> checkLpOptions() const;
 
     QString printerName;
     QString printerHost;
@@ -84,29 +84,29 @@ LprPrinter::LprPrinter(const QString &printerHost, const QString &printerName, b
         qCWarning(proofUtilsLprPrinterInfoLog) << QStringLiteral("Empty printer!");
 }
 
-FutureSP<bool> LprPrinter::printRawData(const QByteArray &data, bool ignorePrinterState) const
+Future<bool> LprPrinter::printRawData(const QByteArray &data, bool ignorePrinterState) const
 {
     Q_D_CONST(LprPrinter);
     return d->printRawData(data, ignorePrinterState);
 }
 
-FutureSP<bool> LprPrinter::printFile(const QString &fileName, unsigned int quantity, bool ignorePrinterState) const
+Future<bool> LprPrinter::printFile(const QString &fileName, unsigned int quantity, bool ignorePrinterState) const
 {
     Q_D_CONST(LprPrinter);
     return d->printFile(fileName, quantity, ignorePrinterState);
 }
 
-FutureSP<bool> LprPrinter::printerIsReady() const
+Future<bool> LprPrinter::printerIsReady() const
 {
     Q_D_CONST(LprPrinter);
     return d->printerIsReady();
 }
 
-FutureSP<bool> LprPrinterPrivate::printRawData(const QByteArray &data, bool ignorePrinterState) const
+Future<bool> LprPrinterPrivate::printRawData(const QByteArray &data, bool ignorePrinterState) const
 {
-    FutureSP<bool> status = ignorePrinterState ? Future<>::successful(true) : printerIsReady();
-    return status->andThen([this, data] {
-        return tasks::run(tasks::RestrictionType::ThreadBound, RESTRICTOR, [this, data]() -> bool {
+    Future<bool> status = ignorePrinterState ? futures::successful(true) : printerIsReady();
+    return status.andThen([this, data] {
+        return tasks::run(tasks::TaskType::ThreadBound, RESTRICTOR, [this, data]() -> bool {
             QScopedPointer<QProcess> printProcess(new QProcess);
 
             QStringList args;
@@ -168,11 +168,11 @@ FutureSP<bool> LprPrinterPrivate::printRawData(const QByteArray &data, bool igno
     });
 }
 
-FutureSP<bool> LprPrinterPrivate::printFile(const QString &fileName, unsigned int quantity, bool ignorePrinterState) const
+Future<bool> LprPrinterPrivate::printFile(const QString &fileName, unsigned int quantity, bool ignorePrinterState) const
 {
-    FutureSP<bool> status = ignorePrinterState ? Future<>::successful(true) : printerIsReady();
-    return status->andThen([this, fileName, quantity] {
-        return tasks::run(tasks::RestrictionType::ThreadBound, RESTRICTOR, [this, fileName, quantity]() -> bool {
+    Future<bool> status = ignorePrinterState ? futures::successful(true) : printerIsReady();
+    return status.andThen([this, fileName, quantity] {
+        return tasks::run(tasks::TaskType::ThreadBound, RESTRICTOR, [this, fileName, quantity]() -> bool {
 #ifdef Q_OS_WIN
             unsigned int qty = quantity;
             while (qty--) {
@@ -225,13 +225,13 @@ FutureSP<bool> LprPrinterPrivate::printFile(const QString &fileName, unsigned in
     });
 }
 
-FutureSP<bool> LprPrinterPrivate::printerIsReady() const
+Future<bool> LprPrinterPrivate::printerIsReady() const
 {
     if (printerHost.isEmpty() && printerName.isEmpty()) {
-        return Future<bool>::fail(Failure(EMPTY_PRINTER_TEXT, UTILS_MODULE_CODE, UtilsErrorCode::LpqCannotBeStarted));
+        return Future<bool>::failed(Failure(EMPTY_PRINTER_TEXT, UTILS_MODULE_CODE, UtilsErrorCode::LpqCannotBeStarted));
     }
 
-    return tasks::run(tasks::RestrictionType::ThreadBound, RESTRICTOR, [this]() -> FutureSP<bool> {
+    return tasks::run(tasks::TaskType::ThreadBound, RESTRICTOR, [this]() -> Future<bool> {
         QScopedPointer<QProcess> queueProcess(new QProcess);
         QStringList args;
         if (!printerHost.isEmpty()) {
@@ -311,9 +311,9 @@ FutureSP<bool> LprPrinterPrivate::printerIsReady() const
     });
 }
 
-FutureSP<bool> LprPrinterPrivate::checkLpOptions() const
+Future<bool> LprPrinterPrivate::checkLpOptions() const
 {
-    return tasks::run(tasks::RestrictionType::ThreadBound, RESTRICTOR, [this]() -> bool {
+    return tasks::run(tasks::TaskType::ThreadBound, RESTRICTOR, [this]() -> bool {
         QScopedPointer<QProcess> optionsProcess(new QProcess);
         QStringList args;
         if (!printerHost.isEmpty())
