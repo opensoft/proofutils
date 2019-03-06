@@ -40,7 +40,7 @@ protected:
     FakeServerRunner *serverRunner;
 };
 
-TEST_F(LprPrinterApiTest, fetchStatus)
+TEST_F(LprPrinterApiTest, fetchStatusForDefaultPrinter)
 {
     ASSERT_TRUE(serverRunner->serverIsRunning());
 
@@ -52,6 +52,24 @@ TEST_F(LprPrinterApiTest, fetchStatus)
 
     EXPECT_EQ(FakeServer::Method::Get, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/status"), serverRunner->lastQueryUrl());
+    EXPECT_TRUE(serverRunner->lastQueryBody().isEmpty());
+
+    EXPECT_TRUE(result.isReady);
+    EXPECT_EQ("", result.reason);
+}
+
+TEST_F(LprPrinterApiTest, fetchStatus)
+{
+    ASSERT_TRUE(serverRunner->serverIsRunning());
+
+    QByteArray json = dataFromFile(":/data/status.json").trimmed();
+    ASSERT_FALSE(json.isEmpty());
+    serverRunner->setServerAnswer(json);
+
+    auto result = lprPrinterApi->fetchStatus("printer42").result();
+
+    EXPECT_EQ(FakeServer::Method::Get, serverRunner->lastQueryMethod());
+    EXPECT_EQ(QUrl("/lpr/status?printer=printer42"), serverRunner->lastQueryUrl());
     EXPECT_TRUE(serverRunner->lastQueryBody().isEmpty());
 
     EXPECT_TRUE(result.isReady);
@@ -76,7 +94,7 @@ TEST_F(LprPrinterApiTest, fetchBadStatus)
     EXPECT_EQ("Some error occurred", result.reason);
 }
 
-TEST_F(LprPrinterApiTest, printLabel)
+TEST_F(LprPrinterApiTest, printLabelAtDefaultPrinter)
 {
     ASSERT_TRUE(serverRunner->serverIsRunning());
 
@@ -89,6 +107,26 @@ TEST_F(LprPrinterApiTest, printLabel)
 
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/print-raw"), serverRunner->lastQueryUrl());
+    auto bodyObject = QJsonDocument::fromJson(serverRunner->lastQueryBody()).object();
+    EXPECT_EQ(QByteArray("something").toBase64().constData(), bodyObject["data"].toString().toLatin1());
+
+    ASSERT_TRUE(result.isSucceeded());
+    EXPECT_TRUE(result.result());
+}
+
+TEST_F(LprPrinterApiTest, printLabel)
+{
+    ASSERT_TRUE(serverRunner->serverIsRunning());
+
+    QByteArray json = dataFromFile(":/data/status.json").trimmed();
+    ASSERT_FALSE(json.isEmpty());
+    serverRunner->setServerAnswer(json);
+
+    auto result = lprPrinterApi->printLabel("something", "printer42");
+    result.wait();
+
+    EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
+    EXPECT_EQ(QUrl("/lpr/print-raw?printer=printer42"), serverRunner->lastQueryUrl());
     auto bodyObject = QJsonDocument::fromJson(serverRunner->lastQueryBody()).object();
     EXPECT_EQ(QByteArray("something").toBase64().constData(), bodyObject["data"].toString().toLatin1());
 
@@ -115,7 +153,7 @@ TEST_F(LprPrinterApiTest, failedPrintLabel)
     EXPECT_EQ("Some error occurred", result.failureReason().message);
 }
 
-TEST_F(LprPrinterApiTest, printFile)
+TEST_F(LprPrinterApiTest, printFileAtDefaultPrinter)
 {
     ASSERT_TRUE(serverRunner->serverIsRunning());
 
@@ -128,6 +166,28 @@ TEST_F(LprPrinterApiTest, printFile)
 
     EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
     EXPECT_EQ(QUrl("/lpr/print?copies=1"), serverRunner->lastQueryUrl());
+    auto body = serverRunner->lastQueryBody();
+    QFile f(":/data/status.json");
+    ASSERT_TRUE(f.open(QFile::ReadOnly));
+    EXPECT_EQ(f.readAll(), body);
+
+    ASSERT_TRUE(result.isSucceeded());
+    EXPECT_TRUE(result.result());
+}
+
+TEST_F(LprPrinterApiTest, printFile)
+{
+    ASSERT_TRUE(serverRunner->serverIsRunning());
+
+    QByteArray json = dataFromFile(":/data/status.json").trimmed();
+    ASSERT_FALSE(json.isEmpty());
+    serverRunner->setServerAnswer(json);
+
+    auto result = lprPrinterApi->printFile(":/data/status.json", "printer42");
+    result.wait();
+
+    EXPECT_EQ(FakeServer::Method::Post, serverRunner->lastQueryMethod());
+    EXPECT_EQ(QUrl("/lpr/print?copies=1&printer=printer42"), serverRunner->lastQueryUrl());
     auto body = serverRunner->lastQueryBody();
     QFile f(":/data/status.json");
     ASSERT_TRUE(f.open(QFile::ReadOnly));
@@ -156,6 +216,21 @@ TEST_F(LprPrinterApiTest, failedPrintFile)
 
     ASSERT_TRUE(result.isFailed());
     EXPECT_EQ("Some error occurred", result.failureReason().message);
+}
+
+TEST_F(LprPrinterApiTest, printFileFromWrongFile)
+{
+    ASSERT_TRUE(serverRunner->serverIsRunning());
+
+    QByteArray json = dataFromFile(":/data/failed_status.json").trimmed();
+    ASSERT_FALSE(json.isEmpty());
+    serverRunner->setServerAnswer(json);
+
+    auto result = lprPrinterApi->printFile(":/data/this_file_doesnot_exist.json");
+    result.wait();
+    ASSERT_TRUE(result.isFailed());
+    EXPECT_EQ("Can't open file", result.failureReason().message);
+    EXPECT_EQ(Proof::NetworkErrorCode::FileError, result.failureReason().errorCode);
 }
 
 TEST_F(LprPrinterApiTest, fetchPrintersList)

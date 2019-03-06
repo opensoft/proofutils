@@ -9,6 +9,7 @@ using testing::TestWithParam;
 
 using SizeTestTuple = std::tuple<QSize, QString, int, int, int>;
 using BarcodeTestTuple = std::tuple<QString, QString, EplLabelGenerator::BarcodeType, int, int, int, bool, int, int, int>;
+using AddTextTuple = std::tuple<QByteArray, QString, int, int, int, int, int, int, bool>;
 
 static const QVector<QSize> singleCharSizeAt203 = {{10, 14}, {12, 18}, {14, 22}, {16, 26}, {34, 50}};
 static const QVector<QSize> singleCharSizeAt300 = {{14, 22}, {18, 30}, {22, 38}, {26, 46}, {50, 82}};
@@ -21,6 +22,29 @@ class EplLabelGenerator300SizesTest : public TestWithParam<SizeTestTuple>
 
 class EplLabelGeneratorBarcodeTest : public TestWithParam<BarcodeTestTuple>
 {};
+
+class EplLabelGeneratorAddTextTest : public TestWithParam<AddTextTuple>
+{};
+
+template <typename... T>
+struct RemoveFirstType;
+
+template <>
+struct RemoveFirstType<std::tuple<>>;
+
+template <typename... T>
+struct RemoveFirstType<std::tuple<T...>>
+{
+private:
+    template <size_t... n>
+    static auto truncate(std::index_sequence<n...>, const std::tuple<T...> &t)
+    {
+        return std::make_tuple(std::get<n + 1>(t)...);
+    }
+
+public:
+    static auto result(const std::tuple<T...> &t) { return truncate(std::make_index_sequence<sizeof...(T) - 1>(), t); }
+};
 
 //All constants here are taken from manual https://www.zebra.com/content/dam/zebra/manuals/en-us/printer/epl2-pm-en.pdf
 
@@ -206,6 +230,50 @@ INSTANTIATE_TEST_CASE_P(
         BarcodeTestTuple("B25,100,3,3,2,4,100,N,\"1234\"\n", "1234", EplLabelGenerator::BarcodeType::Code39, 25, 100,
                          100, false, 2, 4, 270)));
 
+INSTANTIATE_TEST_CASE_P(
+    AddTextTestParameters, EplLabelGeneratorAddTextTest,
+    testing::Values(AddTextTuple("A25,100,0,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, 0, false),
+                    AddTextTuple("A25,100,0,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 0, 1, 1, 0, false),
+                    AddTextTuple("A25,100,0,7,1,1,N,\"420\"\n", "420", 25, 100, 7, 1, 1, 0, false),
+                    AddTextTuple("A25,100,0,7,1,1,N,\"420\"\n", "420", 25, 100, 8, 1, 1, 0, false),
+                    AddTextTuple("A25,100,0,5,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 7, 1, 1, 0, false),
+                    AddTextTuple("A25,100,0,4,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 4, 1, 1, 0, false),
+                    AddTextTuple("A25,100,0,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 0, 1, 0, false),
+                    AddTextTuple("A25,100,0,1,6,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 6, 1, 0, false),
+                    AddTextTuple("A25,100,0,1,6,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 7, 1, 0, false),
+                    AddTextTuple("A25,100,0,1,8,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 8, 1, 0, false),
+                    AddTextTuple("A25,100,0,1,8,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 9, 1, 0, false),
+                    AddTextTuple("A25,100,0,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 0, 0, false),
+                    AddTextTuple("A25,100,0,1,1,9,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 9, 0, false),
+                    AddTextTuple("A25,100,0,1,1,9,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 10, 0, false),
+                    AddTextTuple("A25,100,0,1,1,8,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 8, 0, false),
+                    AddTextTuple("A25,100,1,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, 90, false),
+                    AddTextTuple("A25,100,2,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, 180, false),
+                    AddTextTuple("A25,100,3,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, 270, false),
+                    AddTextTuple("A25,100,0,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, 360, false),
+                    AddTextTuple("A25,100,1,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, 450, false),
+                    AddTextTuple("A25,100,1,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, 100, false),
+                    AddTextTuple("A25,100,3,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, -90, false),
+                    AddTextTuple("A25,100,2,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, -180, false),
+                    AddTextTuple("A25,100,1,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, -270, false),
+                    AddTextTuple("A25,100,0,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, -360, false),
+                    AddTextTuple("A25,100,3,1,1,1,N,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, -450, false),
+                    AddTextTuple("A25,100,0,1,1,1,R,\"PRNT\"\n", "PRNT", 25, 100, 1, 1, 1, 0, true)));
+
+TEST(EplLabelGeneratorTest, sanity)
+{
+    {
+        EplLabelGenerator generator;
+        generator.startLabel();
+        EXPECT_EQ(QSize(795, 1250), generator.labelSize());
+    }
+    {
+        EplLabelGenerator generator;
+        generator.startLabel(1000, 500);
+        EXPECT_EQ(QSize(1000, 500), generator.labelSize());
+    }
+}
+
 TEST(EplLabelGeneratorTest, emptyLabel)
 {
     EplLabelGenerator generator;
@@ -222,9 +290,12 @@ TEST(EplLabelGeneratorTest, emptyLabel)
 
 TEST_P(EplLabelGenerator203SizesTest, textSize203)
 {
-    EplLabelGenerator generator(203);
-    QSize size = generator.textSize(std::get<1>(GetParam()), std::get<2>(GetParam()), std::get<3>(GetParam()),
-                                    std::get<4>(GetParam()));
+    QSize size = std::apply(
+        [](const auto &... args) {
+            EplLabelGenerator generator(203);
+            return generator.textSize(args...);
+        },
+        RemoveFirstType<SizeTestTuple>::result(GetParam()));
     QSize expected = std::get<0>(GetParam());
     EXPECT_EQ(expected, size) << expected.width() << "x" << expected.height() << " != " << size.width() << "x"
                               << size.height();
@@ -232,15 +303,30 @@ TEST_P(EplLabelGenerator203SizesTest, textSize203)
 
 TEST_P(EplLabelGenerator300SizesTest, textSize300)
 {
-    EplLabelGenerator generator(300);
-    QSize size = generator.textSize(std::get<1>(GetParam()), std::get<2>(GetParam()), std::get<3>(GetParam()),
-                                    std::get<4>(GetParam()));
+    QSize size = std::apply(
+        [](const auto &... args) {
+            EplLabelGenerator generator(300);
+            return generator.textSize(args...);
+        },
+        RemoveFirstType<SizeTestTuple>::result(GetParam()));
     QSize expected = std::get<0>(GetParam());
     EXPECT_EQ(expected, size) << expected.width() << "x" << expected.height() << " != " << size.width() << "x"
                               << size.height();
 }
 
-TEST(EplLabelGeneratorTest, straightText)
+TEST_P(EplLabelGeneratorAddTextTest, addText)
+{
+    QByteArray result = std::apply(
+        [](const auto &... args) {
+            EplLabelGenerator generator;
+            generator.addText(args...);
+            return generator.labelData();
+        },
+        RemoveFirstType<AddTextTuple>::result(GetParam()));
+    EXPECT_EQ(std::get<0>(GetParam()), result);
+}
+
+TEST(EplLabelGeneratorTest, straightTextBox)
 {
     EplLabelGenerator generator;
 
@@ -255,7 +341,7 @@ TEST(EplLabelGeneratorTest, straightText)
         << expectedSize.width() << "x" << expectedSize.height() << " != " << rect.width() << "x" << rect.height();
 }
 
-TEST(EplLabelGeneratorTest, rotatedText)
+TEST(EplLabelGeneratorTest, rotatedTextBox)
 {
     EplLabelGenerator generator;
 
@@ -272,7 +358,7 @@ TEST(EplLabelGeneratorTest, rotatedText)
     EXPECT_EQ(expectedSize.width(), rect.height());
 }
 
-TEST(EplLabelGeneratorTest, backwardRotatedText)
+TEST(EplLabelGeneratorTest, backwardRotatedTextBox)
 {
     EplLabelGenerator generator;
 
@@ -289,7 +375,7 @@ TEST(EplLabelGeneratorTest, backwardRotatedText)
     EXPECT_EQ(expectedSize.width(), rect.height());
 }
 
-TEST(EplLabelGeneratorTest, upsideDownText)
+TEST(EplLabelGeneratorTest, upsideDownTextBox)
 {
     EplLabelGenerator generator;
 
@@ -306,7 +392,7 @@ TEST(EplLabelGeneratorTest, upsideDownText)
     EXPECT_EQ(expectedSize.width(), rect.width());
 }
 
-TEST(EplLabelGeneratorTest, inversedColorsText)
+TEST(EplLabelGeneratorTest, inversedColorsTextBox)
 {
     EplLabelGenerator generator;
 
@@ -409,11 +495,13 @@ TEST(EplLabelGeneratorTest, rotatedDiagonalLine)
 
 TEST_P(EplLabelGeneratorBarcodeTest, barcodes)
 {
-    EplLabelGenerator generator;
-    generator.addBarcode(std::get<1>(GetParam()), std::get<2>(GetParam()), std::get<3>(GetParam()),
-                         std::get<4>(GetParam()), std::get<5>(GetParam()), std::get<6>(GetParam()),
-                         std::get<7>(GetParam()), std::get<8>(GetParam()), std::get<9>(GetParam()));
-    QByteArray result = generator.labelData();
+    QByteArray result = std::apply(
+        [](const auto &... args) {
+            EplLabelGenerator generator;
+            generator.addBarcode(args...);
+            return generator.labelData();
+        },
+        RemoveFirstType<BarcodeTestTuple>::result(GetParam()));
     QByteArray expected = std::get<0>(GetParam()).toLatin1();
     EXPECT_EQ(expected, result);
 }

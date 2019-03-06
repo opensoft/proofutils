@@ -144,7 +144,7 @@ QRect EplLabelGenerator::addText(const QString &text, int x, int y, int fontSize
     QString preparedText = text;
     preparedText.replace(QLatin1String("\\"), QLatin1String("\\\\")).replace(QLatin1String("\""), QLatin1String("\\\""));
 
-    rotation = (rotation % 360) / 90;
+    rotation = ((360 + (rotation % 360)) % 360) / 90;
 
     d->lastLabel.append(QStringLiteral("A%1,%2,%3,%4,%5,%6,%7,\"%8\"\n")
                             .arg(x)

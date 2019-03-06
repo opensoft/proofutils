@@ -4,5 +4,8 @@
         <file>data/umsuser2.json</file>
         <file>data/pub_rsa.key</file>
         <file>data/token.json</file>
+        <file>data/invalid_token.json</file>
+        <file>data/unknownsig_token.json</file>
+        <file>data/unsigned_token.json</file>
     </qresource>
 </RCC>
