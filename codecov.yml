@@ -1,2 +1,10 @@
 ignore:
 - ".*proofutils/lprprinter.(h|cpp)" # not really possible to verify by unit-tests without mocking lpr/lpq system utilities
+
+coverage:
+  range: 60..95
+  round: down
+  precision: 2
+
+codecov:
+  branch: develop
