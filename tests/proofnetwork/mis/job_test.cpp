@@ -61,6 +61,10 @@ void PrintTo(const PaperSide &x, ::std::ostream *os)
 {
     *os << paperSideToString(x).toUtf8().constData();
 }
+void PrintTo(const TransitionEvent &x, ::std::ostream *os)
+{
+    *os << transitionEventToString(x).toUtf8().constData();
+}
 } // namespace Proof::Mis
 
 using JobWorkflowTuple = std::tuple<WorkflowStatus, QVector<WorkflowElement>, WorkflowAction, PaperSide>;
