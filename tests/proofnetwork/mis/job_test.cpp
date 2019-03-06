@@ -285,7 +285,8 @@ TEST_F(JobTest, workflowElementCopySanity)
     }
     {
         WorkflowElement e(WorkflowAction::PrintingAction, WorkflowStatus::InProgressStatus, PaperSide::FrontSide);
-        WorkflowElement other = e;
+        WorkflowElement other;
+        other = e;
         EXPECT_EQ("in progress:printing:front", other.toString());
         EXPECT_EQ(WorkflowAction::PrintingAction, other.action());
         EXPECT_EQ(WorkflowStatus::InProgressStatus, other.status());
@@ -301,7 +302,8 @@ TEST_F(JobTest, workflowElementCopySanity)
     }
     {
         WorkflowElement e(WorkflowAction::PrintingAction, WorkflowStatus::InProgressStatus, PaperSide::FrontSide);
-        WorkflowElement other = std::move(e);
+        WorkflowElement other;
+        other = std::move(e);
         EXPECT_EQ("in progress:printing:front", other.toString());
         EXPECT_EQ(WorkflowAction::PrintingAction, other.action());
         EXPECT_EQ(WorkflowStatus::InProgressStatus, other.status());
@@ -417,6 +419,45 @@ INSTANTIATE_TEST_CASE_P(
                     JobWorkflowTuple(WorkflowStatus::InProgressStatus,
                                      {WorkflowElement("suspended:printing:front"),
                                       WorkflowElement("in progress:printing:back"), WorkflowElement("needs:cutting")},
+                                     WorkflowAction::PrintingAction, PaperSide::BackSide),
+
+                    JobWorkflowTuple(WorkflowStatus::IsReadyForStatus,
+                                     {WorkflowElement("done:printing:front"),
+                                      WorkflowElement("is ready for:printing:back"), WorkflowElement("needs:cutting")},
+                                     WorkflowAction::PrintingAction, PaperSide::NotSetSide),
+                    JobWorkflowTuple(WorkflowStatus::DoneStatus,
+                                     {WorkflowElement("done:printing:front"),
+                                      WorkflowElement("is ready for:printing:back"), WorkflowElement("needs:cutting")},
+                                     WorkflowAction::PrintingAction, PaperSide::FrontSide),
+                    JobWorkflowTuple(WorkflowStatus::IsReadyForStatus,
+                                     {WorkflowElement("done:printing:front"),
+                                      WorkflowElement("is ready for:printing:back"), WorkflowElement("needs:cutting")},
+                                     WorkflowAction::PrintingAction, PaperSide::BackSide),
+
+                    JobWorkflowTuple(WorkflowStatus::InProgressStatus,
+                                     {WorkflowElement("done:printing:front"),
+                                      WorkflowElement("in progress:printing:back"), WorkflowElement("needs:cutting")},
+                                     WorkflowAction::PrintingAction, PaperSide::NotSetSide),
+                    JobWorkflowTuple(WorkflowStatus::DoneStatus,
+                                     {WorkflowElement("done:printing:front"),
+                                      WorkflowElement("in progress:printing:back"), WorkflowElement("needs:cutting")},
+                                     WorkflowAction::PrintingAction, PaperSide::FrontSide),
+                    JobWorkflowTuple(WorkflowStatus::InProgressStatus,
+                                     {WorkflowElement("done:printing:front"),
+                                      WorkflowElement("in progress:printing:back"), WorkflowElement("needs:cutting")},
+                                     WorkflowAction::PrintingAction, PaperSide::BackSide),
+
+                    JobWorkflowTuple(WorkflowStatus::NeedsStatus,
+                                     {WorkflowElement("done:printing:front"), WorkflowElement("needs:printing:back"),
+                                      WorkflowElement("needs:cutting")},
+                                     WorkflowAction::PrintingAction, PaperSide::NotSetSide),
+                    JobWorkflowTuple(WorkflowStatus::DoneStatus,
+                                     {WorkflowElement("done:printing:front"), WorkflowElement("needs:printing:back"),
+                                      WorkflowElement("needs:cutting")},
+                                     WorkflowAction::PrintingAction, PaperSide::FrontSide),
+                    JobWorkflowTuple(WorkflowStatus::NeedsStatus,
+                                     {WorkflowElement("done:printing:front"), WorkflowElement("needs:printing:back"),
+                                      WorkflowElement("needs:cutting")},
                                      WorkflowAction::PrintingAction, PaperSide::BackSide),
 
                     JobWorkflowTuple(WorkflowStatus::NeedsStatus,
