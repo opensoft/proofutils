@@ -3,6 +3,7 @@ project(ProofUtilsTest LANGUAGES CXX)
 
 proof_add_target_sources(utils_tests
     epllabelgenerator_test.cpp
+    labelprinter_test.cpp
 )
 proof_add_target_resources(utils_tests tests_resources.qrc)
 

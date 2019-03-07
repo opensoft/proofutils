@@ -140,7 +140,7 @@ std::function<UmsTokenInfoSP(const RestApiReply &)> TokensApiPrivate::tokenUnmar
 
         Proof::Ums::UmsTokenInfoSP tokenInfo;
         bool signatureVerified = verifyToken(tokenList);
-        if (signatureVerified && tokenList.count() == 3) {
+        if (signatureVerified && tokenList.count() >= 2) {
             QJsonObject payload = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList[1])).object();
             tokenInfo = Proof::Ums::UmsTokenInfo::fromJson(payload, token);
         }
@@ -160,17 +160,19 @@ std::function<UmsTokenInfoSP(const RestApiReply &)> TokensApiPrivate::tokenUnmar
 bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
 {
     bool signatureVerified = false;
-    if (tokenList.count() == 3) {
+    if (tokenList.count() == 3 || tokenList.count() == 2) {
         QJsonObject header = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList[0])).object();
         QString algorithm = header.value(QStringLiteral("alg")).toString(QStringLiteral("none")).toLower();
 
-        QByteArray signature = QByteArray::fromBase64(tokenList[2], QByteArray::Base64UrlEncoding);
-        QByteArray signedMessage;
-        signedMessage.append(tokenList[0]);
-        signedMessage.append(".");
-        signedMessage.append(tokenList[1]);
         //TODO: add HS256 support if ever will be needed
         if (algorithm == QLatin1String("rs256")) {
+            QByteArray signature = tokenList.count() == 3
+                                       ? QByteArray::fromBase64(tokenList[2], QByteArray::Base64UrlEncoding)
+                                       : QByteArray();
+            QByteArray signedMessage;
+            signedMessage.append(tokenList[0]);
+            signedMessage.append(".");
+            signedMessage.append(tokenList[1]);
             signatureVerified = rsaPublicKey.verifyMessage(signedMessage, signature, QCA::EMSA3_SHA256);
         } else if (algorithm == QLatin1String("none")) {
             signatureVerified = true;

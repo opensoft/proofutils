@@ -30,7 +30,9 @@ protected:
         restClient->setScheme("http");
         restClient->setClientName("Proof-test");
         tokensApiUT = new Proof::Ums::TokensApi("test", "test", restClient);
-        tokensApiUT->setRsaKey(QCA::PublicKey::fromPEM(dataFromFile(":/data/pub_rsa.key")).toRSA());
+        auto key = QCA::PublicKey::fromPEM(dataFromFile(":/data/pub_rsa.key")).toRSA();
+        tokensApiUT->setRsaKey(key);
+        EXPECT_EQ(key, tokensApiUT->rsaKey());
     }
 
     void TearDown() override
@@ -178,4 +180,53 @@ TEST_F(TokensApiTest, fetchCertificate)
     EXPECT_TRUE(serverRunner->lastQueryBody().isEmpty());
 
     EXPECT_EQ("12345", answer);
+}
+
+TEST_F(TokensApiTest, fetchInvalidToken)
+{
+    ASSERT_TRUE(serverRunner->serverIsRunning());
+    QByteArray tokenFromFile = dataFromFile(":/data/invalid_token.json");
+    ASSERT_FALSE(tokenFromFile.isEmpty());
+    serverRunner->setServerAnswer(tokenFromFile);
+    tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
+
+    auto f = tokensApiUT->fetchToken();
+    f.wait();
+    EXPECT_TRUE(f.isFailed());
+    EXPECT_EQ(Proof::NETWORK_UMS_MODULE_CODE, f.failureReason().moduleCode);
+    EXPECT_EQ(Proof::NetworkErrorCode::InvalidTokenSignature, f.failureReason().errorCode);
+}
+
+TEST_F(TokensApiTest, fetchTokenWithUnknownSignature)
+{
+    ASSERT_TRUE(serverRunner->serverIsRunning());
+    QByteArray tokenFromFile = dataFromFile(":/data/unknownsig_token.json");
+    ASSERT_FALSE(tokenFromFile.isEmpty());
+    serverRunner->setServerAnswer(tokenFromFile);
+    tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
+
+    auto f = tokensApiUT->fetchToken();
+    f.wait();
+    EXPECT_TRUE(f.isFailed());
+    EXPECT_EQ(Proof::NETWORK_UMS_MODULE_CODE, f.failureReason().moduleCode);
+    EXPECT_EQ(Proof::NetworkErrorCode::InvalidTokenSignature, f.failureReason().errorCode);
+}
+
+TEST_F(TokensApiTest, fetchUnsignedToken)
+{
+    ASSERT_TRUE(serverRunner->serverIsRunning());
+    QByteArray tokenFromFile = dataFromFile(":/data/unsigned_token.json");
+    ASSERT_FALSE(tokenFromFile.isEmpty());
+    serverRunner->setServerAnswer(tokenFromFile);
+    tokenFromFile = QJsonDocument::fromJson(tokenFromFile).object().value("access_token").toString().toUtf8();
+
+    auto f = tokensApiUT->fetchToken();
+    f.wait();
+    EXPECT_TRUE(f.isSucceeded());
+
+    Proof::Ums::UmsTokenInfoSP tokenInfo = f.result();
+    EXPECT_TRUE(tokenInfo->isFetched());
+    EXPECT_TRUE(tokenInfo->user()->isFetched());
+    EXPECT_EQ("testuser@test_company.com", tokenInfo->user()->userName());
+    EXPECT_EQ(QString(tokenFromFile), tokenInfo->token());
 }

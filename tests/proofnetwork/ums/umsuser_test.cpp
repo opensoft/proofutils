@@ -62,6 +62,8 @@ TEST_F(UmsUserTest, fromJson)
     EXPECT_EQ("vadim.petrunin@farheap.com", tokenInfoUT->user()->email());
     EXPECT_EQ("vadim.petrunin@farheap.com", qmlWrapperUT->user()->email());
 
+    EXPECT_EQ("token1", tokenInfoUT->token());
+    EXPECT_EQ("token1", qmlWrapperUT->token());
     EXPECT_EQ("1.0", tokenInfoUT->version());
     EXPECT_EQ("1.0", qmlWrapperUT->version());
     EXPECT_EQ((uint)1476782390, tokenInfoUT->expiresAt().toSecsSinceEpoch());
@@ -95,6 +97,7 @@ TEST_F(UmsUserTest, updateFrom)
     EXPECT_EQ(tokenInfoUT2->user()->fullName(), tokenInfoUT->user()->fullName());
     EXPECT_EQ(tokenInfoUT2->user()->email(), tokenInfoUT->user()->email());
 
+    EXPECT_EQ(tokenInfoUT2->token(), tokenInfoUT->token());
     EXPECT_EQ(tokenInfoUT2->version(), tokenInfoUT->version());
     EXPECT_EQ(tokenInfoUT2->expiresAt(), tokenInfoUT->expiresAt());
     EXPECT_EQ(tokenInfoUT2->validFrom(), tokenInfoUT->validFrom());
