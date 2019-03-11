@@ -27,6 +27,4 @@
 
 #include "proofcore/basic_package.h"
 
-#include "proofnetwork/apicall.h"
-
 #endif // PROOFUTILS_BASIC_PACKAGE_H
