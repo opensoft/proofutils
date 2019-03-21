@@ -55,6 +55,7 @@ PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, double, height)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, QString, source)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, int, pageCount)
 PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, bool, hasPreview)
+PROOF_NDE_WRAPPER_PROPERTY_IMPL_R(Job, bool, hasBackSide)
 
 WorkflowStatus JobQmlWrapper::workflowStatus(WorkflowAction action, PaperSide paperSide) const
 {
@@ -77,6 +78,7 @@ void JobQmlWrapper::setupEntity(const QSharedPointer<NetworkDataEntity> &old)
     connect(job.data(), &Job::sourceChanged, this, &JobQmlWrapper::sourceChanged);
     connect(job.data(), &Job::pageCountChanged, this, &JobQmlWrapper::pageCountChanged);
     connect(job.data(), &Job::hasPreviewChanged, this, &JobQmlWrapper::hasPreviewChanged);
+    connect(job.data(), &Job::hasBackSideChanged, this, &JobQmlWrapper::hasBackSideChanged);
     connect(job.data(), &Job::workflowChanged, this, &JobQmlWrapper::workflowChanged);
 
     JobSP oldJob = qSharedPointerCast<Job>(old);
@@ -97,6 +99,8 @@ void JobQmlWrapper::setupEntity(const QSharedPointer<NetworkDataEntity> &old)
             emit sourceChanged(job->source());
         if (job->hasPreview() != oldJob->hasPreview())
             emit hasPreviewChanged(job->hasPreview());
+        if (job->hasBackSide() != oldJob->hasBackSide())
+            emit hasBackSideChanged(job->hasBackSide());
     }
     emit workflowChanged();
 }

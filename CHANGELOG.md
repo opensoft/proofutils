@@ -4,7 +4,7 @@ ProofUtils Changelog
 
 ## Not Released
 #### Features
- * --
+ * Utils: Job::hasBackSide property added
 
 #### Bug Fixing
  * --
