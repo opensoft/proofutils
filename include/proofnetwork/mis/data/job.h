@@ -56,6 +56,7 @@ public:
     QString source() const;
     int pageCount() const;
     bool hasPreview() const;
+    bool hasBackSide() const;
     void setWorkflowStatus(WorkflowAction action, WorkflowStatus status, PaperSide paperSide = PaperSide::NotSetSide);
     WorkflowStatus workflowStatus(WorkflowAction action, PaperSide paperSide = PaperSide::NotSetSide) const;
 
@@ -67,6 +68,7 @@ public:
     void setSource(const QString &source);
     void setPageCount(int pageCount);
     void setHasPreview(bool hasPreview);
+    void setHasBackSide(bool hasBackSide);
     void setWorkflow(const QVector<WorkflowElement> &workflow);
 
     JobQmlWrapper *toQmlWrapper(QObject *parent = nullptr) const override;
@@ -89,6 +91,7 @@ signals:
     void sourceChanged(const QString &arg);
     void pageCountChanged(int arg);
     void hasPreviewChanged(bool arg);
+    void hasBackSideChanged(bool arg);
     void workflowChanged();
 
 protected:

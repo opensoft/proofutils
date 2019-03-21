@@ -46,6 +46,7 @@ class JobPrivate : NetworkDataEntityPrivate
     QString source;
     int pageCount = 0;
     bool hasPreview = false;
+    bool hasBackSide = false;
     QVector<WorkflowElement> workflow;
 };
 
@@ -111,6 +112,12 @@ bool Job::hasPreview() const
 {
     Q_D_CONST(Job);
     return d->hasPreview;
+}
+
+bool Job::hasBackSide() const
+{
+    Q_D_CONST(Job);
+    return d->hasBackSide;
 }
 
 void JobPrivate::setId(const QString &arg)
@@ -194,6 +201,15 @@ void Job::setHasPreview(bool hasPreview)
     }
 }
 
+void Job::setHasBackSide(bool hasBackSide)
+{
+    Q_D(Job);
+    if (d->hasBackSide != hasBackSide) {
+        d->hasBackSide = hasBackSide;
+        emit hasBackSideChanged(hasBackSide);
+    }
+}
+
 void Job::setWorkflow(const QVector<WorkflowElement> &workflow)
 {
     Q_D(Job);
@@ -272,6 +288,7 @@ QJsonObject Job::toJson() const
     json.insert(QStringLiteral("source"), source());
     json.insert(QStringLiteral("page_count"), pageCount());
     json.insert(QStringLiteral("has_preview"), hasPreview());
+    json.insert(QStringLiteral("has_back_side"), hasBackSide());
 
     QJsonArray workflowArray;
     for (const auto &workflowElement : qAsConst(d->workflow))
@@ -309,6 +326,7 @@ JobSP Job::fromJson(const QJsonObject &json)
     job->setSource(json.value(QStringLiteral("source")).toString());
     job->setPageCount(json.value(QStringLiteral("page_count")).toInt());
     job->setHasPreview(json.value(QStringLiteral("has_preview")).toBool());
+    job->setHasBackSide(json.value(QStringLiteral("has_back_side")).toBool());
     job->setWorkflow(algorithms::map(json.value(QStringLiteral("workflow")).toArray(),
                                      [](const auto &value) { return WorkflowElement(value.toString()); },
                                      QVector<WorkflowElement>()));
@@ -338,6 +356,7 @@ void Job::updateSelf(const Proof::NetworkDataEntitySP &other)
     setWorkflow(castedOther->d_func()->workflow);
     setPageCount(castedOther->pageCount());
     setHasPreview(castedOther->hasPreview());
+    setHasBackSide(castedOther->hasBackSide());
 
     NetworkDataEntity::updateSelf(other);
 }

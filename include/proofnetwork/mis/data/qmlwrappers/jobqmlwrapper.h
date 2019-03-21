@@ -48,6 +48,7 @@ class PROOF_NETWORK_MIS_EXPORT JobQmlWrapper : public NetworkDataEntityQmlWrappe
     Q_PROPERTY(QString source READ source NOTIFY sourceChanged)
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
     Q_PROPERTY(bool hasPreview READ hasPreview NOTIFY hasPreviewChanged)
+    Q_PROPERTY(bool hasBackSide READ hasBackSide NOTIFY hasBackSideChanged)
     Q_DECLARE_PRIVATE(JobQmlWrapper)
 public:
     explicit JobQmlWrapper(const JobSP &job, QObject *parent = nullptr);
@@ -63,6 +64,7 @@ public:
     QString source() const;
     int pageCount() const;
     bool hasPreview() const;
+    bool hasBackSide() const;
     Q_INVOKABLE Proof::Mis::WorkflowStatus
     workflowStatus(Proof::Mis::WorkflowAction action,
                    Proof::Mis::PaperSide paperSide = Proof::Mis::PaperSide::NotSetSide) const;
@@ -77,6 +79,7 @@ signals:
     void sourceChanged(const QString &source);
     void pageCountChanged(int pageCount);
     void hasPreviewChanged(bool hasPreview);
+    void hasBackSideChanged(bool hasBackSide);
     void workflowChanged();
 
 protected:

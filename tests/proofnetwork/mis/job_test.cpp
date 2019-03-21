@@ -106,6 +106,8 @@ TEST_F(JobTest, fromJson)
     EXPECT_EQ(EntityStatus::ValidEntity, qmlWrapperUT->status());
     EXPECT_TRUE(jobUT->hasPreview());
     EXPECT_TRUE(qmlWrapperUT->hasPreview());
+    EXPECT_TRUE(jobUT->hasBackSide());
+    EXPECT_TRUE(qmlWrapperUT->hasBackSide());
     EXPECT_EQ(10, jobUT->pageCount());
     EXPECT_EQ(10, qmlWrapperUT->pageCount());
 }
@@ -123,6 +125,7 @@ TEST_F(JobTest, toJson)
     EXPECT_EQ(WorkflowStatus::NeedsStatus, job->workflowStatus(WorkflowAction::BoxingAction));
     EXPECT_EQ(EntityStatus::ValidEntity, job->status());
     EXPECT_TRUE(job->hasPreview());
+    EXPECT_TRUE(job->hasBackSide());
     EXPECT_EQ(10, job->pageCount());
 }
 
@@ -135,6 +138,7 @@ TEST_F(JobTest, customJob)
     job->setWidth(1024.0);
     job->setHeight(512.0);
     job->setHasPreview(true);
+    job->setHasBackSide(true);
     job->setWorkflowStatus(WorkflowAction::CuttingAction, WorkflowStatus::IsReadyForStatus);
     job->setStatus(EntityStatus::NotReadyEntity);
     job->setPageCount(5);
@@ -147,6 +151,7 @@ TEST_F(JobTest, customJob)
     EXPECT_EQ(WorkflowStatus::IsReadyForStatus, job->workflowStatus(WorkflowAction::CuttingAction));
     EXPECT_EQ(EntityStatus::NotReadyEntity, job->status());
     EXPECT_TRUE(job->hasPreview());
+    EXPECT_TRUE(job->hasBackSide());
     EXPECT_EQ(5, job->pageCount());
 }
 
@@ -176,6 +181,7 @@ TEST_F(JobTest, updateFrom)
     EXPECT_EQ(jobUT2->source(), jobUT->source());
     EXPECT_EQ(jobUT2->status(), jobUT->status());
     EXPECT_EQ(jobUT2->hasPreview(), jobUT->hasPreview());
+    EXPECT_EQ(jobUT2->hasBackSide(), jobUT->hasBackSide());
     EXPECT_EQ(jobUT2->pageCount(), jobUT->pageCount());
     EXPECT_EQ(jobUT2->workflowStatus(WorkflowAction::CuttingAction),
               jobUT->workflowStatus(WorkflowAction::CuttingAction));
