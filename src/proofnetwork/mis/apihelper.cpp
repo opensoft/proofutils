@@ -24,6 +24,9 @@
  */
 #include "proofnetwork/mis/apihelper.h"
 
+template <typename T>
+using StringDict = QHash<QString, T>;
+
 namespace Proof {
 namespace Mis {
 
@@ -32,141 +35,143 @@ namespace Mis {
  * Helper class for Mis API
  */
 
-static const QHash<QString, EntityStatus> ENTITY_STATUSES = {{"invalid", EntityStatus::InvalidEntity},
-                                                             {"not ready", EntityStatus::NotReadyEntity},
-                                                             {"valid", EntityStatus::ValidEntity},
-                                                             {"deleted", EntityStatus::DeletedEntity}};
+Q_GLOBAL_STATIC_WITH_ARGS(StringDict<EntityStatus>, ENTITY_STATUSES,
+                          ({{"invalid", EntityStatus::InvalidEntity},
+                            {"not ready", EntityStatus::NotReadyEntity},
+                            {"valid", EntityStatus::ValidEntity},
+                            {"deleted", EntityStatus::DeletedEntity}}));
 
-static const QHash<QString, WorkflowStatus> WORKFLOW_STATUSES = {{"needs", WorkflowStatus::NeedsStatus},
-                                                                 {"is ready for", WorkflowStatus::IsReadyForStatus},
-                                                                 {"in progress", WorkflowStatus::InProgressStatus},
-                                                                 {"suspended", WorkflowStatus::SuspendedStatus},
-                                                                 {"done", WorkflowStatus::DoneStatus},
-                                                                 {"halted", WorkflowStatus::HaltedStatus}};
+Q_GLOBAL_STATIC_WITH_ARGS(StringDict<WorkflowStatus>, WORKFLOW_STATUSES,
+                          ({{"needs", WorkflowStatus::NeedsStatus},
+                            {"is ready for", WorkflowStatus::IsReadyForStatus},
+                            {"in progress", WorkflowStatus::InProgressStatus},
+                            {"suspended", WorkflowStatus::SuspendedStatus},
+                            {"done", WorkflowStatus::DoneStatus},
+                            {"halted", WorkflowStatus::HaltedStatus}}));
 
-static const QHash<QString, WorkflowAction> WORKFLOW_ACTIONS =
-    {{"binding", WorkflowAction::BindingAction},
-     {"binning", WorkflowAction::BinningAction},
-     {"blister packing", WorkflowAction::BlisterPackingAction},
-     {"boxing", WorkflowAction::BoxingAction},
-     {"chip boarding", WorkflowAction::ChipBoardingAction},
-     {"clamping", WorkflowAction::ClampingAction},
-     {"color optimizing", WorkflowAction::ColorOptimizingAction},
-     {"component boxing", WorkflowAction::ComponentBoxingAction},
-     {"container packing", WorkflowAction::ContainerPackingAction},
-     {"cutting", WorkflowAction::CuttingAction},
-     {"die cutting", WorkflowAction::DieCuttingAction},
-     {"distribute", WorkflowAction::DistributeAction},
-     {"envelope adding", WorkflowAction::EnvelopeAddingAction},
-     {"folder making", WorkflowAction::FolderMakingAction},
-     {"folding", WorkflowAction::FoldingAction},
-     {"gluing", WorkflowAction::GluingAction},
-     {"inspection", WorkflowAction::InspectionAction},
-     {"laminating", WorkflowAction::LaminatingAction},
-     {"magnetize", WorkflowAction::MagnetizeAction},
-     {"mailing", WorkflowAction::MailingAction},
-     {"mounting", WorkflowAction::MountingAction},
-     {"outsource binding", WorkflowAction::OutsourceBindingAction},
-     {"outsource cutting", WorkflowAction::OutsourceCuttingAction},
-     {"pdf building", WorkflowAction::PdfBuildingAction},
-     {"pdf vt building", WorkflowAction::PdfVtBuildingAction},
-     {"plate making", WorkflowAction::PlateMakingAction},
-     {"pocket adding", WorkflowAction::PocketAddingAction},
-     {"printing", WorkflowAction::PrintingAction},
-     {"qc", WorkflowAction::QcAction},
-     {"rounding", WorkflowAction::RoundingAction},
-     {"scoring", WorkflowAction::ScoringAction},
-     {"screen imaging", WorkflowAction::ScreenImagingAction},
-     {"screen mounting", WorkflowAction::ScreenMountingAction},
-     {"screen preparation", WorkflowAction::ScreenPreparationAction},
-     {"screen washing", WorkflowAction::ScreenWashingAction},
-     {"ship boxing", WorkflowAction::ShipBoxingAction},
-     {"ship label", WorkflowAction::ShipLabelAction},
-     {"shipping", WorkflowAction::ShippingAction},
-     {"splitting", WorkflowAction::SplittingAction},
-     {"staging", WorkflowAction::StagingAction},
-     {"stripping", WorkflowAction::StrippingAction},
-     {"stuffing", WorkflowAction::StuffingAction},
-     {"truck loading", WorkflowAction::TruckLoadingAction},
-     {"uv coating", WorkflowAction::UvCoatingAction},
-     {"uv pdf building", WorkflowAction::UvPdfBuildingAction}};
+Q_GLOBAL_STATIC_WITH_ARGS(StringDict<WorkflowAction>, WORKFLOW_ACTIONS,
+                          ({{"binding", WorkflowAction::BindingAction},
+                            {"binning", WorkflowAction::BinningAction},
+                            {"blister packing", WorkflowAction::BlisterPackingAction},
+                            {"boxing", WorkflowAction::BoxingAction},
+                            {"chip boarding", WorkflowAction::ChipBoardingAction},
+                            {"clamping", WorkflowAction::ClampingAction},
+                            {"color optimizing", WorkflowAction::ColorOptimizingAction},
+                            {"component boxing", WorkflowAction::ComponentBoxingAction},
+                            {"container packing", WorkflowAction::ContainerPackingAction},
+                            {"cutting", WorkflowAction::CuttingAction},
+                            {"die cutting", WorkflowAction::DieCuttingAction},
+                            {"distribute", WorkflowAction::DistributeAction},
+                            {"envelope adding", WorkflowAction::EnvelopeAddingAction},
+                            {"folder making", WorkflowAction::FolderMakingAction},
+                            {"folding", WorkflowAction::FoldingAction},
+                            {"gluing", WorkflowAction::GluingAction},
+                            {"inspection", WorkflowAction::InspectionAction},
+                            {"laminating", WorkflowAction::LaminatingAction},
+                            {"magnetize", WorkflowAction::MagnetizeAction},
+                            {"mailing", WorkflowAction::MailingAction},
+                            {"mounting", WorkflowAction::MountingAction},
+                            {"outsource binding", WorkflowAction::OutsourceBindingAction},
+                            {"outsource cutting", WorkflowAction::OutsourceCuttingAction},
+                            {"pdf building", WorkflowAction::PdfBuildingAction},
+                            {"pdf vt building", WorkflowAction::PdfVtBuildingAction},
+                            {"plate making", WorkflowAction::PlateMakingAction},
+                            {"pocket adding", WorkflowAction::PocketAddingAction},
+                            {"printing", WorkflowAction::PrintingAction},
+                            {"qc", WorkflowAction::QcAction},
+                            {"rounding", WorkflowAction::RoundingAction},
+                            {"scoring", WorkflowAction::ScoringAction},
+                            {"screen imaging", WorkflowAction::ScreenImagingAction},
+                            {"screen mounting", WorkflowAction::ScreenMountingAction},
+                            {"screen preparation", WorkflowAction::ScreenPreparationAction},
+                            {"screen washing", WorkflowAction::ScreenWashingAction},
+                            {"ship boxing", WorkflowAction::ShipBoxingAction},
+                            {"ship label", WorkflowAction::ShipLabelAction},
+                            {"shipping", WorkflowAction::ShippingAction},
+                            {"splitting", WorkflowAction::SplittingAction},
+                            {"staging", WorkflowAction::StagingAction},
+                            {"stripping", WorkflowAction::StrippingAction},
+                            {"stuffing", WorkflowAction::StuffingAction},
+                            {"truck loading", WorkflowAction::TruckLoadingAction},
+                            {"uv coating", WorkflowAction::UvCoatingAction},
+                            {"uv pdf building", WorkflowAction::UvPdfBuildingAction}}));
 
-static const QHash<QString, TransitionEvent> TRANSITION_EVENTS = {{"start", TransitionEvent::StartEvent},
-                                                                  {"stop", TransitionEvent::StopEvent},
-                                                                  {"abort", TransitionEvent::AbortEvent},
-                                                                  {"suspend", TransitionEvent::SuspendEvent},
-                                                                  {"resume", TransitionEvent::ResumeEvent},
-                                                                  {"perform", TransitionEvent::PerformEvent},
-                                                                  {"revert", TransitionEvent::RevertEvent},
-                                                                  {"request", TransitionEvent::RequestEvent}};
+Q_GLOBAL_STATIC_WITH_ARGS(StringDict<TransitionEvent>, TRANSITION_EVENTS,
+                          ({{"start", TransitionEvent::StartEvent},
+                            {"stop", TransitionEvent::StopEvent},
+                            {"abort", TransitionEvent::AbortEvent},
+                            {"suspend", TransitionEvent::SuspendEvent},
+                            {"resume", TransitionEvent::ResumeEvent},
+                            {"perform", TransitionEvent::PerformEvent},
+                            {"revert", TransitionEvent::RevertEvent},
+                            {"request", TransitionEvent::RequestEvent}}));
 
-static const QHash<QString, PaperSide> PAPER_SIDES = {{"", PaperSide::NotSetSide},
-                                                      {"front", PaperSide::FrontSide},
-                                                      {"back", PaperSide::BackSide}};
+Q_GLOBAL_STATIC_WITH_ARGS(StringDict<PaperSide>, PAPER_SIDES,
+                          ({{"", PaperSide::NotSetSide}, {"front", PaperSide::FrontSide}, {"back", PaperSide::BackSide}}));
 
 QString entityStatusToString(EntityStatus status)
 {
-    return ENTITY_STATUSES.key(status, QString());
+    return ENTITY_STATUSES->key(status, QString());
 }
 
 QString workflowStatusToString(WorkflowStatus status)
 {
-    return WORKFLOW_STATUSES.key(status, QString());
+    return WORKFLOW_STATUSES->key(status, QString());
 }
 
 QString workflowActionToString(WorkflowAction action)
 {
-    return WORKFLOW_ACTIONS.key(action, QString());
+    return WORKFLOW_ACTIONS->key(action, QString());
 }
 
 QString transitionEventToString(TransitionEvent event)
 {
-    return TRANSITION_EVENTS.key(event, QString());
+    return TRANSITION_EVENTS->key(event, QString());
 }
 
 QString paperSideToString(PaperSide side)
 {
-    return PAPER_SIDES.key(side, QString());
+    return PAPER_SIDES->key(side, QString());
 }
 
 EntityStatus entityStatusFromString(QString statusString, bool *ok)
 {
     statusString = statusString.toLower();
     if (ok != nullptr)
-        *ok = ENTITY_STATUSES.contains(statusString);
-    return ENTITY_STATUSES.value(statusString, EntityStatus::InvalidEntity);
+        *ok = ENTITY_STATUSES->contains(statusString);
+    return ENTITY_STATUSES->value(statusString, EntityStatus::InvalidEntity);
 }
 
 WorkflowStatus workflowStatusFromString(QString statusString, bool *ok)
 {
     statusString = statusString.toLower();
     if (ok != nullptr)
-        *ok = WORKFLOW_STATUSES.contains(statusString);
-    return WORKFLOW_STATUSES.value(statusString, WorkflowStatus::UnknownStatus);
+        *ok = WORKFLOW_STATUSES->contains(statusString);
+    return WORKFLOW_STATUSES->value(statusString, WorkflowStatus::UnknownStatus);
 }
 
 WorkflowAction workflowActionFromString(QString actionString, bool *ok)
 {
     actionString = actionString.toLower();
     if (ok != nullptr)
-        *ok = WORKFLOW_ACTIONS.contains(actionString);
-    return WORKFLOW_ACTIONS.value(actionString, WorkflowAction::UnknownAction);
+        *ok = WORKFLOW_ACTIONS->contains(actionString);
+    return WORKFLOW_ACTIONS->value(actionString, WorkflowAction::UnknownAction);
 }
 
 TransitionEvent transitionEventFromString(QString eventString, bool *ok)
 {
     eventString = eventString.toLower();
     if (ok != nullptr)
-        *ok = TRANSITION_EVENTS.contains(eventString);
-    return TRANSITION_EVENTS.value(eventString, TransitionEvent::UnknownEvent);
+        *ok = TRANSITION_EVENTS->contains(eventString);
+    return TRANSITION_EVENTS->value(eventString, TransitionEvent::UnknownEvent);
 }
 
 PaperSide paperSideFromString(QString sideString, bool *ok)
 {
     sideString = sideString.toLower();
     if (ok != nullptr)
-        *ok = PAPER_SIDES.contains(sideString);
-    return PAPER_SIDES.value(sideString, PaperSide::NotSetSide);
+        *ok = PAPER_SIDES->contains(sideString);
+    return PAPER_SIDES->value(sideString, PaperSide::NotSetSide);
 }
 
 WorkflowStatus workflowStatusAfterTransitionEvent(Proof::Mis::TransitionEvent event)
