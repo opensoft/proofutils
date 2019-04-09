@@ -30,12 +30,14 @@
 using namespace Proof;
 
 using ModeDict = QHash<QrCodeGenerator::Mode, QRencodeMode>;
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 Q_GLOBAL_STATIC_WITH_ARGS(ModeDict, MODE_CONVERTOR,
                           ({{QrCodeGenerator::Mode::Numeric, QR_MODE_NUM},
                             {QrCodeGenerator::Mode::AlphaNumeric, QR_MODE_AN},
                             {QrCodeGenerator::Mode::Character, QR_MODE_8}}))
 
 using CorrectionDict = QHash<QrCodeGenerator::ErrorCorrection, QRecLevel>;
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 Q_GLOBAL_STATIC_WITH_ARGS(CorrectionDict, ERROR_CORRECTION_CONVERTOR,
                           ({{QrCodeGenerator::ErrorCorrection::LowLevel, QR_ECLEVEL_L},
                             {QrCodeGenerator::ErrorCorrection::MediumLevel, QR_ECLEVEL_M},

@@ -35,12 +35,14 @@ namespace Mis {
  * Helper class for Mis API
  */
 
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 Q_GLOBAL_STATIC_WITH_ARGS(StringDict<EntityStatus>, ENTITY_STATUSES,
                           ({{"invalid", EntityStatus::InvalidEntity},
                             {"not ready", EntityStatus::NotReadyEntity},
                             {"valid", EntityStatus::ValidEntity},
                             {"deleted", EntityStatus::DeletedEntity}}));
 
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 Q_GLOBAL_STATIC_WITH_ARGS(StringDict<WorkflowStatus>, WORKFLOW_STATUSES,
                           ({{"needs", WorkflowStatus::NeedsStatus},
                             {"is ready for", WorkflowStatus::IsReadyForStatus},
@@ -49,6 +51,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(StringDict<WorkflowStatus>, WORKFLOW_STATUSES,
                             {"done", WorkflowStatus::DoneStatus},
                             {"halted", WorkflowStatus::HaltedStatus}}));
 
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 Q_GLOBAL_STATIC_WITH_ARGS(StringDict<WorkflowAction>, WORKFLOW_ACTIONS,
                           ({{"binding", WorkflowAction::BindingAction},
                             {"binning", WorkflowAction::BinningAction},
@@ -96,6 +99,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(StringDict<WorkflowAction>, WORKFLOW_ACTIONS,
                             {"uv coating", WorkflowAction::UvCoatingAction},
                             {"uv pdf building", WorkflowAction::UvPdfBuildingAction}}));
 
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 Q_GLOBAL_STATIC_WITH_ARGS(StringDict<TransitionEvent>, TRANSITION_EVENTS,
                           ({{"start", TransitionEvent::StartEvent},
                             {"stop", TransitionEvent::StopEvent},
@@ -106,6 +110,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(StringDict<TransitionEvent>, TRANSITION_EVENTS,
                             {"revert", TransitionEvent::RevertEvent},
                             {"request", TransitionEvent::RequestEvent}}));
 
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 Q_GLOBAL_STATIC_WITH_ARGS(StringDict<PaperSide>, PAPER_SIDES,
                           ({{"", PaperSide::NotSetSide}, {"front", PaperSide::FrontSide}, {"back", PaperSide::BackSide}}));
 

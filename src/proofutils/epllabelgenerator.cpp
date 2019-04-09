@@ -59,6 +59,7 @@ uint qHash(EplLabelGenerator::BarcodeType barcodeType, uint seed = 0)
 using namespace Proof;
 
 using BarcodeTypesDict = QHash<EplLabelGenerator::BarcodeType, QString>;
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 Q_GLOBAL_STATIC_WITH_ARGS(BarcodeTypesDict, STRINGIFIED_BARCODE_TYPES,
                           ({{EplLabelGenerator::BarcodeType::Code39, "3"},
                             {EplLabelGenerator::BarcodeType::Code39WithCheckDigit, "3C"},
