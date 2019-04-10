@@ -29,16 +29,20 @@
 
 using namespace Proof;
 
-static const QHash<QrCodeGenerator::Mode, QRencodeMode> MODE_CONVERTOR = {{QrCodeGenerator::Mode::Numeric, QR_MODE_NUM},
-                                                                          {QrCodeGenerator::Mode::AlphaNumeric,
-                                                                           QR_MODE_AN},
-                                                                          {QrCodeGenerator::Mode::Character, QR_MODE_8}};
+using ModeDict = QHash<QrCodeGenerator::Mode, QRencodeMode>;
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
+Q_GLOBAL_STATIC_WITH_ARGS(ModeDict, MODE_CONVERTOR,
+                          ({{QrCodeGenerator::Mode::Numeric, QR_MODE_NUM},
+                            {QrCodeGenerator::Mode::AlphaNumeric, QR_MODE_AN},
+                            {QrCodeGenerator::Mode::Character, QR_MODE_8}}))
 
-static const QHash<QrCodeGenerator::ErrorCorrection, QRecLevel> ERROR_CORRECTION_CONVERTOR =
-    {{QrCodeGenerator::ErrorCorrection::LowLevel, QR_ECLEVEL_L},
-     {QrCodeGenerator::ErrorCorrection::MediumLevel, QR_ECLEVEL_M},
-     {QrCodeGenerator::ErrorCorrection::QuartileLevel, QR_ECLEVEL_Q},
-     {QrCodeGenerator::ErrorCorrection::HighLevel, QR_ECLEVEL_H}};
+using CorrectionDict = QHash<QrCodeGenerator::ErrorCorrection, QRecLevel>;
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
+Q_GLOBAL_STATIC_WITH_ARGS(CorrectionDict, ERROR_CORRECTION_CONVERTOR,
+                          ({{QrCodeGenerator::ErrorCorrection::LowLevel, QR_ECLEVEL_L},
+                            {QrCodeGenerator::ErrorCorrection::MediumLevel, QR_ECLEVEL_M},
+                            {QrCodeGenerator::ErrorCorrection::QuartileLevel, QR_ECLEVEL_Q},
+                            {QrCodeGenerator::ErrorCorrection::HighLevel, QR_ECLEVEL_H}}))
 
 namespace {
 struct QrCodeData
@@ -50,8 +54,8 @@ struct QrCodeData
 QrCodeData generateRawQrCode(const QString &string, QrCodeGenerator::Mode mode,
                              QrCodeGenerator::ErrorCorrection errorCorrection)
 {
-    auto result = QRcode_encodeString(string.toLatin1().constData(), 0, ERROR_CORRECTION_CONVERTOR[errorCorrection],
-                                      MODE_CONVERTOR[mode], 1);
+    auto result = QRcode_encodeString(string.toLatin1().constData(), 0, (*ERROR_CORRECTION_CONVERTOR)[errorCorrection],
+                                      (*MODE_CONVERTOR)[mode], 1);
     QrCodeData data;
     data.width = result->width;
     data.data = QByteArray(reinterpret_cast<char *>(result->data), data.width * data.width);
