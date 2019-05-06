@@ -164,7 +164,6 @@ bool TokensApiPrivate::verifyToken(const QByteArrayList &tokenList)
         QJsonObject header = QJsonDocument::fromJson(QByteArray::fromBase64(tokenList[0])).object();
         QString algorithm = header.value(QStringLiteral("alg")).toString(QStringLiteral("none")).toLower();
 
-        //TODO: add HS256 support if ever will be needed
         if (algorithm == QLatin1String("rs256")) {
             QByteArray signature = tokenList.count() == 3
                                        ? QByteArray::fromBase64(tokenList[2], QByteArray::Base64UrlEncoding)
