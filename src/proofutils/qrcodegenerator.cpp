@@ -78,7 +78,7 @@ QImage generateBitmap(const QrCodeData &rawData, int width)
     QTransform transform;
     transform.scale((double)width / rawData.width, (double)width / rawData.width);
     image = image.transformed(transform);
-    int resultWidth = width + ((width + 8) % 8);
+    int resultWidth = ((width + 7) / 8) * 8;
 
     QImage resultImage(QSize(resultWidth, resultWidth), QImage::Format_MonoLSB);
     resultImage.fill(1);
