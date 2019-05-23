@@ -234,7 +234,7 @@ QRect EplLabelGenerator::addQrCode(const QString &data, int x, int y, int width)
 {
     Q_D(EplLabelGenerator);
     auto rawBinary = QrCodeGenerator::generateEplBinaryData(data, width);
-    width = width + ((width + 8) % 8);
+    width = ((width + 7) / 8) * 8;
 
     d->lastLabel.append(QStringLiteral("GW%1,%2,%3,%4,").arg(x).arg(y).arg(width / 8).arg(width));
     d->lastLabel.append(rawBinary);
