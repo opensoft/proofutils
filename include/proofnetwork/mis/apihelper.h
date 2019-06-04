@@ -134,11 +134,11 @@ PROOF_NETWORK_MIS_EXPORT QString workflowActionToString(WorkflowAction action);
 PROOF_NETWORK_MIS_EXPORT QString transitionEventToString(TransitionEvent event);
 PROOF_NETWORK_MIS_EXPORT QString paperSideToString(PaperSide side);
 
-PROOF_NETWORK_MIS_EXPORT EntityStatus entityStatusFromString(QString statusString, bool *ok = nullptr);
-PROOF_NETWORK_MIS_EXPORT WorkflowStatus workflowStatusFromString(QString statusString, bool *ok = nullptr);
-PROOF_NETWORK_MIS_EXPORT WorkflowAction workflowActionFromString(QString actionString, bool *ok = nullptr);
-PROOF_NETWORK_MIS_EXPORT TransitionEvent transitionEventFromString(QString eventString, bool *ok = nullptr);
-PROOF_NETWORK_MIS_EXPORT PaperSide paperSideFromString(QString sideString, bool *ok = nullptr);
+PROOF_NETWORK_MIS_EXPORT EntityStatus entityStatusFromString(const QString &statusString);
+PROOF_NETWORK_MIS_EXPORT WorkflowStatus workflowStatusFromString(const QString &statusString);
+PROOF_NETWORK_MIS_EXPORT WorkflowAction workflowActionFromString(const QString &actionString);
+PROOF_NETWORK_MIS_EXPORT TransitionEvent transitionEventFromString(const QString &eventString);
+PROOF_NETWORK_MIS_EXPORT PaperSide paperSideFromString(const QString &sideString);
 
 PROOF_NETWORK_MIS_EXPORT WorkflowStatus workflowStatusAfterTransitionEvent(Proof::Mis::TransitionEvent event);
 
