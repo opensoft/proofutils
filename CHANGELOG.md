@@ -3,7 +3,7 @@ ProofUtils Changelog
 
 ## Not Released
 #### Features
- * --
+ * `bool *ok` parameter removed from enum helper methods
 
 #### Bug Fixing
  * --

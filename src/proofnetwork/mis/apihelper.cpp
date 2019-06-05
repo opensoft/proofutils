@@ -139,44 +139,29 @@ QString paperSideToString(PaperSide side)
     return PAPER_SIDES->key(side, QString());
 }
 
-EntityStatus entityStatusFromString(QString statusString, bool *ok)
+EntityStatus entityStatusFromString(const QString &statusString)
 {
-    statusString = statusString.toLower();
-    if (ok != nullptr)
-        *ok = ENTITY_STATUSES->contains(statusString);
-    return ENTITY_STATUSES->value(statusString, EntityStatus::InvalidEntity);
+    return ENTITY_STATUSES->value(statusString.toLower(), EntityStatus::InvalidEntity);
 }
 
-WorkflowStatus workflowStatusFromString(QString statusString, bool *ok)
+WorkflowStatus workflowStatusFromString(const QString &statusString)
 {
-    statusString = statusString.toLower();
-    if (ok != nullptr)
-        *ok = WORKFLOW_STATUSES->contains(statusString);
-    return WORKFLOW_STATUSES->value(statusString, WorkflowStatus::UnknownStatus);
+    return WORKFLOW_STATUSES->value(statusString.toLower(), WorkflowStatus::UnknownStatus);
 }
 
-WorkflowAction workflowActionFromString(QString actionString, bool *ok)
+WorkflowAction workflowActionFromString(const QString &actionString)
 {
-    actionString = actionString.toLower();
-    if (ok != nullptr)
-        *ok = WORKFLOW_ACTIONS->contains(actionString);
-    return WORKFLOW_ACTIONS->value(actionString, WorkflowAction::UnknownAction);
+    return WORKFLOW_ACTIONS->value(actionString.toLower(), WorkflowAction::UnknownAction);
 }
 
-TransitionEvent transitionEventFromString(QString eventString, bool *ok)
+TransitionEvent transitionEventFromString(const QString &eventString)
 {
-    eventString = eventString.toLower();
-    if (ok != nullptr)
-        *ok = TRANSITION_EVENTS->contains(eventString);
     return TRANSITION_EVENTS->value(eventString, TransitionEvent::UnknownEvent);
 }
 
-PaperSide paperSideFromString(QString sideString, bool *ok)
+PaperSide paperSideFromString(const QString &sideString)
 {
-    sideString = sideString.toLower();
-    if (ok != nullptr)
-        *ok = PAPER_SIDES->contains(sideString);
-    return PAPER_SIDES->value(sideString, PaperSide::NotSetSide);
+    return PAPER_SIDES->value(sideString.toLower(), PaperSide::NotSetSide);
 }
 
 WorkflowStatus workflowStatusAfterTransitionEvent(Proof::Mis::TransitionEvent event)
